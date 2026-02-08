@@ -17,21 +17,21 @@ interface GlossaryTerm {
   updated_at: string
 }
 
-type CategoryType = 'All' | 'Legal Terms' | 'Acronyms' | 'Roles' | 'Process' | 'General'
+type CategoryType = 'All' | 'legal' | 'acronym' | 'role' | 'process' | 'general'
 
-const CATEGORIES: CategoryType[] = ['All', 'Legal Terms', 'Acronyms', 'Roles', 'Process', 'General']
+const CATEGORIES: CategoryType[] = ['All', 'legal', 'acronym', 'role', 'process', 'general']
 
 const getCategoryColor = (category: string) => {
   switch (category) {
-    case 'Legal Terms':
+    case 'legal':
       return 'bg-purple-100 text-purple-700'
-    case 'Acronyms':
+    case 'acronym':
       return 'bg-blue-100 text-blue-700'
-    case 'Roles':
+    case 'role':
       return 'bg-green-100 text-green-700'
-    case 'Process':
+    case 'process':
       return 'bg-amber-100 text-amber-700'
-    case 'General':
+    case 'general':
       return 'bg-gray-100 text-gray-700'
     default:
       return 'bg-gray-100 text-gray-700'
