@@ -168,7 +168,27 @@ export function Legal() {
           <p className="text-gray-600">California dependency law and your rights</p>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 mb-6">
+     <div className="grid grid-cols-1 gap-4 mb-6">
+          <Card 
+            className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 cursor-pointer hover:shadow-md transition-shadow"
+            onClick={() => navigate('/glossary')}
+          >
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0">
+                <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+                  <Search className="w-6 h-6 text-white" />
+                </div>
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-lg font-bold text-gray-900 mb-1">Glossary</h3>
+                <p className="text-sm text-gray-700">
+                  Look up legal terms and definitions
+                </p>
+              </div>
+              <ChevronDown className="w-5 h-5 text-gray-400 flex-shrink-0" />
+            </div>
+          </Card>
+
           <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200 cursor-pointer hover:shadow-md transition-shadow">
             <div className="flex items-start gap-4">
               <div className="flex-shrink-0">
