@@ -72,7 +72,7 @@ export function Glossary() {
     }
   }
 
-  const filterTerms = () => {
+ const filterTerms = () => {
     let filtered = terms
 
     if (selectedCategory !== 'All') {
@@ -83,12 +83,15 @@ export function Glossary() {
       const query = searchQuery.toLowerCase()
       filtered = filtered.filter(
         (term) =>
-          term.term.toLowerCase().includes(query) ||
-          term.definition.toLowerCase().includes(query) ||
-          term.spanish_term.toLowerCase().includes(query) ||
-          term.category.toLowerCase().includes(query)
+          (term.term && term.term.toLowerCase().includes(query)) ||
+          (term.definition && term.definition.toLowerCase().includes(query)) ||
+          (term.spanish_term && term.spanish_term.toLowerCase().includes(query)) ||
+          (term.category && term.category.toLowerCase().includes(query))
       )
     }
+
+    setFilteredTerms(filtered)
+  }
 
     setFilteredTerms(filtered)
   }
