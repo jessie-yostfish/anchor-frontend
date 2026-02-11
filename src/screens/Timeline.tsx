@@ -415,12 +415,17 @@ export function Timeline() {
     )
   }
 
-  const ListView = () => (
-    <div className="space-y-2">
-      {stages.map((stage) => {
-        const Icon = getStageIcon(stage.icon_name || 'FolderOpen')
-        return (
-          <Card key={stage.id} className="flex items-center justify-between">
+const ListView = () => (
+  <div className="space-y-2">
+    {stages.map((stage) => {
+      const Icon = getStageIcon(stage.icon_name || 'FolderOpen')
+      const isExpanded = expandedStage === stage.id
+      const { completed, total } = getCompletedTaskCount(stage)
+      const stageTasks = stage.tasks || []
+
+      return (
+        <div key={stage.id}>
+          <Card className="flex items-center justify-between">
             <div className="flex items-center gap-3 flex-1">
               <div className={`p-2 rounded-lg ${stage.status === 'completed' ? 'bg-green-100' : stage.status === 'in_progress' ? 'bg-purple-100' : 'bg-gray-100'}`}>
                 <Icon className={`w-5 h-5 ${stage.status === 'completed' ? 'text-green-600' : stage.status === 'in_progress' ? 'text-purple-600' : 'text-gray-600'}`} />
@@ -439,116 +444,131 @@ export function Timeline() {
               <button
                 onClick={() => {
                   haptics.light()
-                  setExpandedStage(stage.id)
+                  setExpandedStage(isExpanded ? null : stage.id)
                 }}
                 className="text-gray-400 hover:text-gray-600"
               >
-                <ChevronDown className="w-5 h-5" />
+                {isExpanded ? (
+                  <ChevronUp className="w-5 h-5" />
+                ) : (
+                  <ChevronDown className="w-5 h-5" />
+                )}
               </button>
             </div>
           </Card>
-        )
-      })}
-    </div>
-  )
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto" />
-          <p className="mt-4 text-gray-600">Loading your timeline...</p>
+          {isExpanded && (
+            <Card className="mt-2 ml-4">
+              <div className="space-y-6">
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="flex items-start gap-2 mb-3">
+                    <Calendar className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                      <label className="block text-xs font-semibold text-gray-700 mb-2">
+                        COURT DATE
+                      </label>
+                      <input
+                        type="date"
+                        value={stage.court_date || ''}
+                        onChange={(e) => updateCourtDate(stage.id, e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {stage.what_happens && (
+                  <div>
+                    <div className="flex items-start gap-2 mb-3">
+                      <FileText className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                      <h4 className="text-sm font-bold text-gray-900">WHAT HAPPENS</h4>
+                    </div>
+                    <div className="ml-7">
+                      <p className="text-sm text-gray-700 leading-relaxed">{stage.what_happens}</p>
+                    </div>
+                  </div>
+                )}
+
+                {stage.your_rights && stage.your_rights.length > 0 && (
+                  <div>
+                    <div className="flex items-start gap-2 mb-3">
+                      <Star className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                      <h4 className="text-sm font-bold text-gray-900">YOUR RIGHTS</h4>
+                    </div>
+                    <div className="flex flex-wrap gap-2 ml-7">
+                      {stage.your_rights.map((right, index) => (
+                        <button
+                          key={index}
+                          onClick={() => {
+                            haptics.light()
+                            navigate('/legal')
+                          }}
+                          className="px-3 py-2 bg-purple-100 text-purple-700 rounded-full text-xs font-semibold hover:bg-purple-200 transition-colors"
+                        >
+                          {right}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {stageTasks.length > 0 && (
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-start gap-2">
+                        <CheckSquare className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                        <h4 className="text-sm font-bold text-gray-900">
+                          DO NOW <span className="text-gray-600 font-normal">({completed}/{total} COMPLETED)</span>
+                        </h4>
+                      </div>
+                    </div>
+
+                    <div className="w-full bg-gray-200 rounded-full h-2 mb-4 ml-7">
+                      <div
+                        className="bg-purple-600 h-2 rounded-full transition-all"
+                        style={{ width: `${total > 0 ? (completed / total) * 100 : 0}%` }}
+                      />
+                    </div>
+
+                    <div className="space-y-3 ml-7">
+                      {stageTasks.map((task, index) => (
+                        <label
+                          key={index}
+                          className="flex items-start gap-3 cursor-pointer group"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={task.completed}
+                            onChange={() => toggleTaskCompletion(stage.id, index)}
+                            className="w-5 h-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500 flex-shrink-0 mt-0.5"
+                          />
+                          <span
+                            className={`text-sm ${task.completed ? 'line-through text-gray-500' : 'text-gray-700'} group-hover:text-gray-900`}
+                          >
+                            {task.task}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {stage.status !== 'completed' && (
+                  <div className="pt-4 border-t border-gray-200">
+                    <Button
+                      variant="outline"
+                      onClick={() => markStageComplete(stage.id, stage.order_index)}
+                      className="w-full"
+                    >
+                      MARK {stage.stage_name.toUpperCase()} AS COMPLETE
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </Card>
+          )}
         </div>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center px-6">
-          <div className="bg-red-100 rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-            <Info className="w-8 h-8 text-red-600" />
-          </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Unable to Load Timeline</h2>
-          <p className="text-gray-600 mb-4">{error}</p>
-          <Button onClick={() => window.location.reload()}>Try Again</Button>
-        </div>
-      </div>
-    )
-  }
-
-  if (stages.length === 0) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center px-6">
-          <div className="bg-gray-100 rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-            <Calendar className="w-8 h-8 text-gray-600" />
-          </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-2">No Timeline Data</h2>
-          <p className="text-gray-600 mb-4">Your timeline will appear here once your case begins.</p>
-          <Button onClick={() => navigate('/dashboard')}>Back to Dashboard</Button>
-        </div>
-      </div>
-    )
-  }
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <AppHeader />
-      <div className="max-w-md mx-auto px-6 py-8 pb-24">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Timeline</h1>
-
-          <div className="flex items-center gap-2 bg-gray-100 rounded-lg p-1">
-            <button
-              onClick={() => {
-                haptics.light()
-                setViewMode('cards')
-              }}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${viewMode === 'cards' ? 'bg-white text-purple-700 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}
-            >
-              <LayoutGrid className="w-4 h-4" />
-              Cards
-            </button>
-            <button
-              onClick={() => {
-                haptics.light()
-                setViewMode('list')
-              }}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${viewMode === 'list' ? 'bg-white text-purple-700 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}
-            >
-              <List className="w-4 h-4" />
-              List
-            </button>
-          </div>
-        </div>
-
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">The Journey Ahead</h1>
-          <p className="text-gray-600">Your family's guide to the dependency court process.</p>
-        </div>
-
-        <div className="mb-6 bg-purple-50 border border-purple-200 rounded-xl p-4">
-          <div className="flex gap-3">
-            <Info className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
-            <p className="text-sm text-gray-700">
-              Every family's journey is unique. This timeline shows the standard steps in California, but your specific path might vary.
-            </p>
-          </div>
-        </div>
-
-        {viewMode === 'cards' ? (
-          <div>
-            {stages.map((stage) => (
-              <StageCard key={stage.id} stage={stage} />
-            ))}
-          </div>
-        ) : (
-          <ListView />
-        )}
-      </div>
-      <BottomNav />
-    </div>
-  )
-}
+      )
+    })}
+  </div>
+)
