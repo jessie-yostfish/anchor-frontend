@@ -59,14 +59,18 @@ export function Onboarding() {
 
   const role = (profile?.role as Role) || 'parent'
 
-  useEffect(() => {
+ useEffect(() => {
     if (profile?.first_name) {
       setFirstName(profile.first_name)
     }
-    if (profile?.intake_step) {
+    if (profile?.intake_completed) {
+      navigate('/dashboard')
+      return
+    }
+    if (profile?.intake_step && profile.intake_step <= 10) {
       setStep(profile.intake_step)
     }
-  }, [profile])
+  }, [profile, navigate])
 
   const saveProgress = async (currentStep: number, data: Record<string, unknown>) => {
     setSaving(true)
