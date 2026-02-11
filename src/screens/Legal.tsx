@@ -189,7 +189,10 @@ export function Legal() {
             </div>
           </Card>
 
-          <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200 cursor-pointer hover:shadow-md transition-shadow">
+        <Card 
+            className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200 cursor-pointer hover:shadow-md transition-shadow"
+            onClick={() => setSelectedCategory('Forms & Templates')}
+          >
             <div className="flex items-start gap-4">
               <div className="flex-shrink-0">
                 <div className="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center">
