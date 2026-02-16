@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 import {
-  ArrowLeft,
   Search,
   Heart,
   Phone,
@@ -21,6 +19,7 @@ import {
   Baby,
   Car,
   MoreHorizontal,
+  ChevronDown,
 } from 'lucide-react'
 import { Card, BottomNav, AppHeader } from '../components'
 import { supabase } from '../lib/supabase'
