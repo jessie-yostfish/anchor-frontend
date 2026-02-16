@@ -191,7 +191,17 @@ export function Legal() {
 
         <Card 
             className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200 cursor-pointer hover:shadow-md transition-shadow"
-            onClick={() => setSelectedCategory('Forms & Templates')}
+           onClick={() => {
+  setSelectedCategory('Forms & Templates')
+  setSearchQuery('')
+  setExpandedContentId(null)
+  setTimeout(() => {
+    const searchElement = document.getElementById('legal-search')
+    if (searchElement) {
+      searchElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }, 100)
+}}
           >
             <div className="flex items-start gap-4">
               <div className="flex-shrink-0">
@@ -246,12 +256,13 @@ export function Legal() {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search legal topics..."
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-            />
+  id="legal-search"
+  type="text"
+  value={searchQuery}
+  onChange={(e) => setSearchQuery(e.target.value)}
+  placeholder="Search legal topics..."
+  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+/>
           </div>
         </div>
 
