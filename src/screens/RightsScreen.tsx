@@ -6,7 +6,7 @@ import { supabase } from '../lib/supabase'
 interface RightDuty {
   id: string
   title: string
-  role: 'Parents' | 'Youth' | 'Duties'
+  role_role: 'Parents' | 'Youth' | 'Duties'
   state: string
   description: string
   full_content: string
@@ -48,7 +48,7 @@ export function RightsScreen() {
     }
   }
 
-  const currentItems = rightsAndDuties.filter((item) => item.role === activeTab)
+  const currentItems = rightsAndDuties.filter((item) => item.user_role === activeTab)
 
   const toggleExpanded = (id: string) => {
     setExpandedId(expandedId === id ? null : id)
@@ -137,7 +137,12 @@ export function RightsScreen() {
         </div>
 
         {/* Show Legal Basis Toggle - Available on all tabs */}
-        {hasLegalBasis && (
+        {(() => {
+  console.log('hasLegalBasis:', hasLegalBasis)
+  console.log('currentItems:', currentItems.length)
+  console.log('Items with legal_reference:', currentItems.filter(i => i.legal_reference).length)
+  return hasLegalBasis
+})() && (
           <div className="mb-6 flex items-center justify-between p-4 bg-white rounded-lg border border-gray-200">
             <div className="flex items-center gap-2">
               {showLegalBasis ? (
