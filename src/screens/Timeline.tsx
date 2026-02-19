@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
-  ArrowLeft,
   LayoutGrid,
   List,
-  Info,
   Calendar,
   FileText,
   Star,
@@ -67,7 +65,6 @@ const STAGE_ICONS = {
   Star,
   CheckSquare,
 }
-
 
 export function Timeline() {
   const navigate = useNavigate()
@@ -415,7 +412,7 @@ export function Timeline() {
     )
   }
 
-if (loading) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <p className="text-gray-600">Loading your timeline...</p>
@@ -434,7 +431,6 @@ if (loading) {
           </div>
         )}
 
-        {/* View Toggle */}
         <div className="flex items-center justify-end gap-2 mb-4">
           <button
             onClick={() => setViewMode('cards')}
@@ -450,7 +446,6 @@ if (loading) {
           </button>
         </div>
 
-        {/* Cards View */}
         {viewMode === 'cards' && (
           <div>
             {stages.map((stage) => (
@@ -459,7 +454,6 @@ if (loading) {
           </div>
         )}
 
-        {/* List View - inlined to fix chevron expand bug */}
         {viewMode === 'list' && (
           <div className="space-y-2">
             {stages.map((stage) => {
