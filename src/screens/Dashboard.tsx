@@ -471,7 +471,7 @@ const [teamMembers, setTeamMembers] = useState<Array<{name: string, role: string
                           {member.role}
                         </p>
                        {member.phone && (
-                            
+                            <a
                               href={`tel:${member.phone}`}
                             className="text-sm text-gray-600 hover:text-purple-600 flex items-center gap-1 mt-1"
                           >
