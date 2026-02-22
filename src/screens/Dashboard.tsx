@@ -510,7 +510,19 @@ export function Dashboard() {
           </div>
         </div>
       </div>
-
+      
+<div className="mt-8 pt-8 border-t border-gray-200">
+          <button
+            onClick={() => {
+              haptics.light()
+              navigate('/delete-account')
+            }}
+            className="text-red-600 text-sm font-semibold hover:text-red-700"
+          >
+            Delete my account
+          </button>
+          <p className="text-xs text-gray-500 mt-1">This permanently deletes your data.</p>
+        </div>
       <BottomNav />
     </div>
   )
