@@ -129,19 +129,11 @@ export function Preparation() {
     return meetingTypeObj?.label || 'professional'
   }
 
-  const getContextFromPrepType = (prepType: PrepType, meetingTypeValue?: MeetingType): string => {
-    switch (prepType) {
-      case 'hearing':
-        return 'preparing for a court hearing in California dependency court'
-      case 'meeting':
-        if (meetingTypeValue) {
-          return `preparing for a meeting with ${getMeetingTypeLabel(meetingTypeValue)} in California dependency court`
-        }
-        return 'preparing for a meeting with caseworker, attorney, CASA, or social worker in California dependency court'
-      case 'after_hearing':
-        return 'reflecting after a court hearing in California dependency court'
-      default:
-        return 'general preparation'
+  const getAuthHeaders = async () => {
+    const { data } = await supabase.auth.getSession()
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${data.session?.access_token}`,
     }
   }
 
@@ -158,15 +150,15 @@ export function Preparation() {
         promptText = `${concerns} I am preparing for a meeting with my ${getMeetingTypeLabel(meetingType)}.`
       }
 
-      const response = await fetch('https://anchor-ap1c.onrender.com/prepare', {
+      const headers = await getAuthHeaders()
+
+      const response = await fetch('https://dmrmgpidvfcywilcsmff.supabase.co/functions/v1/generate-preparation-guide', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify({
-          prompt: promptText,
-          role: 'parent',
-          context: getContextFromPrepType(selectedType, meetingType),
+          prepType: selectedType,
+          concerns: promptText,
+          currentStage: currentStage,
         }),
       })
 
@@ -210,24 +202,21 @@ export function Preparation() {
     setError(null)
 
     try {
-      const newChatHistory = [...chatHistory, { role: 'user', content: currentMessage }]
-      setChatHistory(newChatHistory)
+      const newUserMessage: ChatMessage = { role: 'user', content: currentMessage }
+      const updatedHistory = [...chatHistory, newUserMessage]
+      setChatHistory(updatedHistory)
       setCurrentMessage('')
 
-      const conversationText = newChatHistory
-        .map((msg) => `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}`)
-        .join('\n\n')
+      const headers = await getAuthHeaders()
 
-      const response = await fetch('https://anchor-ap1c.onrender.com/prepare', {
+      const response = await fetch('https://dmrmgpidvfcywilcsmff.supabase.co/functions/v1/generate-preparation-guide', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify({
-          prompt: currentMessage,
-          role: 'parent',
-          context: getContextFromPrepType(selectedType, meetingType),
-          conversationHistory: conversationText,
+          prepType: selectedType,
+          concerns: concerns,
+          currentStage: currentStage,
+          messages: updatedHistory,
         }),
       })
 
@@ -505,6 +494,13 @@ export function Preparation() {
                     </div>
                   </div>
                 ))}
+                {loading && (
+                  <div className="flex justify-start">
+                    <div className="bg-gray-100 text-gray-900 rounded-lg rounded-bl-none px-4 py-2">
+                      <Loader2 className="w-5 h-5 animate-spin text-purple-600" />
+                    </div>
+                  </div>
+                )}
                 <div ref={chatEndRef} />
               </div>
 
