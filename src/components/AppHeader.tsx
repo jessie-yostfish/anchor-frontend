@@ -66,14 +66,14 @@ export function AppHeader({ showBack = true }: AppHeaderProps) {
         </div>
       </div>
 
-      <ConfirmDialog
+     <ConfirmDialog
         isOpen={showLogoutDialog}
-        onClose={() => setShowLogoutDialog(false)}
+        onCancel={() => setShowLogoutDialog(false)}
         onConfirm={handleLogout}
         title="Sign Out"
         message="Are you sure you want to sign out?"
-        confirmText="Sign Out"
-        cancelText="Cancel"
+        confirmLabel="Sign Out"
+        cancelLabel="Cancel"
       />
     </>
   )
