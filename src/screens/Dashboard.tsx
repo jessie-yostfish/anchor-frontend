@@ -36,6 +36,13 @@ interface TimelineStage {
   order_index: number
 }
 
+interface TeamMember {
+  name: string
+  role: string
+  phone: string | null
+  icon: typeof Briefcase
+}
+
 export function Dashboard() {
   const { profile } = useAuth()
   const navigate = useNavigate()
@@ -43,6 +50,7 @@ export function Dashboard() {
   const [isHearingExpanded, setIsHearingExpanded] = useState(false)
   const [courtInfo, setCourtInfo] = useState<CourtInfo | null>(null)
   const [currentStageData, setCurrentStageData] = useState<TimelineStage | null>(null)
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([])
 
   useEffect(() => {
     const dismissed = localStorage.getItem('legal-banner-dismissed')
@@ -52,6 +60,32 @@ export function Dashboard() {
     loadCourtInfo()
     loadCurrentStage()
   }, [])
+
+  useEffect(() => {
+    const loadContacts = async () => {
+      if (!profile?.id) return
+      try {
+        const { data } = await supabase
+          .from('contacts')
+          .select('name, role, phone')
+          .eq('user_id', profile.id)
+          .order('is_primary', { ascending: false })
+          .order('created_at', { ascending: true })
+
+        if (data && data.length > 0) {
+          setTeamMembers(data.map(c => ({
+            name: c.name,
+            role: c.role?.toUpperCase() || 'SUPPORT',
+            phone: c.phone,
+            icon: c.role?.toLowerCase().includes('attorney') || c.role?.toLowerCase().includes('lawyer') ? Briefcase : UserCircle,
+          })))
+        }
+      } catch (error) {
+        console.error('Error loading contacts:', error)
+      }
+    }
+    loadContacts()
+  }, [profile?.id])
 
   const loadCourtInfo = async () => {
     try {
@@ -146,34 +180,6 @@ export function Dashboard() {
 
   const completedSteps = currentStage ? 2 : 1
   const totalSteps = 5
-
-const [teamMembers, setTeamMembers] = useState<Array<{name: string, role: string, phone: string | null, icon: typeof Briefcase}>>([])
-
-  useEffect(() => {
-    const loadContacts = async () => {
-      if (!profile?.id) return
-      try {
-        const { data } = await supabase
-          .from('contacts')
-          .select('name, role, phone')
-          .eq('user_id', profile.id)
-          .order('is_primary', { ascending: false })
-          .order('created_at', { ascending: true })
-
-        if (data && data.length > 0) {
-          setTeamMembers(data.map(c => ({
-            name: c.name,
-            role: c.role?.toUpperCase() || 'SUPPORT',
-            phone: c.phone,
-            icon: c.role?.toLowerCase().includes('attorney') || c.role?.toLowerCase().includes('lawyer') ? Briefcase : UserCircle,
-          })))
-        }
-      } catch (error) {
-        console.error('Error loading contacts:', error)
-      }
-    }
-    loadContacts()
-  }, [profile?.id])
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
@@ -453,7 +459,7 @@ const [teamMembers, setTeamMembers] = useState<Array<{name: string, role: string
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-4">My Team</h2>
 
-       {teamMembers.length > 0 ? (
+            {teamMembers.length > 0 ? (
               <div className="space-y-3">
                 {teamMembers.map((member, index) => {
                   const Icon = member.icon
@@ -470,9 +476,9 @@ const [teamMembers, setTeamMembers] = useState<Array<{name: string, role: string
                         <p className="text-xs font-bold text-purple-600 uppercase tracking-wide">
                           {member.role}
                         </p>
-                       {member.phone && (
-                            <a
-                              href={`tel:${member.phone}`}
+                        {member.phone && (
+                          <a
+                            href={`tel:${member.phone}`}
                             className="text-sm text-gray-600 hover:text-purple-600 flex items-center gap-1 mt-1"
                           >
                             <Phone className="w-3 h-3" />
@@ -490,4 +496,22 @@ const [teamMembers, setTeamMembers] = useState<Array<{name: string, role: string
                   Manage Contacts →
                 </button>
               </div>
-      )
+            ) : (
+              <div className="text-center py-8">
+                <div className="p-4 bg-gray-50 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                  <UserCircle className="w-8 h-8 text-gray-400" />
+                </div>
+                <p className="text-gray-600 mb-4">No team members added yet</p>
+                <Button onClick={() => navigate('/contacts')} variant="secondary">
+                  Add Your Support Team
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <BottomNav />
+    </div>
+  )
+}
