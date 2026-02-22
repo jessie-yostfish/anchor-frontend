@@ -490,3 +490,4 @@ const [teamMembers, setTeamMembers] = useState<Array<{name: string, role: string
                   Manage Contacts →
                 </button>
               </div>
+      )
