@@ -18,6 +18,7 @@ import {
   Glossary,
   Contacts,
   Preparation,
+  DeleteAccount
 } from './screens'
 
 function App() {
@@ -39,6 +40,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="/delete-account" element={<DeleteAccount />} />
           <Route
             path="/dashboard"
             element={
