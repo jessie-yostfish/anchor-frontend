@@ -33,6 +33,7 @@ interface AuthContextType {
   signUp: (data: SignUpData) => Promise<{ error: AuthError | null }>
   signOut: () => Promise<void>
   updateProfile: (updates: Partial<Profile>) => Promise<{ error: Error | null }>
+deleteAccount: (password: string) => Promise<{ error: Error | null }>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -126,7 +127,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return { error: error as Error }
     }
   }
+const deleteAccount = async (password: string) => {
+    if (!user) return { error: new Error('No user logged in') }
+    
+    try {
+      // Re-authenticate first
+      const { error: reAuthError } = await supabase.auth.signInWithPassword({
+        email: user.email!,
+        password,
+      })
+      
+      if (reAuthError) throw new Error('Incorrect password')
 
+      // Delete user data from all tables
+      const userId = user.id
+      
+      await supabase.from('notes').delete().eq('user_id', userId)
+      await supabase.from('contacts').delete().eq('user_id', userId)
+      await supabase.from('court_info').delete().eq('user_id', userId)
+      await supabase.from('profiles').delete().eq('id', userId)
+      
+      // Delete auth user
+      const { error: deleteError } = await supabase.rpc('delete_user')
+      
+      if (deleteError) throw deleteError
+
+      return { error: null }
+    } catch (error) {
+      return { error: error as Error }
+    }
+  }
   const value = {
     user,
     session,
@@ -136,6 +166,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signUp,
     signOut,
     updateProfile,
+    deleteAccount
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
