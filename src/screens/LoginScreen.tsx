@@ -170,9 +170,11 @@ export function LoginScreen() {
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white">
       <div className="max-w-md mx-auto px-6 py-12">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-purple-600 rounded-3xl mb-4 shadow-lg">
-            <Shield className="w-10 h-10 text-white" strokeWidth={2.5} />
-          </div>
+          <img
+            src="/anchor-logo.png"
+            alt="Anchor"
+            className="w-24 h-24 object-contain mx-auto mb-4"
+          />
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Anchor</h1>
           <p className="text-gray-500">Find your footing.</p>
         </div>
