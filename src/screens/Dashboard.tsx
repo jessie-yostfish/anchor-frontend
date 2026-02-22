@@ -147,23 +147,33 @@ export function Dashboard() {
   const completedSteps = currentStage ? 2 : 1
   const totalSteps = 5
 
-  const teamMembers = []
-  if (profile?.has_lawyer === 'yes' && profile?.lawyer_name) {
-    teamMembers.push({
-      name: profile.lawyer_name,
-      role: 'YOUR ATTORNEY',
-      phone: profile.lawyer_phone,
-      icon: Briefcase,
-    })
-  }
-  if (profile?.has_case_manager === 'yes' && profile?.case_manager_name) {
-    teamMembers.push({
-      name: profile.case_manager_name,
-      role: 'YOUR CASE MANAGER',
-      phone: profile.case_manager_phone,
-      icon: UserCircle,
-    })
-  }
+const [teamMembers, setTeamMembers] = useState<Array<{name: string, role: string, phone: string | null, icon: typeof Briefcase}>>([])
+
+  useEffect(() => {
+    const loadContacts = async () => {
+      if (!profile?.id) return
+      try {
+        const { data } = await supabase
+          .from('contacts')
+          .select('name, role, phone')
+          .eq('user_id', profile.id)
+          .order('is_primary', { ascending: false })
+          .order('created_at', { ascending: true })
+
+        if (data && data.length > 0) {
+          setTeamMembers(data.map(c => ({
+            name: c.name,
+            role: c.role?.toUpperCase() || 'SUPPORT',
+            phone: c.phone,
+            icon: c.role?.toLowerCase().includes('attorney') || c.role?.toLowerCase().includes('lawyer') ? Briefcase : UserCircle,
+          })))
+        }
+      } catch (error) {
+        console.error('Error loading contacts:', error)
+      }
+    }
+    loadContacts()
+  }, [profile?.id])
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
@@ -443,7 +453,7 @@ export function Dashboard() {
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-4">My Team</h2>
 
-            {teamMembers.length > 0 ? (
+       {teamMembers.length > 0 ? (
               <div className="space-y-3">
                 {teamMembers.map((member, index) => {
                   const Icon = member.icon
@@ -461,7 +471,7 @@ export function Dashboard() {
                           {member.role}
                         </p>
                         {member.phone && (
-                          <a
+                          
                             href={`tel:${member.phone}`}
                             className="text-sm text-gray-600 hover:text-purple-600 flex items-center gap-1 mt-1"
                           >
@@ -473,23 +483,10 @@ export function Dashboard() {
                     </div>
                   )
                 })}
+                <button
+                  onClick={() => { haptics.light(); navigate('/contacts') }}
+                  className="w-full text-center text-sm text-purple-600 font-semibold hover:text-purple-700 py-2"
+                >
+                  Manage Contacts →
+                </button>
               </div>
-            ) : (
-              <div className="text-center py-8">
-                <div className="p-4 bg-gray-50 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                  <UserCircle className="w-8 h-8 text-gray-400" />
-                </div>
-                <p className="text-gray-600 mb-4">No team members added yet</p>
-                <Button onClick={() => navigate('/contacts')} variant="secondary">
-                  Add Your Support Team
-                </Button>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <BottomNav />
-    </div>
-  )
-}
