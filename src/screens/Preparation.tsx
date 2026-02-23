@@ -21,6 +21,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 
 type PrepType = 'hearing' | 'meeting' | 'after_hearing' | null
+type Role = 'parent' | 'youth' | 'supporter'
 
 interface PrepOption {
   type: PrepType
@@ -29,6 +30,7 @@ interface PrepOption {
   iconBg: string
   title: string
   description: string
+  roles?: Role[] // Which roles see this option
 }
 
 interface ChatMessage {
@@ -42,46 +44,131 @@ interface SaveModalState {
   title: string
 }
 
-const PREP_OPTIONS: PrepOption[] = [
-  {
-    type: 'hearing',
-    icon: FileText,
-    iconColor: 'text-purple-600',
-    iconBg: 'bg-purple-100',
-    title: 'Before a Hearing',
-    description: 'Prepare what you want to say to the judge and organize your questions.',
-  },
-  {
-    type: 'meeting',
-    icon: Users,
-    iconColor: 'text-blue-600',
-    iconBg: 'bg-blue-100',
-    title: 'Before a Meeting',
-    description: 'Prepare for calls or meetings with your attorney or social worker.',
-  },
-  {
-    type: 'after_hearing',
-    icon: CheckCircle,
-    iconColor: 'text-coral-600',
-    iconBg: 'bg-coral-100',
-    title: 'After a Hearing',
-    description: 'Summarize what happened and identify your next best actions.',
-  },
-]
-
 type MeetingType = 'attorney' | 'social_worker' | 'casa' | 'therapist' | 'other' | null
 
-const MEETING_TYPES = [
-  { value: 'attorney', label: 'Attorney / Lawyer' },
-  { value: 'social_worker', label: 'Social Worker / Caseworker' },
-  { value: 'casa', label: 'CASA Volunteer' },
-  { value: 'therapist', label: 'Therapist / Counselor' },
-  { value: 'other', label: 'Other' },
-]
+const MEETING_TYPES_BY_ROLE = {
+  parent: [
+    { value: 'attorney', label: 'Attorney / Lawyer' },
+    { value: 'social_worker', label: 'Social Worker / Caseworker' },
+    { value: 'therapist', label: 'Therapist / Counselor' },
+    { value: 'other', label: 'Other' },
+  ],
+  youth: [
+    { value: 'attorney', label: 'My Lawyer' },
+    { value: 'social_worker', label: 'Social Worker' },
+    { value: 'casa', label: 'CASA Volunteer' },
+    { value: 'therapist', label: 'Therapist / Counselor' },
+    { value: 'other', label: 'Other' },
+  ],
+  supporter: [
+    { value: 'attorney', label: 'Attorney (if consulting)' },
+    { value: 'social_worker', label: 'Social Worker' },
+    { value: 'other', label: 'Other Professional' },
+  ],
+}
+
+const PREP_OPTIONS_BY_ROLE = {
+  parent: [
+    {
+      type: 'hearing' as PrepType,
+      icon: FileText,
+      iconColor: 'text-purple-600',
+      iconBg: 'bg-purple-100',
+      title: 'Before a Hearing',
+      description: 'Prepare what you want to say to the judge and organize your questions.',
+    },
+    {
+      type: 'meeting' as PrepType,
+      icon: Users,
+      iconColor: 'text-blue-600',
+      iconBg: 'bg-blue-100',
+      title: 'Before a Meeting',
+      description: 'Prepare for calls or meetings with your attorney or social worker.',
+    },
+    {
+      type: 'after_hearing' as PrepType,
+      icon: CheckCircle,
+      iconColor: 'text-coral-600',
+      iconBg: 'bg-coral-100',
+      title: 'After a Hearing',
+      description: 'Summarize what happened and identify your next best actions.',
+    },
+  ],
+  youth: [
+    {
+      type: 'hearing' as PrepType,
+      icon: FileText,
+      iconColor: 'text-purple-600',
+      iconBg: 'bg-purple-100',
+      title: 'Before Court',
+      description: 'Prepare what you want to tell the judge and organize your thoughts.',
+    },
+    {
+      type: 'meeting' as PrepType,
+      icon: Users,
+      iconColor: 'text-blue-600',
+      iconBg: 'bg-blue-100',
+      title: 'Before a Meeting',
+      description: 'Get ready for meetings with your lawyer, social worker, or CASA.',
+    },
+    {
+      type: 'after_hearing' as PrepType,
+      icon: CheckCircle,
+      iconColor: 'text-coral-600',
+      iconBg: 'bg-coral-100',
+      title: 'After Court',
+      description: 'Think about what happened and what comes next.',
+    },
+  ],
+  supporter: [
+    {
+      type: 'hearing' as PrepType,
+      icon: FileText,
+      iconColor: 'text-purple-600',
+      iconBg: 'bg-purple-100',
+      title: 'Before a Hearing',
+      description: 'Prepare to support someone attending a court hearing.',
+    },
+    {
+      type: 'meeting' as PrepType,
+      icon: Users,
+      iconColor: 'text-blue-600',
+      iconBg: 'bg-blue-100',
+      title: 'Before a Meeting',
+      description: 'Get ready to support someone in meetings with professionals.',
+    },
+    {
+      type: 'after_hearing' as PrepType,
+      icon: CheckCircle,
+      iconColor: 'text-coral-600',
+      iconBg: 'bg-coral-100',
+      title: 'After a Hearing',
+      description: 'Help process what happened and plan next steps.',
+    },
+  ],
+}
+
+const PLACEHOLDERS_BY_ROLE = {
+  parent: {
+    hearing: "E.g., 'I want to talk about my visits' or 'I don't understand the new plan'",
+    meeting: "E.g., 'I need to understand my case plan better' or 'I want to discuss visitation schedule'",
+    after_hearing: "E.g., 'The judge said I need to complete parenting classes. What does that mean?'",
+  },
+  youth: {
+    hearing: "E.g., 'I want to stay with my current foster family' or 'I miss my siblings'",
+    meeting: "E.g., 'I want to talk about school' or 'I need help with my placement'",
+    after_hearing: "E.g., 'The judge talked about adoption. What happens now?'",
+  },
+  supporter: {
+    hearing: "E.g., 'How can I help them prepare?' or 'What should I know about this hearing?'",
+    meeting: "E.g., 'How can I best support them in this meeting?'",
+    after_hearing: "E.g., 'How can I help them process what happened?'",
+  },
+}
 
 export function Preparation() {
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const { user, profile } = useAuth()
   const [selectedType, setSelectedType] = useState<PrepType>(null)
   const [meetingType, setMeetingType] = useState<MeetingType>(null)
   const [concerns, setConcerns] = useState('')
@@ -97,6 +184,11 @@ export function Preparation() {
     title: '',
   })
   const chatEndRef = useRef<HTMLDivElement>(null)
+
+  const userRole: Role = (profile?.role as Role) || 'parent'
+  const prepOptions = PREP_OPTIONS_BY_ROLE[userRole]
+  const meetingTypes = MEETING_TYPES_BY_ROLE[userRole]
+  const placeholders = PLACEHOLDERS_BY_ROLE[userRole]
 
   useEffect(() => {
     const fetchCurrentStage = async () => {
@@ -125,7 +217,7 @@ export function Preparation() {
   }, [chatHistory])
 
   const getMeetingTypeLabel = (type: MeetingType): string => {
-    const meetingTypeObj = MEETING_TYPES.find((mt) => mt.value === type)
+    const meetingTypeObj = meetingTypes.find((mt) => mt.value === type)
     return meetingTypeObj?.label || 'professional'
   }
 
@@ -159,6 +251,7 @@ export function Preparation() {
           prepType: selectedType,
           concerns: promptText,
           currentStage: currentStage,
+          userRole: userRole,
         }),
       })
 
@@ -189,7 +282,7 @@ export function Preparation() {
       }
     } catch (error) {
       console.error('Error generating guide:', error)
-      setError('We couldn\'t generate your guide right now. Please try again in a moment.')
+      setError('We could not generate your guide right now. Please try again in a moment.')
     } finally {
       setLoading(false)
     }
@@ -216,6 +309,7 @@ export function Preparation() {
           prepType: selectedType,
           concerns: concerns,
           currentStage: currentStage,
+          userRole: userRole,
           messages: updatedHistory,
         }),
       })
@@ -234,7 +328,7 @@ export function Preparation() {
       setChatHistory((prev) => [...prev, { role: 'assistant', content: generatedResponse }])
     } catch (error) {
       console.error('Error generating response:', error)
-      setError('We couldn\'t generate a response. Please try again in a moment.')
+      setError('We could not generate a response. Please try again in a moment.')
       setChatHistory((prev) => prev.slice(0, -1))
     } finally {
       setLoading(false)
@@ -242,7 +336,7 @@ export function Preparation() {
   }
 
   const handleSaveChatClick = () => {
-    const selectedOption = PREP_OPTIONS.find((opt) => opt.type === selectedType)
+    const selectedOption = prepOptions.find((opt) => opt.type === selectedType)
     let defaultTitle = `${selectedOption?.title}`
     if (selectedType === 'meeting' && meetingType) {
       defaultTitle += ` - ${getMeetingTypeLabel(meetingType)}`
@@ -299,8 +393,25 @@ export function Preparation() {
     window.print()
   }
 
-  const selectedOption = PREP_OPTIONS.find((opt) => opt.type === selectedType)
+  const selectedOption = prepOptions.find((opt) => opt.type === selectedType)
   const hasChat = chatHistory.length > 0
+
+  const getPrivacyMessage = () => {
+    if (userRole === 'youth') {
+      return 'None of your notes are shared with anyone - not your parents, social worker, or the court.'
+    }
+    return 'None of your notes are shared with CPS or the court.'
+  }
+
+  const getQuestionLabel = () => {
+    if (userRole === 'youth') {
+      return selectedType === 'meeting' ? 'What do you want to talk about?' : 'What is on your mind?'
+    }
+    if (userRole === 'supporter') {
+      return selectedType === 'meeting' ? 'What do they need help with?' : 'What are your concerns?'
+    }
+    return selectedType === 'meeting' ? 'What do you want to discuss?' : 'Any specific concerns today?'
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -317,8 +428,16 @@ export function Preparation() {
 
       <div className="max-w-md mx-auto px-6 py-8 pb-24">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Preparation & Reflection</h1>
-          <p className="text-gray-600">Your "second brain" for organizing thoughts and self-advocating.</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            {userRole === 'youth' ? 'Preparation and Reflection' : 'Preparation & Reflection'}
+          </h1>
+          <p className="text-gray-600">
+            {userRole === 'youth' 
+              ? 'Your safe space for organizing thoughts and preparing for what is next.'
+              : userRole === 'supporter'
+              ? 'Help organize thoughts and prepare for supporting someone through their case.'
+              : 'Your "second brain" for organizing thoughts and self-advocating.'}
+          </p>
         </div>
 
         <Card className="mb-6 bg-purple-50 border-purple-200">
@@ -329,13 +448,14 @@ export function Preparation() {
               </div>
             </div>
             <div className="flex-1">
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Private & Safe</h3>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Private and Safe</h3>
               <p className="text-sm text-gray-700 mb-2">
-                Anchor aims to help you understand what's happening. These are educational suggestions, not legal
-                advice.
+                {userRole === 'youth'
+                  ? 'Anchor helps you understand what is happening. These are educational suggestions, not legal advice.'
+                  : 'Anchor aims to help you understand what is happening. These are educational suggestions, not legal advice.'}
               </p>
               <p className="text-sm font-semibold text-coral-600">
-                None of your notes are shared with CPS or the court.
+                {getPrivacyMessage()}
               </p>
             </div>
           </div>
@@ -345,7 +465,7 @@ export function Preparation() {
           <>
             <h2 className="text-xl font-bold text-gray-900 mb-4">Choose a starting point</h2>
             <div className="space-y-3">
-              {PREP_OPTIONS.map((option) => {
+              {prepOptions.map((option) => {
                 const IconComponent = option.icon
                 return (
                   <Card
@@ -380,9 +500,11 @@ export function Preparation() {
 
             {selectedType === 'meeting' && (
               <>
-                <h3 className="text-lg font-bold text-gray-900 mb-3 uppercase">Who is this meeting with?</h3>
+                <h3 className="text-lg font-bold text-gray-900 mb-3 uppercase">
+                  {userRole === 'youth' ? 'Who is this meeting with?' : 'Who is this meeting with?'}
+                </h3>
                 <div className="grid grid-cols-1 gap-2 mb-6">
-                  {MEETING_TYPES.map((type) => (
+                  {meetingTypes.map((type) => (
                     <button
                       key={type.value}
                       onClick={() => setMeetingType(type.value as MeetingType)}
@@ -400,17 +522,13 @@ export function Preparation() {
             )}
 
             <h3 className="text-lg font-bold text-gray-900 mb-3 uppercase">
-              {selectedType === 'meeting' ? 'What do you want to discuss?' : 'Any specific concerns today?'}
+              {getQuestionLabel()}
             </h3>
 
             <textarea
               value={concerns}
               onChange={(e) => setConcerns(e.target.value)}
-              placeholder={
-                selectedType === 'meeting'
-                  ? "E.g., 'I need to understand my case plan better' or 'I want to discuss visitation schedule'"
-                  : "E.g., 'I want to talk about my visits' or 'I don't understand the new plan'"
-              }
+              placeholder={placeholders[selectedType as keyof typeof placeholders]}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
               rows={5}
             />
@@ -470,7 +588,9 @@ export function Preparation() {
                   </p>
                 )}
                 <p className="text-sm text-gray-700">
-                  <span className="font-semibold">Your concerns:</span> {concerns}
+                  <span className="font-semibold">
+                    {userRole === 'youth' ? 'What is on your mind:' : 'Your concerns:'}
+                  </span> {concerns}
                 </p>
               </div>
 
@@ -516,7 +636,11 @@ export function Preparation() {
                         handleSendFollowUp()
                       }
                     }}
-                    placeholder="Ask a follow-up question or share more concerns..."
+                    placeholder={
+                      userRole === 'youth'
+                        ? 'Ask another question or share more thoughts...'
+                        : 'Ask a follow-up question or share more concerns...'
+                    }
                     className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
                     rows={3}
                     disabled={loading}
