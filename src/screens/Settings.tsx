@@ -16,6 +16,8 @@ import {
   LogOut,
   ChevronRight,
   Edit2,
+  X,
+  Check,
 } from 'lucide-react'
 import { Button, Card, AppHeader } from '../components'
 import { useAuth } from '../contexts/AuthContext'
@@ -29,8 +31,23 @@ export function Settings() {
   const [deletePassword, setDeletePassword] = useState('')
   const [deleteError, setDeleteError] = useState('')
   const [loading, setLoading] = useState(false)
-  const [language, setLanguage] = useState('English')
+  const [language, setLanguage] = useState(profile?.language || 'en')
   const [showLanguageModal, setShowLanguageModal] = useState(false)
+  
+  // Additional modals
+  const [showEditProfile, setShowEditProfile] = useState(false)
+  const [showChangePassword, setShowChangePassword] = useState(false)
+  const [showUpdateEmail, setShowUpdateEmail] = useState(false)
+  const [showUpdatePhone, setShowUpdatePhone] = useState(false)
+  
+  // Edit states
+  const [editedFirstName, setEditedFirstName] = useState(profile?.first_name || '')
+  const [editedUsername, setEditedUsername] = useState(profile?.username || '')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [newEmail, setNewEmail] = useState(user?.email || '')
+  const [newPhone, setNewPhone] = useState(profile?.phone_number || '')
+  const [error, setError] = useState('')
 
   const getInitials = () => {
     if (profile?.first_name) {
@@ -66,6 +83,85 @@ export function Settings() {
     const digits = phone.replace(/\D/g, '')
     if (digits.length < 4) return phone
     return `(***) ***-${digits.slice(-4)}`
+  }
+
+  const handleSaveProfile = async () => {
+    setLoading(true)
+    setError('')
+    const { error } = await updateProfile({
+      first_name: editedFirstName,
+      username: editedUsername,
+    })
+    if (error) {
+      setError(error.message)
+    } else {
+      setShowEditProfile(false)
+      haptics.success()
+    }
+    setLoading(false)
+  }
+
+  const handleChangePassword = async () => {
+    if (newPassword !== confirmPassword) {
+      setError('Passwords do not match')
+      return
+    }
+    if (newPassword.length < 6) {
+      setError('Password must be at least 6 characters')
+      return
+    }
+    setLoading(true)
+    setError('')
+    const { error } = await supabase.auth.updateUser({ password: newPassword })
+    if (error) {
+      setError(error.message)
+    } else {
+      setShowChangePassword(false)
+      setNewPassword('')
+      setConfirmPassword('')
+      haptics.success()
+      alert('Password updated successfully!')
+    }
+    setLoading(false)
+  }
+
+  const handleUpdateEmail = async () => {
+    setLoading(true)
+    setError('')
+    const { error } = await supabase.auth.updateUser({ email: newEmail })
+    if (error) {
+      setError(error.message)
+    } else {
+      setShowUpdateEmail(false)
+      haptics.success()
+      alert('Check your new email for a confirmation link!')
+    }
+    setLoading(false)
+  }
+
+  const handleUpdatePhone = async () => {
+    setLoading(true)
+    setError('')
+    const { error } = await updateProfile({ phone_number: newPhone })
+    if (error) {
+      setError(error.message)
+    } else {
+      setShowUpdatePhone(false)
+      haptics.success()
+    }
+    setLoading(false)
+  }
+
+  const handleUpdateLanguage = async () => {
+    setLoading(true)
+    const { error } = await updateProfile({ language: language })
+    if (error) {
+      console.error('Error updating language:', error)
+    } else {
+      haptics.success()
+    }
+    setLoading(false)
+    setShowLanguageModal(false)
   }
 
   const handleToggleNotifications = async () => {
@@ -246,33 +342,52 @@ export function Settings() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center px-6">
         <div className="w-full max-w-md">
           <Card className="p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Select Language</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-gray-900">Select Language</h2>
+              <button
+                onClick={() => setShowLanguageModal(false)}
+                className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
 
             <div className="space-y-2 mb-6">
-              {['English', 'Español'].map((lang) => (
+              {[
+                { value: 'en', label: 'English' },
+                { value: 'es', label: 'Español' }
+              ].map((lang) => (
                 <button
-                  key={lang}
+                  key={lang.value}
                   onClick={() => {
                     haptics.light()
-                    setLanguage(lang)
-                    setShowLanguageModal(false)
+                    setLanguage(lang.value)
                   }}
                   className={`w-full p-4 rounded-xl border-2 transition-all text-left ${
-                    language === lang
+                    language === lang.value
                       ? 'border-purple-600 bg-purple-50'
                       : 'border-gray-200 hover:border-purple-200'
                   }`}
                 >
-                  <span className={`font-semibold ${language === lang ? 'text-purple-900' : 'text-gray-900'}`}>
-                    {lang}
+                  <span className={`font-semibold ${language === lang.value ? 'text-purple-900' : 'text-gray-900'}`}>
+                    {lang.label}
                   </span>
                 </button>
               ))}
             </div>
 
-            <Button onClick={() => setShowLanguageModal(false)} variant="outline" className="w-full">
-              Close
-            </Button>
+            <div className="space-y-2">
+              <Button 
+                onClick={handleUpdateLanguage} 
+                disabled={loading}
+                className="w-full"
+              >
+                {loading ? 'Saving...' : 'Save Language'}
+              </Button>
+              <Button onClick={() => setShowLanguageModal(false)} variant="outline" className="w-full">
+                Cancel
+              </Button>
+            </div>
           </Card>
         </div>
       </div>
@@ -280,9 +395,9 @@ export function Settings() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pb-24">
       <AppHeader />
-      <div className="max-w-md mx-auto px-6 py-8 pb-24">
+      <div className="max-w-md mx-auto px-6 py-8">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
         </div>
@@ -306,7 +421,16 @@ export function Settings() {
               )}
             </div>
           </div>
-          <Button variant="outline" className="w-full" onClick={() => {}}>
+          <Button 
+            variant="outline" 
+            className="w-full" 
+            onClick={() => {
+              haptics.light()
+              setEditedFirstName(profile?.first_name || '')
+              setEditedUsername(profile?.username || '')
+              setShowEditProfile(true)
+            }}
+          >
             <Edit2 className="w-4 h-4 mr-2" />
             Edit Profile
           </Button>
@@ -319,7 +443,10 @@ export function Settings() {
             </h3>
             <Card className="divide-y divide-gray-100">
               <button
-                onClick={() => navigate('/change-password')}
+                onClick={() => {
+                  haptics.light()
+                  setShowChangePassword(true)
+                }}
                 className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
               >
                 <div className="flex items-center gap-3">
@@ -338,21 +465,31 @@ export function Settings() {
                       <p className="text-gray-600 text-sm">{maskEmail(user?.email || '')}</p>
                     </div>
                   </div>
-                  <button className="text-purple-600 hover:text-purple-700 font-semibold text-sm">
+                  <button 
+                    onClick={() => {
+                      haptics.light()
+                      setNewEmail(user?.email || '')
+                      setShowUpdateEmail(true)
+                    }}
+                    className="text-purple-600 hover:text-purple-700 font-semibold text-sm"
+                  >
                     Update
                   </button>
                 </div>
               </div>
 
               <button
-                onClick={() => setShowLanguageModal(true)}
+                onClick={() => {
+                  haptics.light()
+                  setShowLanguageModal(true)
+                }}
                 className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
               >
                 <div className="flex items-center gap-3">
                   <Globe className="w-5 h-5 text-gray-600" />
                   <div className="text-left">
                     <p className="text-gray-900 font-medium">Language</p>
-                    <p className="text-gray-600 text-sm">{language}</p>
+                    <p className="text-gray-600 text-sm">{language === 'en' ? 'English' : 'Español'}</p>
                   </div>
                 </div>
                 <ChevronRight className="w-5 h-5 text-gray-400" />
@@ -384,11 +521,6 @@ export function Settings() {
                     />
                   </button>
                 </div>
-                {profile?.text_reminders_enabled && (
-                  <button className="text-purple-600 hover:text-purple-700 font-semibold text-sm ml-8">
-                    Manage
-                  </button>
-                )}
               </div>
 
               <div className="p-4">
@@ -400,7 +532,14 @@ export function Settings() {
                       <p className="text-gray-600 text-sm">{maskPhone(profile?.phone_number)}</p>
                     </div>
                   </div>
-                  <button className="text-purple-600 hover:text-purple-700 font-semibold text-sm">
+                  <button 
+                    onClick={() => {
+                      haptics.light()
+                      setNewPhone(profile?.phone_number || '')
+                      setShowUpdatePhone(true)
+                    }}
+                    className="text-purple-600 hover:text-purple-700 font-semibold text-sm"
+                  >
                     Update
                   </button>
                 </div>
@@ -429,7 +568,10 @@ export function Settings() {
               </button>
 
               <button
-                onClick={() => setShowDeleteConfirm(true)}
+                onClick={() => {
+                  haptics.light()
+                  setShowDeleteConfirm(true)
+                }}
                 className="w-full flex items-center justify-between p-4 hover:bg-red-50 transition-colors"
               >
                 <div className="flex items-start gap-3">
@@ -481,8 +623,274 @@ export function Settings() {
               <p className="text-xs text-gray-500 mt-1">Made with care for California families</p>
             </div>
           </div>
+
+          <Button
+            onClick={async () => {
+              haptics.light()
+              await signOut()
+              navigate('/auth')
+            }}
+            variant="outline"
+            className="w-full"
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            Sign Out
+          </Button>
         </div>
       </div>
+
+      {/* Edit Profile Modal */}
+      {showEditProfile && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <Card className="w-full max-w-md p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-gray-900">Edit Profile</h2>
+              <button
+                onClick={() => setShowEditProfile(false)}
+                className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">First Name</label>
+                <input
+                  type="text"
+                  value={editedFirstName}
+                  onChange={(e) => setEditedFirstName(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">Username</label>
+                <input
+                  type="text"
+                  value={editedUsername}
+                  onChange={(e) => setEditedUsername(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+
+              {error && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-sm text-red-700">{error}</p>
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <Button
+                  onClick={handleSaveProfile}
+                  disabled={loading}
+                  className="w-full"
+                >
+                  {loading ? 'Saving...' : 'Save Changes'}
+                </Button>
+                <Button
+                  onClick={() => setShowEditProfile(false)}
+                  variant="outline"
+                  className="w-full"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {/* Change Password Modal */}
+      {showChangePassword && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <Card className="w-full max-w-md p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-gray-900">Change Password</h2>
+              <button
+                onClick={() => {
+                  setShowChangePassword(false)
+                  setNewPassword('')
+                  setConfirmPassword('')
+                  setError('')
+                }}
+                className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">New Password</label>
+                <input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="At least 6 characters"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">Confirm Password</label>
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Re-enter password"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+
+              {error && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-sm text-red-700">{error}</p>
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <Button
+                  onClick={handleChangePassword}
+                  disabled={loading}
+                  className="w-full"
+                >
+                  {loading ? 'Updating...' : 'Update Password'}
+                </Button>
+                <Button
+                  onClick={() => {
+                    setShowChangePassword(false)
+                    setNewPassword('')
+                    setConfirmPassword('')
+                    setError('')
+                  }}
+                  variant="outline"
+                  className="w-full"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {/* Update Email Modal */}
+      {showUpdateEmail && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <Card className="w-full max-w-md p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-gray-900">Update Email</h2>
+              <button
+                onClick={() => {
+                  setShowUpdateEmail(false)
+                  setError('')
+                }}
+                className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">New Email</label>
+                <input
+                  type="email"
+                  value={newEmail}
+                  onChange={(e) => setNewEmail(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+
+              {error && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-sm text-red-700">{error}</p>
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <Button
+                  onClick={handleUpdateEmail}
+                  disabled={loading}
+                  className="w-full"
+                >
+                  {loading ? 'Updating...' : 'Update Email'}
+                </Button>
+                <Button
+                  onClick={() => {
+                    setShowUpdateEmail(false)
+                    setError('')
+                  }}
+                  variant="outline"
+                  className="w-full"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {/* Update Phone Modal */}
+      {showUpdatePhone && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <Card className="w-full max-w-md p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-gray-900">Update Phone Number</h2>
+              <button
+                onClick={() => {
+                  setShowUpdatePhone(false)
+                  setError('')
+                }}
+                className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">Phone Number</label>
+                <input
+                  type="tel"
+                  value={newPhone}
+                  onChange={(e) => setNewPhone(e.target.value)}
+                  placeholder="(555) 123-4567"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+
+              {error && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-sm text-red-700">{error}</p>
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <Button
+                  onClick={handleUpdatePhone}
+                  disabled={loading}
+                  className="w-full"
+                >
+                  {loading ? 'Updating...' : 'Update Phone'}
+                </Button>
+                <Button
+                  onClick={() => {
+                    setShowUpdatePhone(false)
+                    setError('')
+                  }}
+                  variant="outline"
+                  className="w-full"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
     </div>
   )
 }
