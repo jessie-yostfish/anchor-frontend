@@ -57,6 +57,8 @@ export function Dashboard() {
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([])
   const [isEditingRole, setIsEditingRole] = useState(false)
   const [selectedRole, setSelectedRole] = useState<Role>('parent')
+  const [showDateModal, setShowDateModal] = useState(false)
+  const [newCourtDate, setNewCourtDate] = useState('')
 
   useEffect(() => {
     const dismissed = localStorage.getItem('legal-banner-dismissed')
@@ -153,6 +155,18 @@ export function Dashboard() {
     const { error } = await updateProfile({ role: selectedRole })
     if (!error) {
       setIsEditingRole(false)
+    }
+  }
+
+  const handleSaveCourtDate = async () => {
+    if (!newCourtDate) return
+    haptics.light()
+    const { error } = await updateProfile({ next_court_date: newCourtDate })
+    if (!error) {
+      setShowDateModal(false)
+      setNewCourtDate('')
+      // Reload to show updated date
+      window.location.reload()
     }
   }
 
@@ -368,9 +382,9 @@ export function Dashboard() {
                         onClick={(e) => {
                           e.stopPropagation()
                           haptics.light()
-                          navigate('/settings')
+                          setShowDateModal(true)
                         }}
-                        className="text-purple-600 font-semibold text-sm hover:text-purple-700 transition-colors inline-block"
+                        className="text-purple-600 font-semibold text-sm hover:text-purple-700 transition-colors inline-block cursor-pointer"
                       >
                         Add date →
                       </span>
@@ -594,6 +608,59 @@ export function Dashboard() {
           <p className="text-xs text-gray-500 mt-1">This permanently deletes your data.</p>
         </div>
       </div>
+
+      {showDateModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-gray-900">Add Court Date</h2>
+              <button
+                onClick={() => {
+                  setShowDateModal(false)
+                  setNewCourtDate('')
+                }}
+                className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  Next Court Hearing Date
+                </label>
+                <input
+                  type="date"
+                  value={newCourtDate}
+                  onChange={(e) => setNewCourtDate(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <button
+                  onClick={handleSaveCourtDate}
+                  disabled={!newCourtDate}
+                  className="w-full px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  <Check className="w-5 h-5" />
+                  Save Date
+                </button>
+                <button
+                  onClick={() => {
+                    setShowDateModal(false)
+                    setNewCourtDate('')
+                  }}
+                  className="w-full px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-semibold"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <BottomNav />
     </div>
