@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, LogOut } from 'lucide-react'
+import { ArrowLeft, LogOut, Settings } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { haptics } from '../lib/haptics'
 import { ConfirmDialog } from './ConfirmDialog'
@@ -52,21 +52,34 @@ export function AppHeader({ showBack = true }: AppHeaderProps) {
               </span>
             </div>
           </div>
-          <button
-            onClick={() => {
-              haptics.light()
-              setShowLogoutDialog(true)
-            }}
-            className="flex items-center gap-2 px-3 py-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors text-sm"
-            aria-label="Sign out"
-          >
-            <LogOut className="w-4 h-4" />
-            <span className="font-medium hidden sm:inline">Sign Out</span>
-          </button>
+
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => {
+                haptics.light()
+                navigate('/settings')
+              }}
+              className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors"
+              aria-label="Settings"
+            >
+              <Settings className="w-5 h-5" />
+            </button>
+            <button
+              onClick={() => {
+                haptics.light()
+                setShowLogoutDialog(true)
+              }}
+              className="flex items-center gap-2 px-3 py-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors text-sm"
+              aria-label="Sign out"
+            >
+              <LogOut className="w-4 h-4" />
+              <span className="font-medium hidden sm:inline">Sign Out</span>
+            </button>
+          </div>
         </div>
       </div>
 
-     <ConfirmDialog
+      <ConfirmDialog
         isOpen={showLogoutDialog}
         onCancel={() => setShowLogoutDialog(false)}
         onConfirm={handleLogout}
