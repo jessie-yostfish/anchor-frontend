@@ -17,6 +17,8 @@ import {
   MapPin,
   User,
   Info,
+  Edit2,
+  Check,
 } from 'lucide-react'
 import { BottomNav, Button, AppHeader } from '../components'
 import { useAuth } from '../contexts/AuthContext'
@@ -43,14 +45,18 @@ interface TeamMember {
   icon: typeof Briefcase
 }
 
+type Role = 'parent' | 'youth' | 'supporter'
+
 export function Dashboard() {
-  const { profile } = useAuth()
+  const { profile, updateProfile } = useAuth()
   const navigate = useNavigate()
   const [showBanner, setShowBanner] = useState(true)
   const [isHearingExpanded, setIsHearingExpanded] = useState(false)
   const [courtInfo, setCourtInfo] = useState<CourtInfo | null>(null)
   const [currentStageData, setCurrentStageData] = useState<TimelineStage | null>(null)
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([])
+  const [isEditingRole, setIsEditingRole] = useState(false)
+  const [selectedRole, setSelectedRole] = useState<Role>('parent')
 
   useEffect(() => {
     const dismissed = localStorage.getItem('legal-banner-dismissed')
@@ -60,6 +66,12 @@ export function Dashboard() {
     loadCourtInfo()
     loadCurrentStage()
   }, [])
+
+  useEffect(() => {
+    if (profile?.role) {
+      setSelectedRole(profile.role as Role)
+    }
+  }, [profile?.role])
 
   useEffect(() => {
     const loadContacts = async () => {
@@ -136,6 +148,14 @@ export function Dashboard() {
     setShowBanner(false)
   }
 
+  const handleSaveRole = async () => {
+    haptics.light()
+    const { error } = await updateProfile({ role: selectedRole })
+    if (!error) {
+      setIsEditingRole(false)
+    }
+  }
+
   const getGreeting = () => {
     const hour = new Date().getHours()
     if (hour < 12) return 'Good morning'
@@ -169,6 +189,12 @@ export function Dashboard() {
   const role = profile?.role || 'parent'
   const nextCourtDate = profile?.next_court_date
   const currentStage = profile?.current_stage
+
+  const roleLabels: Record<Role, string> = {
+    parent: 'Parent',
+    youth: 'Youth',
+    supporter: 'Supporter',
+  }
 
   const stageLabels: Record<string, string> = {
     detention: 'Detention Hearing',
@@ -209,9 +235,52 @@ export function Dashboard() {
 
           <div className="flex items-start justify-between mb-4">
             <div className="flex-1" />
-            <span className="px-3 py-1 bg-purple-100 text-purple-700 text-xs font-bold tracking-wider rounded-full uppercase">
-              {role}
-            </span>
+            
+            {isEditingRole ? (
+              <div className="flex items-center gap-2">
+                <div className="flex gap-2">
+                  {(['parent', 'youth', 'supporter'] as Role[]).map((r) => (
+                    <button
+                      key={r}
+                      onClick={() => setSelectedRole(r)}
+                      className={`px-3 py-1 text-xs font-bold tracking-wider rounded-full uppercase transition-all ${
+                        selectedRole === r
+                          ? 'bg-purple-600 text-white'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
+                    >
+                      {roleLabels[r]}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  onClick={handleSaveRole}
+                  className="p-1.5 bg-green-100 text-green-700 rounded-full hover:bg-green-200 transition-colors"
+                >
+                  <Check className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => {
+                    setIsEditingRole(false)
+                    setSelectedRole(role as Role)
+                  }}
+                  className="p-1.5 bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => {
+                  haptics.light()
+                  setIsEditingRole(true)
+                }}
+                className="flex items-center gap-2 px-3 py-1 bg-purple-100 text-purple-700 text-xs font-bold tracking-wider rounded-full uppercase hover:bg-purple-200 transition-colors"
+              >
+                <span>{roleLabels[role as Role]}</span>
+                <Edit2 className="w-3 h-3" />
+              </button>
+            )}
           </div>
 
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -230,7 +299,7 @@ export function Dashboard() {
             </div>
 
             <p className="text-gray-600 mb-4">
-              You've completed {completedSteps} important milestone{completedSteps !== 1 ? 's' : ''}.
+              You have completed {completedSteps} important milestone{completedSteps !== 1 ? 's' : ''}.
             </p>
 
             <button
@@ -405,7 +474,7 @@ export function Dashboard() {
                 <Sparkles className="w-5 h-5 text-white" />
               </div>
               <div className="flex-1">
-                <h2 className="text-lg font-bold mb-2">Preparation & Reflection</h2>
+                <h2 className="text-lg font-bold mb-2">Preparation and Reflection</h2>
                 <p className="text-purple-100 text-sm mb-4">
                   Organize your thoughts before hearing or reflect on what happened after. This is
                   for your eyes only.
@@ -511,7 +580,8 @@ export function Dashboard() {
         </div>
       </div>
       
-<div className="mt-8 pt-8 border-t border-gray-200">
+      <div className="max-w-4xl mx-auto px-6">
+        <div className="mt-8 pt-8 border-t border-gray-200">
           <button
             onClick={() => {
               haptics.light()
@@ -523,6 +593,8 @@ export function Dashboard() {
           </button>
           <p className="text-xs text-gray-500 mt-1">This permanently deletes your data.</p>
         </div>
+      </div>
+
       <BottomNav />
     </div>
   )
