@@ -798,7 +798,7 @@ export function Onboarding() {
           <div>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
               {role === 'supporter'
-                ? 'Has the person you're supporting been to court yet?'
+                ? 'Has the person you you are supporting been to court yet?'
                 : 'Have you been to any court hearings yet?'}
             </h1>
             <p className="text-gray-600 mb-6">
