@@ -460,7 +460,7 @@ export function Onboarding() {
                 { id: 'removed', label: 'My children have been removed from my home' },
                 {
                   id: 'with_family',
-                  label: 'My children are staying with family/friends temporarily',
+                  label: 'My children are staying with family or friends temporarily',
                 },
               ].map((option) => (
                 <button
@@ -508,9 +508,9 @@ export function Onboarding() {
                 </label>
                 <div className="space-y-2">
                   {[
-                    { id: 'home', label: 'At home with my parent(s)', icon: Home },
+                    { id: 'home', label: 'At home with my parents', icon: Home },
                     { id: 'foster', label: 'In a foster home', icon: Users },
-                    { id: 'relative', label: "With a relative's family", icon: Heart },
+                    { id: 'relative', label: 'With a relative family', icon: Heart },
                     { id: 'group_home', label: 'In a group home', icon: Users },
                     { id: 'other', label: 'Other placement', icon: Home },
                   ].map((option) => {
@@ -576,19 +576,19 @@ export function Onboarding() {
               <div className="space-y-4 bg-gray-50 p-4 rounded-xl">
                 <div>
                   <label className="block mb-2 text-xs font-semibold tracking-wide uppercase text-gray-500">
-                    CASA Volunteer's Name
+                    CASA Volunteer Name
                   </label>
                   <input
                     type="text"
                     value={casdName}
                     onChange={(e) => setCasdName(e.target.value)}
-                    placeholder="Enter CASA volunteer's name"
+                    placeholder="Enter CASA volunteer name"
                     className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 focus:border-purple-600 focus:ring-4 focus:ring-purple-100 focus:outline-none"
                   />
                 </div>
                 <div>
                   <label className="block mb-2 text-xs font-semibold tracking-wide uppercase text-gray-500">
-                    CASA Volunteer's Phone
+                    CASA Volunteer Phone
                   </label>
                   <input
                     type="tel"
@@ -620,7 +620,7 @@ export function Onboarding() {
                   {[
                     {
                       id: 'family',
-                      label: 'Family member (grandparent, aunt/uncle, sibling, etc.)',
+                      label: 'Family member (grandparent, aunt, uncle, sibling, etc.)',
                     },
                     { id: 'friend', label: 'Family friend or close support person' },
                     { id: 'mentor', label: 'Mentor or community support' },
@@ -675,7 +675,7 @@ export function Onboarding() {
               {[
                 { id: 'yes', label: 'Yes, I have a lawyer', color: 'teal' },
                 { id: 'no', label: 'No, I do not have a lawyer yet', color: 'gray' },
-                { id: 'unsure', label: 'I am not sure / Need help getting one', color: 'purple' },
+                { id: 'unsure', label: 'I am not sure or need help getting one', color: 'purple' },
               ].map((option) => (
                 <button
                   key={option.id}
@@ -698,19 +698,19 @@ export function Onboarding() {
               <div className="space-y-4 bg-gray-50 p-4 rounded-xl">
                 <div>
                   <label className="block mb-2 text-xs font-semibold tracking-wide uppercase text-gray-500">
-                    Lawyer's Name
+                    Lawyer Name
                   </label>
                   <input
                     type="text"
                     value={lawyerName}
                     onChange={(e) => setLawyerName(e.target.value)}
-                    placeholder="Enter lawyer's name"
+                    placeholder="Enter lawyer name"
                     className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 focus:border-purple-600 focus:ring-4 focus:ring-purple-100 focus:outline-none"
                   />
                 </div>
                 <div>
                   <label className="block mb-2 text-xs font-semibold tracking-wide uppercase text-gray-500">
-                    Lawyer's Phone Number
+                    Lawyer Phone Number
                   </label>
                   <input
                     type="tel"
@@ -739,7 +739,7 @@ export function Onboarding() {
 
             <div className="space-y-3 mb-6">
               {[
-                { id: 'yes', label: 'Yes, I have a case manager/social worker', color: 'teal' },
+                { id: 'yes', label: 'Yes, I have a case manager or social worker', color: 'teal' },
                 { id: 'no', label: 'No, not yet', color: 'gray' },
                 { id: 'unsure', label: 'I am not sure', color: 'purple' },
               ].map((option) => (
@@ -764,19 +764,19 @@ export function Onboarding() {
               <div className="space-y-4 bg-gray-50 p-4 rounded-xl">
                 <div>
                   <label className="block mb-2 text-xs font-semibold tracking-wide uppercase text-gray-500">
-                    Case Manager's Name
+                    Case Manager Name
                   </label>
                   <input
                     type="text"
                     value={caseManagerName}
                     onChange={(e) => setCaseManagerName(e.target.value)}
-                    placeholder="Enter case manager's name"
+                    placeholder="Enter case manager name"
                     className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 focus:border-purple-600 focus:ring-4 focus:ring-purple-100 focus:outline-none"
                   />
                 </div>
                 <div>
                   <label className="block mb-2 text-xs font-semibold tracking-wide uppercase text-gray-500">
-                    Case Manager's Phone Number
+                    Case Manager Phone Number
                   </label>
                   <input
                     type="tel"
@@ -798,11 +798,11 @@ export function Onboarding() {
           <div>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
               {role === 'supporter'
-                ? 'Has the person you you are supporting been to court yet?'
+                ? 'Has the person you are supporting been to court yet?'
                 : 'Have you been to any court hearings yet?'}
             </h1>
             <p className="text-gray-600 mb-6">
-              We will help you figure out where {role === 'supporter' ? 'they are' : "you are"} in
+              We will help you figure out where {role === 'supporter' ? 'they are' : 'you are'} in
               the process step by step.
             </p>
 
@@ -853,7 +853,7 @@ export function Onboarding() {
           (role === 'supporter' && step === 4)) && (
           <div>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              Let us figure out which step {role === 'supporter' ? 'they are' : "you are"} at
+              Let us figure out which step {role === 'supporter' ? 'they are' : 'you are'} at
             </h1>
             <p className="text-gray-600 mb-2">
               Answer a few questions about what has happened so far.
@@ -978,7 +978,7 @@ export function Onboarding() {
                 className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 focus:border-purple-600 focus:ring-4 focus:ring-purple-100 focus:outline-none"
               />
               <p className="mt-2 text-sm text-gray-500">
-                Leave blank if you don't know or don't have one scheduled yet.
+                Leave blank if you do not know or do not have one scheduled yet.
               </p>
             </div>
           </div>
@@ -1002,10 +1002,10 @@ export function Onboarding() {
                 onChange={(e) => setPrimaryConcerns(e.target.value)}
                 placeholder={
                   role === 'youth'
-                    ? 'Share what's on your mind – like school, visits with family, your placement, or anything else...'
+                    ? 'Share what is on your mind - like school, visits with family, your placement, or anything else...'
                     : role === 'supporter'
-                    ? 'Share what you're concerned about – like helping them prepare for court, understanding the process, finding resources...'
-                    : 'Share what's on your mind – like upcoming hearings, visits, services, or anything else you're concerned about...'
+                    ? 'Share what you are concerned about - like helping them prepare for court, understanding the process, finding resources...'
+                    : 'Share what is on your mind - like upcoming hearings, visits, services, or anything else you are concerned about...'
                 }
                 className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 focus:border-purple-600 focus:ring-4 focus:ring-purple-100 focus:outline-none min-h-32 resize-none"
               />
@@ -1080,11 +1080,11 @@ export function Onboarding() {
               <div className="flex gap-3">
                 <Lock className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
                 <div className="space-y-2 text-sm text-amber-900">
-                  <p className="font-semibold">Privacy & Security</p>
+                  <p className="font-semibold">Privacy and Security</p>
                   <ul className="space-y-1 text-xs">
                     <li>Your phone number is encrypted and never shared with third parties</li>
                     <li>You can turn off notifications or change your number anytime</li>
-                    <li>Text 'STOP' to any message to unsubscribe immediately</li>
+                    <li>Text STOP to any message to unsubscribe immediately</li>
                     <li>Messages contain only appointment times, not personal details</li>
                   </ul>
                 </div>
@@ -1098,7 +1098,7 @@ export function Onboarding() {
           <div>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">Reminder Settings</h1>
             <p className="text-gray-600 mb-6">
-              Choose when you'd like to receive reminders for different types of events
+              Choose when you would like to receive reminders for different types of events
             </p>
 
             <div className="space-y-4 mb-6">
@@ -1118,7 +1118,7 @@ export function Onboarding() {
                 {
                   key: 'tasks',
                   icon: Clipboard,
-                  label: 'Tasks & Classes',
+                  label: 'Tasks and Classes',
                   description: 'Reminders for parenting classes and other required tasks',
                 },
                 {
@@ -1200,11 +1200,11 @@ export function Onboarding() {
               <p className="text-xs font-semibold text-purple-900 mb-2">Sample Messages:</p>
               <div className="space-y-2 text-xs text-purple-800">
                 <p className="bg-white p-2 rounded">
-                  "Tomorrow 9:00 AM: Court hearing scheduled. Remember to bring required documents.
-                  Good luck!"
+                  Tomorrow 9:00 AM: Court hearing scheduled. Remember to bring required documents.
+                  Good luck!
                 </p>
                 <p className="bg-white p-2 rounded">
-                  "Today 2:00 PM: Visit with children at Family Center. Arrive 15 minutes early."
+                  Today 2:00 PM: Visit with children at Family Center. Arrive 15 minutes early.
                 </p>
               </div>
             </div>
