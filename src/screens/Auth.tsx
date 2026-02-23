@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Mail, Lock } from 'lucide-react'
+import { Mail, Lock, User } from 'lucide-react'
 import { Button, Input, Header, PrivacyNotice, TabSwitcher } from '../components'
 import { useAuth } from '../contexts/AuthContext'
 
@@ -11,6 +11,8 @@ export function Auth() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [firstName, setFirstName] = useState('')
+  const [role, setRole] = useState<'parent' | 'youth' | 'supporter'>('parent')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const { signIn, signUp } = useAuth()
@@ -30,11 +32,23 @@ export function Auth() {
       return
     }
 
+    if (mode === 'signup' && !firstName.trim()) {
+      setError('Please enter your first name')
+      return
+    }
+
     setLoading(true)
 
     try {
       if (mode === 'signup') {
-        const { error } = await signUp(email, password)
+        const { error } = await signUp({
+          email,
+          password,
+          metadata: {
+            first_name: firstName,
+            role: role,
+          },
+        })
         if (error) {
           setError(error.message)
         } else {
@@ -58,6 +72,12 @@ export function Auth() {
   const tabs = [
     { id: 'signup', label: 'Sign Up' },
     { id: 'signin', label: 'Sign In' },
+  ]
+
+  const roles = [
+    { value: 'parent', label: 'Parent/Guardian', description: 'I am a parent or legal guardian' },
+    { value: 'youth', label: 'Youth', description: 'I am the young person in the case' },
+    { value: 'supporter', label: 'Supporter', description: 'I support someone in a case' },
   ]
 
   return (
@@ -85,6 +105,58 @@ export function Auth() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {mode === 'signup' && (
+            <>
+              <Input
+                label="First Name"
+                type="text"
+                placeholder="Your first name"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                icon={<User className="w-5 h-5" />}
+                required
+              />
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  I am a...
+                </label>
+                <div className="space-y-3">
+                  {roles.map((r) => (
+                    <button
+                      key={r.value}
+                      type="button"
+                      onClick={() => setRole(r.value as 'parent' | 'youth' | 'supporter')}
+                      className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
+                        role === r.value
+                          ? 'border-purple-500 bg-purple-50'
+                          : 'border-gray-200 bg-white hover:border-gray-300'
+                      }`}
+                    >
+                      <div className="flex items-start">
+                        <div
+                          className={`w-5 h-5 rounded-full border-2 mt-0.5 mr-3 flex items-center justify-center ${
+                            role === r.value
+                              ? 'border-purple-500'
+                              : 'border-gray-300'
+                          }`}
+                        >
+                          {role === r.value && (
+                            <div className="w-3 h-3 rounded-full bg-purple-500" />
+                          )}
+                        </div>
+                        <div>
+                          <div className="font-medium text-gray-900">{r.label}</div>
+                          <div className="text-sm text-gray-600">{r.description}</div>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+
           <Input
             label="Email"
             type="email"
