@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { MapPin, Users, User, Heart, ListChecks, ChevronDown, ChevronUp, AlertTriangle, Eye, EyeOff } from 'lucide-react'
 import { Card, BottomNav, AppHeader } from '../components'
 import { supabase } from '../lib/supabase'
+import { useAuth } from '../contexts/AuthContext'
 
 interface RightDuty {
   id: string
@@ -19,12 +20,20 @@ interface RightDuty {
 type RoleTab = 'parent' | 'youth' | 'supporter'
 
 export function RightsScreen() {
+  const { profile } = useAuth()
   const [activeTab, setActiveTab] = useState<RoleTab>('parent')
   const [rightsAndDuties, setRightsAndDuties] = useState<RightDuty[]>([])
   const [loading, setLoading] = useState(true)
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [showLegalBasis, setShowLegalBasis] = useState(false)
   const [showDutiesOnly, setShowDutiesOnly] = useState(false)
+
+  useEffect(() => {
+    // Set active tab based on user's role
+    if (profile?.role && ['parent', 'youth', 'supporter'].includes(profile.role)) {
+      setActiveTab(profile.role as RoleTab)
+    }
+  }, [profile?.role])
 
   useEffect(() => {
     loadRightsAndDuties()
@@ -140,14 +149,14 @@ export function RightsScreen() {
       label: 'Youth',
       icon: <User className="w-5 h-5" />,
       heroTitle: 'Youth Rights in Foster Care',
-      heroDesc: "If you're in foster care, these are your rights. You deserve to be treated with respect and have your voice heard.",
+      heroDesc: "If you are in foster care, these are your rights. You deserve to be treated with respect and have your voice heard.",
       heroColor: 'bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200',
       tipColor: 'bg-blue-50 border-blue-200 text-blue-800',
     },
     supporter: {
       label: 'Supporters',
       icon: <Heart className="w-5 h-5" />,
-      heroTitle: 'Supporter Rights & Responsibilities',
+      heroTitle: 'Supporter Rights and Responsibilities',
       heroDesc: 'As a relative, caregiver, or foster parent, you have important rights and responsibilities in the dependency process.',
       heroColor: 'bg-gradient-to-br from-teal-50 to-teal-100 border-teal-200',
       tipColor: 'bg-teal-50 border-teal-200 text-teal-800',
@@ -161,7 +170,7 @@ export function RightsScreen() {
       <AppHeader />
       <div className="max-w-md mx-auto px-6 py-8 pb-24">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Your Rights & Responsibilities</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Your Rights and Responsibilities</h1>
           <p className="text-gray-600">Know your rights in dependency court</p>
         </div>
 
