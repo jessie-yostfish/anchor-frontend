@@ -12,6 +12,8 @@ import {
   Bell,
   Lock,
   ChevronLeft,
+  Home,
+  MessageCircle,
 } from 'lucide-react'
 import { Button, PrivacyNotice } from '../components'
 import { useAuth } from '../contexts/AuthContext'
@@ -22,6 +24,8 @@ type LawyerStatus = 'yes' | 'no' | 'unsure'
 type CaseManagerStatus = 'yes' | 'no' | 'unsure'
 type CourtHistory = 'not_yet' | 'been_to_court' | 'scheduled'
 type Stage = 'detention' | 'jurisdiction' | 'disposition' | 'review' | 'permanency'
+type YouthPlacement = 'home' | 'foster' | 'relative' | 'group_home' | 'other'
+type SupporterRelation = 'family' | 'friend' | 'mentor' | 'professional' | 'other'
 
 interface ReminderSettings {
   courtHearings: { enabled: boolean; timing: string }
@@ -36,8 +40,8 @@ export function Onboarding() {
   const [step, setStep] = useState(1)
   const [saving, setSaving] = useState(false)
 
+  // Common fields
   const [firstName, setFirstName] = useState('')
-  const [childrenStatus, setChildrenStatus] = useState<ChildrenStatus | null>(null)
   const [lawyerStatus, setLawyerStatus] = useState<LawyerStatus | null>(null)
   const [lawyerName, setLawyerName] = useState('')
   const [lawyerPhone, setLawyerPhone] = useState('')
@@ -57,9 +61,23 @@ export function Onboarding() {
     visits: { enabled: true, timing: '2_hours' },
   })
 
+  // Parent-specific fields
+  const [childrenStatus, setChildrenStatus] = useState<ChildrenStatus | null>(null)
+
+  // Youth-specific fields
+  const [youthPlacement, setYouthPlacement] = useState<YouthPlacement | null>(null)
+  const [youthAge, setYouthAge] = useState('')
+  const [hasCASD, setHasCASD] = useState<LawyerStatus | null>(null)
+  const [casdName, setCasdName] = useState('')
+  const [casdPhone, setCasdPhone] = useState('')
+
+  // Supporter-specific fields
+  const [supporterRelation, setSupporterRelation] = useState<SupporterRelation | null>(null)
+  const [whoSupporting, setWhoSupporting] = useState('')
+
   const role = (profile?.role as Role) || 'parent'
 
- useEffect(() => {
+  useEffect(() => {
     if (profile?.first_name) {
       setFirstName(profile.first_name)
     }
@@ -85,63 +103,148 @@ export function Onboarding() {
     let nextStep = step + 1
     const updates: Record<string, unknown> = {}
 
-    switch (step) {
-      case 1:
-        updates.first_name = firstName
-        updates.full_name = firstName
-        break
-      case 2:
-        if (role !== 'parent') {
-          nextStep = 3
-        } else {
+    // PARENT PATHWAY
+    if (role === 'parent') {
+      switch (step) {
+        case 1:
+          updates.first_name = firstName
+          break
+        case 2:
           updates.children_status = childrenStatus
-        }
-        break
-      case 3:
-        updates.has_lawyer = lawyerStatus
-        if (lawyerStatus === 'yes') {
-          updates.lawyer_name = lawyerName
-          updates.lawyer_phone = lawyerPhone
-        }
-        break
-      case 4:
-        updates.has_case_manager = caseManagerStatus
-        if (caseManagerStatus === 'yes') {
-          updates.case_manager_name = caseManagerName
-          updates.case_manager_phone = caseManagerPhone
-        }
-        break
-      case 5:
-        updates.court_history = courtHistory
-        if (courtHistory === 'not_yet' || courtHistory === 'scheduled') {
-          nextStep = 7
-        }
-        break
-      case 6:
-        updates.current_stage = selectedStages[selectedStages.length - 1] || null
-        break
-      case 7:
-        updates.next_court_date = nextCourtDate || null
-        break
-      case 8:
-        updates.primary_concerns = primaryConcerns
-        break
-      case 9:
-        updates.text_reminders_enabled = textRemindersEnabled
-        updates.phone_number = textRemindersEnabled ? phoneNumber : null
-        if (!textRemindersEnabled) {
+          break
+        case 3:
+          updates.has_lawyer = lawyerStatus
+          if (lawyerStatus === 'yes') {
+            updates.lawyer_name = lawyerName
+            updates.lawyer_phone = lawyerPhone
+          }
+          break
+        case 4:
+          updates.has_case_manager = caseManagerStatus
+          if (caseManagerStatus === 'yes') {
+            updates.case_manager_name = caseManagerName
+            updates.case_manager_phone = caseManagerPhone
+          }
+          break
+        case 5:
+          updates.court_history = courtHistory
+          if (courtHistory === 'not_yet' || courtHistory === 'scheduled') {
+            nextStep = 7
+          }
+          break
+        case 6:
+          updates.current_stage = selectedStages[selectedStages.length - 1] || null
+          break
+        case 7:
+          updates.next_court_date = nextCourtDate || null
+          break
+        case 8:
+          updates.primary_concerns = primaryConcerns
+          break
+        case 9:
+          updates.text_reminders_enabled = textRemindersEnabled
+          updates.phone_number = textRemindersEnabled ? phoneNumber : null
+          if (!textRemindersEnabled) {
+            nextStep = 11
+          }
+          break
+        case 10:
+          updates.reminder_settings = reminderSettings
           nextStep = 11
-        }
-        break
-      case 10:
-        updates.reminder_settings = reminderSettings
-        nextStep = 11
-        break
+          break
+      }
+    }
+
+    // YOUTH PATHWAY
+    if (role === 'youth') {
+      switch (step) {
+        case 1:
+          updates.first_name = firstName
+          break
+        case 2:
+          updates.youth_age = youthAge
+          updates.youth_placement = youthPlacement
+          break
+        case 3:
+          updates.has_lawyer = lawyerStatus
+          if (lawyerStatus === 'yes') {
+            updates.lawyer_name = lawyerName
+            updates.lawyer_phone = lawyerPhone
+          }
+          break
+        case 4:
+          updates.has_casd = hasCASD
+          if (hasCASD === 'yes') {
+            updates.casd_name = casdName
+            updates.casd_phone = casdPhone
+          }
+          break
+        case 5:
+          updates.has_case_manager = caseManagerStatus
+          if (caseManagerStatus === 'yes') {
+            updates.case_manager_name = caseManagerName
+            updates.case_manager_phone = caseManagerPhone
+          }
+          break
+        case 6:
+          updates.court_history = courtHistory
+          if (courtHistory === 'not_yet' || courtHistory === 'scheduled') {
+            nextStep = 8
+          }
+          break
+        case 7:
+          updates.current_stage = selectedStages[selectedStages.length - 1] || null
+          break
+        case 8:
+          updates.next_court_date = nextCourtDate || null
+          break
+        case 9:
+          updates.primary_concerns = primaryConcerns
+          break
+        case 10:
+          updates.text_reminders_enabled = textRemindersEnabled
+          updates.phone_number = textRemindersEnabled ? phoneNumber : null
+          nextStep = 11
+          break
+      }
+    }
+
+    // SUPPORTER PATHWAY
+    if (role === 'supporter') {
+      switch (step) {
+        case 1:
+          updates.first_name = firstName
+          break
+        case 2:
+          updates.supporter_relation = supporterRelation
+          updates.who_supporting = whoSupporting
+          break
+        case 3:
+          updates.court_history = courtHistory
+          if (courtHistory === 'not_yet' || courtHistory === 'scheduled') {
+            nextStep = 5
+          }
+          break
+        case 4:
+          updates.current_stage = selectedStages[selectedStages.length - 1] || null
+          break
+        case 5:
+          updates.next_court_date = nextCourtDate || null
+          break
+        case 6:
+          updates.primary_concerns = primaryConcerns
+          break
+        case 7:
+          updates.text_reminders_enabled = textRemindersEnabled
+          updates.phone_number = textRemindersEnabled ? phoneNumber : null
+          nextStep = 8
+          break
+      }
     }
 
     await saveProgress(nextStep, updates)
 
-    if (nextStep === 11) {
+    if (nextStep >= 11 || (role === 'supporter' && nextStep >= 8)) {
       await updateProfile({ intake_completed: true })
       navigate('/dashboard')
     } else {
@@ -152,54 +255,130 @@ export function Onboarding() {
   const handleBack = () => {
     let prevStep = step - 1
 
-    if (step === 3 && role !== 'parent') {
-      prevStep = 1
-    } else if (step === 7 && courtHistory !== 'been_to_court') {
-      prevStep = 5
-    } else if (step === 11 && !textRemindersEnabled) {
-      prevStep = 9
+    if (role === 'parent') {
+      if (step === 7 && courtHistory !== 'been_to_court') {
+        prevStep = 5
+      } else if (step === 11 && !textRemindersEnabled) {
+        prevStep = 9
+      }
+    }
+
+    if (role === 'youth') {
+      if (step === 8 && courtHistory !== 'been_to_court') {
+        prevStep = 6
+      }
+    }
+
+    if (role === 'supporter') {
+      if (step === 5 && courtHistory !== 'been_to_court') {
+        prevStep = 3
+      }
     }
 
     setStep(prevStep)
   }
 
   const isStepValid = () => {
-    switch (step) {
-      case 1:
-        return firstName.trim().length > 0
-      case 2:
-        return role !== 'parent' || childrenStatus !== null
-      case 3:
-        if (lawyerStatus === null) return false
-        if (lawyerStatus === 'yes') {
-          return lawyerName.trim().length > 0 && lawyerPhone.trim().length > 0
-        }
-        return true
-      case 4:
-        if (caseManagerStatus === null) return false
-        if (caseManagerStatus === 'yes') {
-          return caseManagerName.trim().length > 0 && caseManagerPhone.trim().length > 0
-        }
-        return true
-      case 5:
-        return courtHistory !== null
-      case 6:
-        return selectedStages.length > 0
-      case 7:
-        return true
-      case 8:
-        return true
-      case 9:
-        if (!textRemindersEnabled) return true
-        return phoneNumber.trim().length >= 10
-      case 10:
-        return true
-      default:
-        return false
+    // Common validations
+    if (step === 1) return firstName.trim().length > 0
+
+    // PARENT VALIDATIONS
+    if (role === 'parent') {
+      switch (step) {
+        case 2:
+          return childrenStatus !== null
+        case 3:
+          if (lawyerStatus === null) return false
+          if (lawyerStatus === 'yes') {
+            return lawyerName.trim().length > 0 && lawyerPhone.trim().length > 0
+          }
+          return true
+        case 4:
+          if (caseManagerStatus === null) return false
+          if (caseManagerStatus === 'yes') {
+            return caseManagerName.trim().length > 0 && caseManagerPhone.trim().length > 0
+          }
+          return true
+        case 5:
+          return courtHistory !== null
+        case 6:
+          return selectedStages.length > 0
+        case 7:
+        case 8:
+          return true
+        case 9:
+          if (!textRemindersEnabled) return true
+          return phoneNumber.trim().length >= 10
+        case 10:
+          return true
+      }
     }
+
+    // YOUTH VALIDATIONS
+    if (role === 'youth') {
+      switch (step) {
+        case 2:
+          return youthPlacement !== null && youthAge.trim().length > 0
+        case 3:
+          if (lawyerStatus === null) return false
+          if (lawyerStatus === 'yes') {
+            return lawyerName.trim().length > 0 && lawyerPhone.trim().length > 0
+          }
+          return true
+        case 4:
+          if (hasCASD === null) return false
+          if (hasCASD === 'yes') {
+            return casdName.trim().length > 0 && casdPhone.trim().length > 0
+          }
+          return true
+        case 5:
+          if (caseManagerStatus === null) return false
+          if (caseManagerStatus === 'yes') {
+            return caseManagerName.trim().length > 0 && caseManagerPhone.trim().length > 0
+          }
+          return true
+        case 6:
+          return courtHistory !== null
+        case 7:
+          return selectedStages.length > 0
+        case 8:
+        case 9:
+          return true
+        case 10:
+          if (!textRemindersEnabled) return true
+          return phoneNumber.trim().length >= 10
+      }
+    }
+
+    // SUPPORTER VALIDATIONS
+    if (role === 'supporter') {
+      switch (step) {
+        case 2:
+          return supporterRelation !== null && whoSupporting.trim().length > 0
+        case 3:
+          return courtHistory !== null
+        case 4:
+          return selectedStages.length > 0
+        case 5:
+        case 6:
+          return true
+        case 7:
+          if (!textRemindersEnabled) return true
+          return phoneNumber.trim().length >= 10
+      }
+    }
+
+    return false
   }
 
-  const totalSteps = 10
+  const getTotalSteps = () => {
+    if (role === 'parent') return 10
+    if (role === 'youth') return 10
+    if (role === 'supporter') return 7
+    return 10
+  }
+
+  const totalSteps = getTotalSteps()
   const progress = (step / totalSteps) * 100
 
   const roleIcons = {
@@ -234,17 +413,19 @@ export function Onboarding() {
               <h2 className="text-sm font-semibold text-purple-600 uppercase tracking-wide">
                 {roleLabels[role]}
               </h2>
-              <p className="text-xs text-gray-500">Step {step} of {totalSteps}</p>
+              <p className="text-xs text-gray-500">
+                Step {step} of {totalSteps}
+              </p>
             </div>
           </div>
         </div>
 
+        {/* STEP 1: First Name (ALL ROLES) */}
         {step === 1 && (
           <div>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">What should we call you?</h1>
             <p className="text-gray-600 mb-6">
-              Just your first name is fine. Anchor will use this to personalize your experience and
-              guide you through the dependency process.
+              Just your first name is fine. Anchor will use this to personalize your experience.
             </p>
 
             <div className="mb-8">
@@ -263,7 +444,8 @@ export function Onboarding() {
           </div>
         )}
 
-        {step === 2 && role === 'parent' && (
+        {/* ============= PARENT PATHWAY ============= */}
+        {role === 'parent' && step === 2 && (
           <div>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
               Are your children currently with you?
@@ -276,7 +458,10 @@ export function Onboarding() {
               {[
                 { id: 'at_home', label: 'My children are still with me at home' },
                 { id: 'removed', label: 'My children have been removed from my home' },
-                { id: 'with_family', label: 'My children are staying with family/friends temporarily' },
+                {
+                  id: 'with_family',
+                  label: 'My children are staying with family/friends temporarily',
+                },
               ].map((option) => (
                 <button
                   key={option.id}
@@ -295,13 +480,195 @@ export function Onboarding() {
           </div>
         )}
 
-        {step === 3 && (
+        {/* ============= YOUTH PATHWAY ============= */}
+        {role === 'youth' && step === 2 && (
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Tell us about your situation</h1>
+            <p className="text-gray-600 mb-6">This helps us provide the right support for you.</p>
+
+            <div className="space-y-6 mb-8">
+              <div>
+                <label className="block mb-2 text-xs font-semibold tracking-wide uppercase text-gray-500">
+                  How old are you?
+                </label>
+                <input
+                  type="number"
+                  value={youthAge}
+                  onChange={(e) => setYouthAge(e.target.value)}
+                  placeholder="Your age"
+                  min="0"
+                  max="21"
+                  className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 focus:border-purple-600 focus:ring-4 focus:ring-purple-100 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block mb-3 text-xs font-semibold tracking-wide uppercase text-gray-500">
+                  Where are you currently living?
+                </label>
+                <div className="space-y-2">
+                  {[
+                    { id: 'home', label: 'At home with my parent(s)', icon: Home },
+                    { id: 'foster', label: 'In a foster home', icon: Users },
+                    { id: 'relative', label: "With a relative's family", icon: Heart },
+                    { id: 'group_home', label: 'In a group home', icon: Users },
+                    { id: 'other', label: 'Other placement', icon: Home },
+                  ].map((option) => {
+                    const Icon = option.icon
+                    return (
+                      <button
+                        key={option.id}
+                        type="button"
+                        onClick={() => setYouthPlacement(option.id as YouthPlacement)}
+                        className={`w-full text-left p-4 rounded-xl border-2 transition-all ${
+                          youthPlacement === option.id
+                            ? 'border-purple-600 bg-purple-50'
+                            : 'border-gray-200 bg-white hover:border-purple-200'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <Icon className="w-5 h-5 text-gray-400" />
+                          <div className="font-medium text-gray-900">{option.label}</div>
+                        </div>
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {role === 'youth' && step === 4 && (
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+              Do you have a CASA volunteer or advocate?
+            </h1>
+            <p className="text-gray-600 mb-6">
+              CASA (Court Appointed Special Advocate) volunteers are trained community members who
+              support youth in foster care.
+            </p>
+
+            <div className="space-y-3 mb-6">
+              {[
+                { id: 'yes', label: 'Yes, I have a CASA volunteer', color: 'teal' },
+                { id: 'no', label: 'No, I do not have a CASA', color: 'gray' },
+                { id: 'unsure', label: 'I am not sure', color: 'purple' },
+              ].map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  onClick={() => setHasCASD(option.id as LawyerStatus)}
+                  className={`w-full text-left p-4 rounded-xl border-2 transition-all ${
+                    hasCASD === option.id
+                      ? option.color === 'teal'
+                        ? 'border-teal-600 bg-teal-50'
+                        : 'border-purple-600 bg-purple-50'
+                      : 'border-gray-200 bg-white hover:border-gray-300'
+                  }`}
+                >
+                  <div className="font-medium text-gray-900">{option.label}</div>
+                </button>
+              ))}
+            </div>
+
+            {hasCASD === 'yes' && (
+              <div className="space-y-4 bg-gray-50 p-4 rounded-xl">
+                <div>
+                  <label className="block mb-2 text-xs font-semibold tracking-wide uppercase text-gray-500">
+                    CASA Volunteer's Name
+                  </label>
+                  <input
+                    type="text"
+                    value={casdName}
+                    onChange={(e) => setCasdName(e.target.value)}
+                    placeholder="Enter CASA volunteer's name"
+                    className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 focus:border-purple-600 focus:ring-4 focus:ring-purple-100 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block mb-2 text-xs font-semibold tracking-wide uppercase text-gray-500">
+                    CASA Volunteer's Phone
+                  </label>
+                  <input
+                    type="tel"
+                    value={casdPhone}
+                    onChange={(e) => setCasdPhone(e.target.value)}
+                    placeholder="(555) 123-4567"
+                    className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 focus:border-purple-600 focus:ring-4 focus:ring-purple-100 focus:outline-none"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ============= SUPPORTER PATHWAY ============= */}
+        {role === 'supporter' && step === 2 && (
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Tell us about your role</h1>
+            <p className="text-gray-600 mb-6">
+              This helps us provide you with the right information and resources.
+            </p>
+
+            <div className="space-y-6 mb-8">
+              <div>
+                <label className="block mb-3 text-xs font-semibold tracking-wide uppercase text-gray-500">
+                  What is your relationship?
+                </label>
+                <div className="space-y-2">
+                  {[
+                    {
+                      id: 'family',
+                      label: 'Family member (grandparent, aunt/uncle, sibling, etc.)',
+                    },
+                    { id: 'friend', label: 'Family friend or close support person' },
+                    { id: 'mentor', label: 'Mentor or community support' },
+                    { id: 'professional', label: 'Professional advocate or helper' },
+                    { id: 'other', label: 'Other' },
+                  ].map((option) => (
+                    <button
+                      key={option.id}
+                      type="button"
+                      onClick={() => setSupporterRelation(option.id as SupporterRelation)}
+                      className={`w-full text-left p-4 rounded-xl border-2 transition-all ${
+                        supporterRelation === option.id
+                          ? 'border-purple-600 bg-purple-50'
+                          : 'border-gray-200 bg-white hover:border-purple-200'
+                      }`}
+                    >
+                      <div className="font-medium text-gray-900">{option.label}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block mb-2 text-xs font-semibold tracking-wide uppercase text-gray-500">
+                  Who are you supporting?
+                </label>
+                <input
+                  type="text"
+                  value={whoSupporting}
+                  onChange={(e) => setWhoSupporting(e.target.value)}
+                  placeholder="e.g., My niece Sarah, The Rodriguez family"
+                  className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 focus:border-purple-600 focus:ring-4 focus:ring-purple-100 focus:outline-none"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ============= SHARED STEPS (Lawyer) ============= */}
+        {((role === 'parent' && step === 3) || (role === 'youth' && step === 3)) && (
           <div>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
               Do you have a lawyer assigned to your case?
             </h1>
             <p className="text-gray-600 mb-6">
-              Having legal representation is your right. We can help you understand what to expect.
+              {role === 'youth'
+                ? 'Every young person in dependency court has the right to their own lawyer.'
+                : 'Having legal representation is your right. We can help you understand what to expect.'}
             </p>
 
             <div className="space-y-3 mb-6">
@@ -358,13 +725,16 @@ export function Onboarding() {
           </div>
         )}
 
-        {step === 4 && (
+        {/* ============= SHARED STEPS (Case Manager) ============= */}
+        {((role === 'parent' && step === 4) || (role === 'youth' && step === 5)) && (
           <div>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
               Do you have a case manager or social worker?
             </h1>
             <p className="text-gray-600 mb-6">
-              This person helps coordinate services and visits. Their contact info is important to have.
+              {role === 'youth'
+                ? 'This is the social worker assigned to your case who helps coordinate services and visits.'
+                : 'This person helps coordinate services and visits. Their contact info is important to have.'}
             </p>
 
             <div className="space-y-3 mb-6">
@@ -421,20 +791,44 @@ export function Onboarding() {
           </div>
         )}
 
-        {step === 5 && (
+        {/* ============= SHARED STEPS (Court History) ============= */}
+        {((role === 'parent' && step === 5) ||
+          (role === 'youth' && step === 6) ||
+          (role === 'supporter' && step === 3)) && (
           <div>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              Have you been to any court hearings yet?
+              {role === 'supporter'
+                ? 'Has the person you're supporting been to court yet?'
+                : 'Have you been to any court hearings yet?'}
             </h1>
             <p className="text-gray-600 mb-6">
-              We will help you figure out where you are in the process step by step.
+              We will help you figure out where {role === 'supporter' ? 'they are' : "you are"} in
+              the process step by step.
             </p>
 
             <div className="space-y-3 mb-8">
               {[
-                { id: 'not_yet', label: 'No, I have not been to court yet' },
-                { id: 'been_to_court', label: 'Yes, I have been to one or more court hearings' },
-                { id: 'scheduled', label: 'I have my first court date scheduled but have not gone yet' },
+                {
+                  id: 'not_yet',
+                  label:
+                    role === 'supporter'
+                      ? 'No, they have not been to court yet'
+                      : 'No, I have not been to court yet',
+                },
+                {
+                  id: 'been_to_court',
+                  label:
+                    role === 'supporter'
+                      ? 'Yes, they have been to one or more hearings'
+                      : 'Yes, I have been to one or more court hearings',
+                },
+                {
+                  id: 'scheduled',
+                  label:
+                    role === 'supporter'
+                      ? 'They have a court date scheduled but have not gone yet'
+                      : 'I have my first court date scheduled but have not gone yet',
+                },
               ].map((option) => (
                 <button
                   key={option.id}
@@ -453,10 +847,13 @@ export function Onboarding() {
           </div>
         )}
 
-        {step === 6 && (
+        {/* ============= SHARED STEPS (Case Stage) ============= */}
+        {((role === 'parent' && step === 6) ||
+          (role === 'youth' && step === 7) ||
+          (role === 'supporter' && step === 4)) && (
           <div>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              Let us figure out which step you are at
+              Let us figure out which step {role === 'supporter' ? 'they are' : "you are"} at
             </h1>
             <p className="text-gray-600 mb-2">
               Answer a few questions about what has happened so far.
@@ -469,7 +866,10 @@ export function Onboarding() {
               {[
                 {
                   id: 'detention',
-                  label: 'I went to my first court hearing (within a few days of removal)',
+                  label:
+                    role === 'supporter'
+                      ? 'They went to their first court hearing (within a few days of removal)'
+                      : 'I went to my first court hearing (within a few days of removal)',
                   description: 'Detention Hearing',
                 },
                 {
@@ -479,17 +879,26 @@ export function Onboarding() {
                 },
                 {
                   id: 'disposition',
-                  label: 'I got my case plan with things I need to complete',
+                  label:
+                    role === 'supporter'
+                      ? 'They got a case plan with things to complete'
+                      : 'I got my case plan with things I need to complete',
                   description: 'Disposition Hearing',
                 },
                 {
                   id: 'review',
-                  label: 'I am working on my case plan and going to regular review hearings',
+                  label:
+                    role === 'supporter'
+                      ? 'They are working on the case plan and going to regular review hearings'
+                      : 'I am working on my case plan and going to regular review hearings',
                   description: 'Review Hearings',
                 },
                 {
                   id: 'permanency',
-                  label: 'The court is deciding on a permanent plan for my children',
+                  label:
+                    role === 'supporter'
+                      ? 'The court is deciding on a permanent plan for the children'
+                      : 'The court is deciding on a permanent plan for my children',
                   description: 'Permanency Hearing',
                 },
               ].map((stage) => {
@@ -515,13 +924,15 @@ export function Onboarding() {
                     <div className="flex items-start gap-3">
                       <div
                         className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                          isSelected
-                            ? 'border-purple-600 bg-purple-600'
-                            : 'border-gray-300'
+                          isSelected ? 'border-purple-600 bg-purple-600' : 'border-gray-300'
                         }`}
                       >
                         {isSelected && (
-                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                          <svg
+                            className="w-3 h-3 text-white"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
                             <path
                               fillRule="evenodd"
                               d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
@@ -542,13 +953,18 @@ export function Onboarding() {
           </div>
         )}
 
-        {step === 7 && (
+        {/* ============= SHARED STEPS (Next Court Date) ============= */}
+        {((role === 'parent' && step === 7) ||
+          (role === 'youth' && step === 8) ||
+          (role === 'supporter' && step === 5)) && (
           <div>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              Do you have an upcoming court date?
+              {role === 'supporter'
+                ? 'Do they have an upcoming court date?'
+                : 'Do you have an upcoming court date?'}
             </h1>
             <p className="text-gray-600 mb-6">
-              If you know when your next court date is, we can help you prepare.
+              If you know when the next court date is, we can help prepare.
             </p>
 
             <div className="mb-8">
@@ -568,10 +984,13 @@ export function Onboarding() {
           </div>
         )}
 
-        {step === 8 && (
+        {/* ============= SHARED STEPS (Primary Concerns) ============= */}
+        {((role === 'parent' && step === 8) ||
+          (role === 'youth' && step === 9) ||
+          (role === 'supporter' && step === 6)) && (
           <div>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              What are you most worried about right now?
+              What {role === 'supporter' ? 'are you' : 'are you'} most worried about right now?
             </h1>
             <p className="text-gray-600 mb-6">
               This helps us prioritize the most important information for you. (Optional)
@@ -581,14 +1000,23 @@ export function Onboarding() {
               <textarea
                 value={primaryConcerns}
                 onChange={(e) => setPrimaryConcerns(e.target.value)}
-                placeholder="Share what's on your mind – like upcoming hearings, visits, services, or anything else you're concerned about..."
+                placeholder={
+                  role === 'youth'
+                    ? 'Share what's on your mind – like school, visits with family, your placement, or anything else...'
+                    : role === 'supporter'
+                    ? 'Share what you're concerned about – like helping them prepare for court, understanding the process, finding resources...'
+                    : 'Share what's on your mind – like upcoming hearings, visits, services, or anything else you're concerned about...'
+                }
                 className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 focus:border-purple-600 focus:ring-4 focus:ring-purple-100 focus:outline-none min-h-32 resize-none"
               />
             </div>
           </div>
         )}
 
-        {step === 9 && (
+        {/* ============= SHARED STEPS (Text Reminders) ============= */}
+        {((role === 'parent' && step === 9) ||
+          (role === 'youth' && step === 10) ||
+          (role === 'supporter' && step === 7)) && (
           <div>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">Stay Connected</h1>
             <p className="text-gray-600 mb-6">
@@ -614,7 +1042,8 @@ export function Onboarding() {
                       Text Message Reminders
                     </div>
                     <div className="text-sm text-gray-600">
-                      Receive helpful text reminders for court dates, appointments, and important deadlines
+                      Receive helpful text reminders for court dates, appointments, and important
+                      deadlines
                     </div>
                   </div>
                 </div>
@@ -664,7 +1093,8 @@ export function Onboarding() {
           </div>
         )}
 
-        {step === 10 && (
+        {/* ============= PARENT ONLY: Reminder Settings ============= */}
+        {role === 'parent' && step === 10 && (
           <div>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">Reminder Settings</h1>
             <p className="text-gray-600 mb-6">
@@ -770,7 +1200,8 @@ export function Onboarding() {
               <p className="text-xs font-semibold text-purple-900 mb-2">Sample Messages:</p>
               <div className="space-y-2 text-xs text-purple-800">
                 <p className="bg-white p-2 rounded">
-                  "Tomorrow 9:00 AM: Court hearing scheduled. Remember to bring required documents. Good luck!"
+                  "Tomorrow 9:00 AM: Court hearing scheduled. Remember to bring required documents.
+                  Good luck!"
                 </p>
                 <p className="bg-white p-2 rounded">
                   "Today 2:00 PM: Visit with children at Family Center. Arrive 15 minutes early."
@@ -793,17 +1224,13 @@ export function Onboarding() {
                 Back
               </Button>
             )}
-            <Button
-              onClick={handleNext}
-              disabled={!isStepValid() || saving}
-              className="flex-1"
-            >
+            <Button onClick={handleNext} disabled={!isStepValid() || saving} className="flex-1">
               {saving ? (
                 <div className="flex items-center justify-center gap-2">
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   <span>Saving...</span>
                 </div>
-              ) : step === 10 ? (
+              ) : step === totalSteps ? (
                 'Get Started'
               ) : (
                 'Next'
