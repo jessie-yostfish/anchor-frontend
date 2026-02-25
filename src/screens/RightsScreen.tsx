@@ -3,6 +3,7 @@ import { MapPin, Users, User, Heart, ListChecks, ChevronDown, ChevronUp, AlertTr
 import { Card, BottomNav, AppHeader } from '../components'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
+import { trackEvent } from '../lib/analytics'
 
 interface RightDuty {
   id: string
@@ -29,7 +30,6 @@ export function RightsScreen() {
   const [showDutiesOnly, setShowDutiesOnly] = useState(false)
 
   useEffect(() => {
-    // Set active tab based on user's role
     if (profile?.role && ['parent', 'youth', 'supporter'].includes(profile.role)) {
       setActiveTab(profile.role as RoleTab)
     }
@@ -49,6 +49,7 @@ export function RightsScreen() {
 
       if (error) throw error
       setRightsAndDuties(data || [])
+      trackEvent('rights_viewed', { role: profile?.role || undefined })
     } catch (error) {
       console.error('Error loading rights and duties:', error)
     } finally {
@@ -186,7 +187,6 @@ export function RightsScreen() {
           </div>
         </Card>
 
-        {/* Role Tabs */}
         <div className="mb-6 border-b border-gray-200">
           <div className="flex gap-4">
             {(Object.keys(tabConfig) as RoleTab[]).map((key) => (
@@ -210,7 +210,6 @@ export function RightsScreen() {
           </div>
         </div>
 
-        {/* Toggles Row */}
         <div className="mb-6 space-y-3">
           {hasLegalBasis && (
             <div className="flex items-center justify-between p-4 bg-white rounded-lg border border-gray-200">
@@ -259,14 +258,12 @@ export function RightsScreen() {
           )}
         </div>
 
-        {/* Hero Card */}
         <Card className={`mb-6 ${tab.heroColor}`}>
           <h3 className="text-lg font-bold text-gray-900 mb-2">{tab.heroTitle}</h3>
           <p className="text-sm text-gray-700">{tab.heroDesc}</p>
           <p className="text-xs text-gray-500 mt-2">{currentItems.length} items</p>
         </Card>
 
-        {/* Rights Section */}
         {!showDutiesOnly && rightItems.length > 0 && (
           <div className="mb-6">
             <h2 className="text-sm font-bold text-purple-700 uppercase tracking-wide mb-3">
@@ -278,7 +275,6 @@ export function RightsScreen() {
           </div>
         )}
 
-        {/* Duties Section */}
         {dutyItems.length > 0 && (
           <div className="mb-6">
             <h2 className="text-sm font-bold text-amber-700 uppercase tracking-wide mb-3">
