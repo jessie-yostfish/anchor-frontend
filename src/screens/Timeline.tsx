@@ -1,309 +1,604 @@
+import { trackEvent } from '../lib/analytics'
 import { useState, useEffect } from 'react'
-import { MapPin, Users, User, Heart, ListChecks, ChevronDown, ChevronUp, AlertTriangle, Eye, EyeOff } from 'lucide-react'
-import { Card, BottomNav, AppHeader } from '../components'
+import { useNavigate } from 'react-router-dom'
+import {
+  LayoutGrid,
+  List,
+  Calendar,
+  FileText,
+  Star,
+  CheckSquare,
+  ChevronDown,
+  ChevronUp,
+  FolderOpen,
+  Building,
+  Gavel,
+  ClipboardList,
+  CalendarDays,
+  CalendarCheck,
+  Clock,
+  Check,
+  Shield,
+  Home,
+  CheckCircle,
+} from 'lucide-react'
+import { Card, Button, BottomNav, AppHeader } from '../components'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
-import { trackEvent } from '../lib/analytics'
+import { haptics } from '../lib/haptics'
 
-interface RightDuty {
+interface TimelineStage {
   id: string
-  user_role: string
-  right_key: string
-  title: string
-  description: string
-  legal_reference: string
-  category: string
-  practical_tips: string
+  user_id: string
+  stage_key: string
+  stage_name: string
+  stage_order: number
+  order_index: number
+  status: 'not_started' | 'in_progress' | 'completed'
+  court_date: string | null
+  what_happens: string | null
+  your_rights: string[] | null
+  tasks: Task[]
+  icon_name: string
+  color: string
   created_at: string
   updated_at: string
 }
 
-type RoleTab = 'parent' | 'youth' | 'supporter'
+interface Task {
+  task: string
+  completed: boolean
+}
 
-export function RightsScreen() {
-  const { profile } = useAuth()
-  const [activeTab, setActiveTab] = useState<RoleTab>('parent')
-  const [rightsAndDuties, setRightsAndDuties] = useState<RightDuty[]>([])
+const STAGE_ICONS = {
+  FolderOpen,
+  Building,
+  Gavel,
+  ClipboardList,
+  Calendar,
+  CalendarDays,
+  CalendarCheck,
+  Shield,
+  Home,
+  CheckCircle,
+  Clock,
+  FileText,
+  Star,
+  CheckSquare,
+}
+
+export function Timeline() {
+  const navigate = useNavigate()
+  const { user } = useAuth()
+  const [viewMode, setViewMode] = useState<'cards' | 'list'>('cards')
+  const [stages, setStages] = useState<TimelineStage[]>([])
+  const [expandedStage, setExpandedStage] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
-  const [expandedId, setExpandedId] = useState<string | null>(null)
-  const [showLegalBasis, setShowLegalBasis] = useState(false)
-  const [showDutiesOnly, setShowDutiesOnly] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (profile?.role && ['parent', 'youth', 'supporter'].includes(profile.role)) {
-      setActiveTab(profile.role as RoleTab)
+    if (user) {
+      initializeTimeline()
     }
-  }, [profile?.role])
+  }, [user])
 
-  useEffect(() => {
-    loadRightsAndDuties()
-  }, [])
+  const initializeTimeline = async () => {
+    if (!user) {
+      console.log('No user found, cannot initialize timeline')
+      setLoading(false)
+      return
+    }
 
-  const loadRightsAndDuties = async () => {
     try {
-      const { data, error } = await supabase
-        .from('rights_duties')
+      console.log('Fetching timeline stages for user:', user.id)
+      const { data: existingStages, error: fetchError } = await supabase
+        .from('timeline_stages')
         .select('*')
-        .order('category', { ascending: true })
-        .order('title', { ascending: true })
+        .eq('user_id', user.id)
+        .order('order_index')
 
-      if (error) throw error
-      setRightsAndDuties(data || [])
-      trackEvent('rights_viewed', { role: profile?.role || undefined })
+      if (fetchError) {
+        console.error('Timeline stages fetch error:', fetchError)
+        throw fetchError
+      }
+
+      console.log('Timeline stages data:', existingStages)
+
+      if (!existingStages || existingStages.length === 0) {
+        console.log('No stages found, initializing timeline...')
+        const { error: rpcError } = await supabase.rpc('initialize_user_timeline', { p_user_id: user.id })
+
+        if (rpcError) {
+          console.error('Initialize timeline RPC error:', rpcError)
+          throw rpcError
+        }
+
+        const { data: newStages, error: refetchError } = await supabase
+          .from('timeline_stages')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('order_index')
+
+        if (refetchError) {
+          console.error('Timeline stages refetch error:', refetchError)
+          throw refetchError
+        }
+
+        console.log('New timeline stages created:', newStages)
+        setStages(newStages || [])
+        trackEvent('screen_viewed', { screen: 'timeline', role: newStages?.[0]?.role || undefined })
+      } else {
+        console.log('Found existing stages:', existingStages.length)
+        setStages(existingStages)
+        trackEvent('screen_viewed', { screen: 'timeline', role: existingStages[0]?.role || undefined })
+      }
+      setError(null)
     } catch (error) {
-      console.error('Error loading rights and duties:', error)
+      console.error('Error initializing timeline:', error)
+      setError(error instanceof Error ? error.message : 'Failed to load timeline')
     } finally {
       setLoading(false)
     }
   }
 
-  const currentItems = rightsAndDuties.filter((item) => {
-    const matchesRole = item.user_role === activeTab || item.user_role === 'both'
-    if (showDutiesOnly) return matchesRole && item.category === 'duty'
-    return matchesRole
-  })
+  const toggleTaskCompletion = async (stageId: string, taskIndex: number) => {
+    try {
+      const stage = stages.find((s) => s.id === stageId)
+      if (!stage || !stage.tasks) return
 
-  const rightItems = currentItems.filter((item) => item.category === 'right')
-  const dutyItems = currentItems.filter((item) => item.category === 'duty')
+      const updatedTasks = [...stage.tasks]
+      updatedTasks[taskIndex] = {
+        ...updatedTasks[taskIndex],
+        completed: !updatedTasks[taskIndex].completed,
+      }
 
-  const hasLegalBasis = currentItems.some((item) => item.legal_reference)
+      haptics.medium()
 
-  const toggleExpanded = (id: string) => {
-    setExpandedId(expandedId === id ? null : id)
+      const { error } = await supabase
+        .from('timeline_stages')
+        .update({ tasks: updatedTasks })
+        .eq('id', stageId)
+
+      if (error) throw error
+
+      setStages((prev) =>
+        prev.map((s) => (s.id === stageId ? { ...s, tasks: updatedTasks } : s))
+      )
+    } catch (error) {
+      console.error('Error updating task:', error)
+    }
+  }
+
+  const updateCourtDate = async (stageId: string, date: string) => {
+    try {
+      const { error } = await supabase
+        .from('timeline_stages')
+        .update({ court_date: date || null })
+        .eq('id', stageId)
+
+      if (error) throw error
+
+      setStages((prev) =>
+        prev.map((stage) => (stage.id === stageId ? { ...stage, court_date: date } : stage))
+      )
+    } catch (error) {
+      console.error('Error updating court date:', error)
+    }
+  }
+
+  const markStageComplete = async (stageId: string, orderIndex: number) => {
+    try {
+      const updates = stages.map((stage) => {
+        if (stage.order_index <= orderIndex) {
+          return {
+            id: stage.id,
+            status: 'completed' as const,
+            color: 'green',
+          }
+        } else if (stage.order_index === orderIndex + 1) {
+          return {
+            id: stage.id,
+            status: 'in_progress' as const,
+            color: 'purple',
+          }
+        }
+        return null
+      }).filter(Boolean)
+
+      for (const update of updates) {
+        if (update) {
+          await supabase
+            .from('timeline_stages')
+            .update({ status: update.status, color: update.color })
+            .eq('id', update.id)
+        }
+      }
+
+      trackEvent('timeline_stage_completed', { role: stages.find(s => s.id === stageId)?.role || undefined })
+      await initializeTimeline()
+    } catch (error) {
+      console.error('Error marking stage complete:', error)
+    }
+  }
+
+  const getStageIcon = (iconName: string) => {
+    const Icon = STAGE_ICONS[iconName as keyof typeof STAGE_ICONS] || FolderOpen
+    return Icon
+  }
+
+  const getCompletedTaskCount = (stage: TimelineStage) => {
+    const stageTasks = stage.tasks || []
+    const completed = stageTasks.filter((t) => t.completed).length
+    return { completed, total: stageTasks.length }
+  }
+
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return null
+    const date = new Date(dateString)
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+  }
+
+  const StageCard = ({ stage }: { stage: TimelineStage }) => {
+    const Icon = getStageIcon(stage.icon_name || 'FolderOpen')
+    const isExpanded = expandedStage === stage.id
+    const { completed, total } = getCompletedTaskCount(stage)
+    const stageTasks = stage.tasks || []
+
+    const statusColors = {
+      not_started: 'text-gray-600 bg-gray-100',
+      in_progress: 'text-purple-700 bg-purple-100',
+      completed: 'text-green-700 bg-green-100',
+    }
+
+    const borderColors = {
+      not_started: 'border-l-gray-400',
+      in_progress: 'border-l-purple-600',
+      completed: 'border-l-green-600',
+    }
+
+    return (
+      <Card className={`border-l-4 ${borderColors[stage.status]} mb-4`}>
+        <button
+          onClick={() => {
+            haptics.light()
+            setExpandedStage(isExpanded ? null : stage.id)
+          }}
+          className="w-full text-left"
+        >
+          <div className="flex items-start gap-4">
+            <div className={`p-3 rounded-lg ${stage.status === 'completed' ? 'bg-green-100' : stage.status === 'in_progress' ? 'bg-purple-100' : 'bg-gray-100'}`}>
+              <Icon className={`w-6 h-6 ${stage.status === 'completed' ? 'text-green-600' : stage.status === 'in_progress' ? 'text-purple-600' : 'text-gray-600'}`} />
+            </div>
+
+            <div className="flex-1">
+              <h3 className="text-lg font-bold text-gray-900 mb-2">{stage.stage_name}</h3>
+
+              <div className="flex flex-wrap items-center gap-2 mb-2">
+                <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold ${statusColors[stage.status]}`}>
+                  {stage.status === 'completed' ? (
+                    <Check className="w-3 h-3" />
+                  ) : (
+                    <Clock className="w-3 h-3" />
+                  )}
+                  {stage.status === 'completed' ? 'COMPLETED' : stage.status === 'in_progress' ? 'IN PROGRESS' : 'NOT STARTED'}
+                </span>
+
+                <span className="text-xs font-semibold text-gray-600">
+                  {completed}/{total} TASKS DONE
+                </span>
+              </div>
+
+              {stage.court_date && (
+                <div className="flex items-center gap-2 text-sm text-gray-700 mb-2">
+                  <Calendar className="w-4 h-4" />
+                  <span>Court Date: {formatDate(stage.court_date)}</span>
+                </div>
+              )}
+            </div>
+
+            {isExpanded ? (
+              <ChevronUp className="w-5 h-5 text-gray-400 flex-shrink-0" />
+            ) : (
+              <ChevronDown className="w-5 h-5 text-gray-400 flex-shrink-0" />
+            )}
+          </div>
+        </button>
+
+        {isExpanded && (
+          <div className="mt-6 space-y-6">
+            <div className="bg-gray-50 rounded-lg p-4">
+              <div className="flex items-start gap-2 mb-3">
+                <Calendar className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <label className="block text-xs font-semibold text-gray-700 mb-2">
+                    COURT DATE
+                  </label>
+                  <input
+                    type="date"
+                    value={stage.court_date || ''}
+                    onChange={(e) => updateCourtDate(stage.id, e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {stage.what_happens && (
+              <div>
+                <div className="flex items-start gap-2 mb-3">
+                  <FileText className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                  <h4 className="text-sm font-bold text-gray-900">WHAT HAPPENS</h4>
+                </div>
+                <div className="ml-7">
+                  <p className="text-sm text-gray-700 leading-relaxed">{stage.what_happens}</p>
+                </div>
+              </div>
+            )}
+
+            {stage.your_rights && stage.your_rights.length > 0 && (
+              <div>
+                <div className="flex items-start gap-2 mb-3">
+                  <Star className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                  <h4 className="text-sm font-bold text-gray-900">YOUR RIGHTS</h4>
+                </div>
+                <div className="flex flex-wrap gap-2 ml-7">
+                  {stage.your_rights.map((right, index) => (
+                    <button
+                      key={index}
+                      onClick={() => {
+                        haptics.light()
+                        navigate('/legal')
+                      }}
+                      className="px-3 py-2 bg-purple-100 text-purple-700 rounded-full text-xs font-semibold hover:bg-purple-200 transition-colors"
+                    >
+                      {right}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {stageTasks.length > 0 && (
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-start gap-2">
+                    <CheckSquare className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                    <h4 className="text-sm font-bold text-gray-900">
+                      DO NOW <span className="text-gray-600 font-normal">({completed}/{total} COMPLETED)</span>
+                    </h4>
+                  </div>
+                </div>
+
+                <div className="w-full bg-gray-200 rounded-full h-2 mb-4 ml-7">
+                  <div
+                    className="bg-purple-600 h-2 rounded-full transition-all"
+                    style={{ width: `${total > 0 ? (completed / total) * 100 : 0}%` }}
+                  />
+                </div>
+
+                <div className="space-y-3 ml-7">
+                  {stageTasks.map((task, index) => (
+                    <label
+                      key={index}
+                      className="flex items-start gap-3 cursor-pointer group"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={task.completed}
+                        onChange={() => toggleTaskCompletion(stage.id, index)}
+                        className="w-5 h-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500 flex-shrink-0 mt-0.5"
+                      />
+                      <span
+                        className={`text-sm ${task.completed ? 'line-through text-gray-500' : 'text-gray-700'} group-hover:text-gray-900`}
+                      >
+                        {task.task}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {stage.status !== 'completed' && (
+              <div className="pt-4 border-t border-gray-200">
+                <Button
+                  variant="outline"
+                  onClick={() => markStageComplete(stage.id, stage.order_index)}
+                  className="w-full"
+                >
+                  MARK {stage.stage_name.toUpperCase()} AS COMPLETE
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
+      </Card>
+    )
   }
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto" />
-          <p className="mt-4 text-gray-600">Loading rights and responsibilities...</p>
-        </div>
+        <p className="text-gray-600">Loading your timeline...</p>
       </div>
     )
   }
 
-  const renderItem = (item: RightDuty, tipColor: string) => {
-    const isExpanded = expandedId === item.id
-    return (
-      <Card
-        key={item.id}
-        className="cursor-pointer hover:shadow-md transition-shadow"
-        onClick={() => toggleExpanded(item.id)}
-      >
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
-              <h3 className="text-lg font-bold text-gray-900">{item.title}</h3>
-              {item.category === 'duty' && (
-                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">DUTY</span>
-              )}
-              {item.category === 'right' && (
-                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-purple-100 text-purple-700">RIGHT</span>
-              )}
-            </div>
-            <p className="text-sm text-gray-700">
-              {isExpanded ? item.description : item.description.length > 150 ? item.description.slice(0, 150) + '...' : item.description}
-            </p>
-
-            {isExpanded && (
-              <div className="mt-4 space-y-4">
-                {showLegalBasis && item.legal_reference && (
-                  <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                    <p className="text-xs font-semibold text-gray-700 mb-2">Legal Basis (California Statute):</p>
-                    <p className="text-xs font-mono text-gray-600">{item.legal_reference}</p>
-                  </div>
-                )}
-
-                {item.practical_tips && (
-                  <div className={`p-3 rounded-lg border ${tipColor}`}>
-                    <p className="text-xs font-semibold mb-1">💡 Practical Tips:</p>
-                    <p className="text-xs whitespace-pre-line">{item.practical_tips}</p>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          <div className="flex-shrink-0">
-            {isExpanded ? (
-              <ChevronUp className="w-5 h-5 text-gray-400" />
-            ) : (
-              <ChevronDown className="w-5 h-5 text-gray-400" />
-            )}
-          </div>
-        </div>
-      </Card>
-    )
-  }
-
-  const tabConfig = {
-    parent: {
-      label: 'Parents',
-      icon: <Users className="w-5 h-5" />,
-      heroTitle: "Parent's Bill of Rights",
-      heroDesc: 'As a parent in dependency court, you have important rights. Understanding these rights helps you advocate for yourself and your child.',
-      heroColor: 'bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200',
-      tipColor: 'bg-green-50 border-green-200 text-green-800',
-    },
-    youth: {
-      label: 'Youth',
-      icon: <User className="w-5 h-5" />,
-      heroTitle: 'Youth Rights in Foster Care',
-      heroDesc: "If you are in foster care, these are your rights. You deserve to be treated with respect and have your voice heard.",
-      heroColor: 'bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200',
-      tipColor: 'bg-blue-50 border-blue-200 text-blue-800',
-    },
-    supporter: {
-      label: 'Supporters',
-      icon: <Heart className="w-5 h-5" />,
-      heroTitle: 'Supporter Rights and Responsibilities',
-      heroDesc: 'As a relative, caregiver, or foster parent, you have important rights and responsibilities in the dependency process.',
-      heroColor: 'bg-gradient-to-br from-teal-50 to-teal-100 border-teal-200',
-      tipColor: 'bg-teal-50 border-teal-200 text-teal-800',
-    },
-  }
-
-  const tab = tabConfig[activeTab]
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      <AppHeader />
-      <div className="max-w-md mx-auto px-6 py-8 pb-24">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Your Rights and Responsibilities</h1>
-          <p className="text-gray-600">Know your rights in dependency court</p>
+    <div className="min-h-screen bg-gray-50 pb-24">
+      <AppHeader title="Journey Ahead" />
+
+      <div className="px-4 pt-4">
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+            {error}
+          </div>
+        )}
+
+        <div className="flex items-center justify-end gap-2 mb-4">
+          <button
+            onClick={() => setViewMode('cards')}
+            className={`p-2 rounded-lg ${viewMode === 'cards' ? 'bg-purple-100 text-purple-700' : 'text-gray-400'}`}
+          >
+            <LayoutGrid className="w-5 h-5" />
+          </button>
+          <button
+            onClick={() => setViewMode('list')}
+            className={`p-2 rounded-lg ${viewMode === 'list' ? 'bg-purple-100 text-purple-700' : 'text-gray-400'}`}
+          >
+            <List className="w-5 h-5" />
+          </button>
         </div>
 
-        <Card className="mb-6 bg-blue-50 border-blue-200">
-          <div className="flex gap-3">
-            <MapPin className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-            <div>
-              <h3 className="text-sm font-semibold text-blue-900 mb-1">State: California</h3>
-              <p className="text-xs text-blue-800">
-                Rights may vary by state. Currently showing California information. More states coming soon.
-              </p>
-            </div>
-          </div>
-        </Card>
-
-        <div className="mb-6 border-b border-gray-200">
-          <div className="flex gap-4">
-            {(Object.keys(tabConfig) as RoleTab[]).map((key) => (
-              <button
-                key={key}
-                onClick={() => {
-                  setActiveTab(key)
-                  setExpandedId(null)
-                  setShowDutiesOnly(false)
-                }}
-                className={`pb-3 px-1 flex items-center gap-2 transition-colors ${
-                  activeTab === key
-                    ? 'border-b-2 border-purple-600 text-purple-600 font-semibold'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                {tabConfig[key].icon}
-                <span>{tabConfig[key].label}</span>
-              </button>
+        {viewMode === 'cards' && (
+          <div>
+            {stages.map((stage) => (
+              <StageCard key={stage.id} stage={stage} />
             ))}
           </div>
-        </div>
-
-        <div className="mb-6 space-y-3">
-          {hasLegalBasis && (
-            <div className="flex items-center justify-between p-4 bg-white rounded-lg border border-gray-200">
-              <div className="flex items-center gap-2">
-                {showLegalBasis ? (
-                  <Eye className="w-4 h-4 text-purple-600" />
-                ) : (
-                  <EyeOff className="w-4 h-4 text-gray-400" />
-                )}
-                <span className="text-sm font-medium text-gray-700">Show Legal Basis</span>
-              </div>
-              <button
-                onClick={() => setShowLegalBasis(!showLegalBasis)}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                  showLegalBasis ? 'bg-purple-600' : 'bg-gray-300'
-                }`}
-              >
-                <span
-                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                    showLegalBasis ? 'translate-x-6' : 'translate-x-1'
-                  }`}
-                />
-              </button>
-            </div>
-          )}
-
-          {dutyItems.length > 0 && rightItems.length > 0 && (
-            <div className="flex items-center justify-between p-4 bg-white rounded-lg border border-gray-200">
-              <div className="flex items-center gap-2">
-                <ListChecks className="w-4 h-4 text-amber-600" />
-                <span className="text-sm font-medium text-gray-700">Show Duties Only</span>
-              </div>
-              <button
-                onClick={() => setShowDutiesOnly(!showDutiesOnly)}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                  showDutiesOnly ? 'bg-amber-500' : 'bg-gray-300'
-                }`}
-              >
-                <span
-                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                    showDutiesOnly ? 'translate-x-6' : 'translate-x-1'
-                  }`}
-                />
-              </button>
-            </div>
-          )}
-        </div>
-
-        <Card className={`mb-6 ${tab.heroColor}`}>
-          <h3 className="text-lg font-bold text-gray-900 mb-2">{tab.heroTitle}</h3>
-          <p className="text-sm text-gray-700">{tab.heroDesc}</p>
-          <p className="text-xs text-gray-500 mt-2">{currentItems.length} items</p>
-        </Card>
-
-        {!showDutiesOnly && rightItems.length > 0 && (
-          <div className="mb-6">
-            <h2 className="text-sm font-bold text-purple-700 uppercase tracking-wide mb-3">
-              Rights ({rightItems.length})
-            </h2>
-            <div className="space-y-3">
-              {rightItems.map((item) => renderItem(item, tab.tipColor))}
-            </div>
-          </div>
         )}
 
-        {dutyItems.length > 0 && (
-          <div className="mb-6">
-            <h2 className="text-sm font-bold text-amber-700 uppercase tracking-wide mb-3">
-              Responsibilities ({dutyItems.length})
-            </h2>
-            <div className="space-y-3">
-              {dutyItems.map((item) => renderItem(item, 'bg-amber-50 border-amber-200 text-amber-800'))}
-            </div>
+        {viewMode === 'list' && (
+          <div className="space-y-2">
+            {stages.map((stage) => {
+              const Icon = getStageIcon(stage.icon_name || 'FolderOpen')
+              const isExpanded = expandedStage === stage.id
+              const { completed, total } = getCompletedTaskCount(stage)
+              const stageTasks = stage.tasks || []
+
+              return (
+                <div key={stage.id}>
+                  <Card className="flex items-center justify-between">
+                    <div className="flex items-center gap-3 flex-1">
+                      <div className={`p-2 rounded-lg ${stage.status === 'completed' ? 'bg-green-100' : stage.status === 'in_progress' ? 'bg-purple-100' : 'bg-gray-100'}`}>
+                        <Icon className={`w-5 h-5 ${stage.status === 'completed' ? 'text-green-600' : stage.status === 'in_progress' ? 'text-purple-600' : 'text-gray-600'}`} />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-gray-900">{stage.stage_name}</h3>
+                        {stage.court_date && (
+                          <p className="text-xs text-gray-600">{formatDate(stage.court_date)}</p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className={`text-xs font-semibold px-2 py-1 rounded ${stage.status === 'completed' ? 'bg-green-100 text-green-700' : stage.status === 'in_progress' ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-700'}`}>
+                        {stage.status === 'completed' ? 'DONE' : stage.status === 'in_progress' ? 'ACTIVE' : 'PENDING'}
+                      </span>
+                      <button
+                        onClick={() => {
+                          haptics.light()
+                          setExpandedStage(isExpanded ? null : stage.id)
+                        }}
+                        className="text-gray-400 hover:text-gray-600"
+                      >
+                        {isExpanded ? (
+                          <ChevronUp className="w-5 h-5" />
+                        ) : (
+                          <ChevronDown className="w-5 h-5" />
+                        )}
+                      </button>
+                    </div>
+                  </Card>
+
+                  {isExpanded && (
+                    <Card className="mt-2 ml-4">
+                      <div className="space-y-6">
+                        <div className="bg-gray-50 rounded-lg p-4">
+                          <div className="flex items-start gap-2 mb-3">
+                            <Calendar className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                            <div className="flex-1">
+                              <label className="block text-xs font-semibold text-gray-700 mb-2">COURT DATE</label>
+                              <input
+                                type="date"
+                                value={stage.court_date || ''}
+                                onChange={(e) => updateCourtDate(stage.id, e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {stage.what_happens && (
+                          <div>
+                            <div className="flex items-start gap-2 mb-3">
+                              <FileText className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                              <h4 className="text-sm font-bold text-gray-900">WHAT HAPPENS</h4>
+                            </div>
+                            <p className="text-sm text-gray-700 leading-relaxed ml-7">{stage.what_happens}</p>
+                          </div>
+                        )}
+
+                        {stage.your_rights && stage.your_rights.length > 0 && (
+                          <div>
+                            <div className="flex items-start gap-2 mb-3">
+                              <Star className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                              <h4 className="text-sm font-bold text-gray-900">YOUR RIGHTS</h4>
+                            </div>
+                            <div className="flex flex-wrap gap-2 ml-7">
+                              {stage.your_rights.map((right, index) => (
+                                <button
+                                  key={index}
+                                  onClick={() => { haptics.light(); navigate('/legal') }}
+                                  className="px-3 py-2 bg-purple-100 text-purple-700 rounded-full text-xs font-semibold hover:bg-purple-200 transition-colors"
+                                >
+                                  {right}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {stageTasks.length > 0 && (
+                          <div>
+                            <div className="flex items-start gap-2 mb-3">
+                              <CheckSquare className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                              <h4 className="text-sm font-bold text-gray-900">
+                                DO NOW <span className="text-gray-600 font-normal">({completed}/{total} COMPLETED)</span>
+                              </h4>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-2 mb-4 ml-7">
+                              <div
+                                className="bg-purple-600 h-2 rounded-full transition-all"
+                                style={{ width: `${total > 0 ? (completed / total) * 100 : 0}%` }}
+                              />
+                            </div>
+                            <div className="space-y-3 ml-7">
+                              {stageTasks.map((task, index) => (
+                                <label key={index} className="flex items-start gap-3 cursor-pointer group">
+                                  <input
+                                    type="checkbox"
+                                    checked={task.completed}
+                                    onChange={() => toggleTaskCompletion(stage.id, index)}
+                                    className="w-5 h-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500 flex-shrink-0 mt-0.5"
+                                  />
+                                  <span className={`text-sm ${task.completed ? 'line-through text-gray-500' : 'text-gray-700'} group-hover:text-gray-900`}>
+                                    {task.task}
+                                  </span>
+                                </label>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {stage.status !== 'completed' && (
+                          <div className="pt-4 border-t border-gray-200">
+                            <Button
+                              variant="outline"
+                              onClick={() => markStageComplete(stage.id, stage.order_index)}
+                              className="w-full"
+                            >
+                              MARK {stage.stage_name.toUpperCase()} AS COMPLETE
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </Card>
+                  )}
+                </div>
+              )
+            })}
           </div>
         )}
-
-        {currentItems.length === 0 && (
-          <Card className="text-center py-8">
-            <p className="text-gray-500">No information available for this section yet.</p>
-          </Card>
-        )}
-
-        <Card className="mt-8 bg-amber-50 border-amber-200">
-          <div className="flex gap-3">
-            <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-            <div>
-              <h3 className="text-sm font-semibold text-amber-900 mb-1">Know Your Rights</h3>
-              <p className="text-xs text-amber-800">
-                If you feel your rights are being violated, tell your attorney immediately. They are there to protect
-                your rights and advocate for you.
-              </p>
-            </div>
-          </div>
-        </Card>
       </div>
 
       <BottomNav />
