@@ -1,4 +1,4 @@
-const CACHE_NAME = 'anchor-v1';
+const CACHE_NAME = 'anchor-v2';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -32,25 +32,30 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  // Never intercept Supabase or API calls
+  if (
+    event.request.url.includes('supabase.co') ||
+    event.request.url.includes('anthropic') ||
+    event.request.url.includes('render.com')
+  ) {
+    return;
+  }
+
   event.respondWith(
-    caches.match(event.request).then((response) => {
-      if (response) {
-        return response;
-      }
-
-      return fetch(event.request).then((response) => {
-        if (!response || response.status !== 200 || response.type !== 'basic') {
-          return response;
+    fetch(event.request)
+      .then((response) => {
+        // Got a valid network response — clone and cache it
+        if (response && response.status === 200 && response.type === 'basic') {
+          const responseToCache = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
         }
-
-        const responseToCache = response.clone();
-
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
-        });
-
         return response;
-      });
-    })
+      })
+      .catch(() => {
+        // Network failed — fall back to cache
+        return caches.match(event.request);
+      })
   );
 });
