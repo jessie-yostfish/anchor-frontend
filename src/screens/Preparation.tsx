@@ -19,6 +19,7 @@ import {
 import { Card, BottomNav, MarkdownDisplay, AppHeader } from '../components'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
+import { trackEvent } from '../lib/analytics'
 
 type PrepType = 'hearing' | 'meeting' | 'after_hearing' | null
 type Role = 'parent' | 'youth' | 'supporter'
@@ -30,7 +31,7 @@ interface PrepOption {
   iconBg: string
   title: string
   description: string
-  roles?: Role[] // Which roles see this option
+  roles?: Role[]
 }
 
 interface ChatMessage {
@@ -270,6 +271,7 @@ export function Preparation() {
         { role: 'user', content: concerns },
         { role: 'assistant', content: generatedContent },
       ])
+      trackEvent('preparation_started', { role: userRole, prep_type: selectedType || undefined })
 
       if (user) {
         await supabase.from('preparation_notes').insert({
@@ -373,6 +375,7 @@ export function Preparation() {
       setShowSaveModal(false)
       setSaveModalState({ isOpen: false, date: '', title: '' })
 
+      trackEvent('preparation_completed', { role: userRole, prep_type: selectedType || undefined })
       alert('Chat saved as note!')
     } catch (error) {
       console.error('Error saving chat:', error)
@@ -432,7 +435,7 @@ export function Preparation() {
             {userRole === 'youth' ? 'Preparation and Reflection' : 'Preparation & Reflection'}
           </h1>
           <p className="text-gray-600">
-            {userRole === 'youth' 
+            {userRole === 'youth'
               ? 'Your safe space for organizing thoughts and preparing for what is next.'
               : userRole === 'supporter'
               ? 'Help organize thoughts and prepare for supporting someone through their case.'
@@ -501,7 +504,7 @@ export function Preparation() {
             {selectedType === 'meeting' && (
               <>
                 <h3 className="text-lg font-bold text-gray-900 mb-3 uppercase">
-                  {userRole === 'youth' ? 'Who is this meeting with?' : 'Who is this meeting with?'}
+                  Who is this meeting with?
                 </h3>
                 <div className="grid grid-cols-1 gap-2 mb-6">
                   {meetingTypes.map((type) => (
