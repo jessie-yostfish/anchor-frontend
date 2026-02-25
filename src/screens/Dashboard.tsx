@@ -1,3 +1,4 @@
+import { trackEvent } from '../lib/analytics'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
@@ -60,13 +61,22 @@ export function Dashboard() {
   const [showDateModal, setShowDateModal] = useState(false)
   const [newCourtDate, setNewCourtDate] = useState('')
 
-  useEffect(() => {
+useEffect(() => {
     const dismissed = localStorage.getItem('legal-banner-dismissed')
     if (dismissed) {
       setShowBanner(false)
     }
     loadCourtInfo()
     loadCurrentStage()
+
+    // Track screen view and return visits
+    const lastVisit = localStorage.getItem('last-dashboard-visit')
+    const now = new Date().toISOString()
+    if (lastVisit) {
+      trackEvent('return_visit', { role: profile?.role, screen: 'dashboard' })
+    }
+    trackEvent('screen_viewed', { screen: 'dashboard', role: profile?.role })
+    localStorage.setItem('last-dashboard-visit', now)
   }, [])
 
   useEffect(() => {
