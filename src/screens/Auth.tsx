@@ -209,7 +209,7 @@ export function Auth() {
         {mode === 'signin' && (
           <div className="mt-6 text-center">
             <button
-              onClick={() => {}}
+              onClick={() => navigate('/forgot-password')}
               className="text-sm text-purple-600 hover:text-purple-700 font-medium"
             >
               Forgot your password?

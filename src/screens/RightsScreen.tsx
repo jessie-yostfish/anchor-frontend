@@ -7,7 +7,7 @@ import { trackEvent } from '../lib/analytics'
 
 interface RightDuty {
   id: string
-  user_role: string
+  role: string
   right_key: string
   title: string
   description: string
@@ -19,6 +19,13 @@ interface RightDuty {
 }
 
 type RoleTab = 'parent' | 'youth' | 'supporter'
+
+// Map our UI tab keys to the actual DB role values
+const ROLE_TO_DB: Record<RoleTab, string[]> = {
+  parent: ['Parents'],
+  youth: ['Youth'],
+  supporter: ['Parents', 'Youth'], // supporters see both
+}
 
 export function RightsScreen() {
   const { profile } = useAuth()
@@ -58,8 +65,9 @@ export function RightsScreen() {
   }
 
   const currentItems = rightsAndDuties.filter((item) => {
-    const matchesRole = item.user_role === activeTab || item.user_role === 'both'
-    if (showDutiesOnly) return matchesRole && item.category === 'duty'
+    const dbRoles = ROLE_TO_DB[activeTab]
+    const matchesRole = dbRoles.some(r => item.role === r) || item.role === 'Duties'
+    if (showDutiesOnly) return item.role === 'Duties'
     return matchesRole
   })
 

@@ -7,9 +7,10 @@ import { ConfirmDialog } from './ConfirmDialog'
 
 interface AppHeaderProps {
   showBack?: boolean
+  title?: string
 }
 
-export function AppHeader({ showBack = true }: AppHeaderProps) {
+export function AppHeader({ showBack = true, title }: AppHeaderProps) {
   const { signOut } = useAuth()
   const navigate = useNavigate()
   const [showLogoutDialog, setShowLogoutDialog] = useState(false)
@@ -45,7 +46,7 @@ export function AppHeader({ showBack = true }: AppHeaderProps) {
             />
             <div className="flex flex-col">
               <span className="text-xl font-bold text-purple-800 tracking-tight" style={{ fontFamily: '"DM Serif Display", Georgia, serif' }}>
-                Anchor
+                {title || 'Anchor'}
               </span>
               <span className="text-[10px] text-purple-400 font-medium -mt-1 tracking-wide">
                 Find your footing.

@@ -126,11 +126,11 @@ export function Timeline() {
 
         console.log('New timeline stages created:', newStages)
         setStages(newStages || [])
-        trackEvent('screen_viewed', { screen: 'timeline', role: newStages?.[0]?.role || undefined })
+        trackEvent('screen_viewed', { screen: 'timeline' })
       } else {
         console.log('Found existing stages:', existingStages.length)
         setStages(existingStages)
-        trackEvent('screen_viewed', { screen: 'timeline', role: existingStages[0]?.role || undefined })
+        trackEvent('screen_viewed', { screen: 'timeline' })
       }
       setError(null)
     } catch (error) {
@@ -214,7 +214,7 @@ export function Timeline() {
         }
       }
 
-      trackEvent('timeline_stage_completed', { role: stages.find(s => s.id === stageId)?.role || undefined })
+      trackEvent('timeline_stage_completed', { stage_id: stageId })
       await initializeTimeline()
     } catch (error) {
       console.error('Error marking stage complete:', error)

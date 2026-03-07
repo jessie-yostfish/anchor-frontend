@@ -4,14 +4,27 @@ import { supabase } from '../lib/supabase'
 
 interface Profile {
   id: string
-  email: string
-  full_name?: string
-  username?: string
   first_name?: string
+  username?: string
   role?: string
-  phone_number?: string
+  current_stage?: string
+  language?: string
+  children_status?: string
+  has_lawyer?: boolean
+  lawyer_name?: string
+  lawyer_phone?: string
+  has_case_manager?: boolean
+  case_manager_name?: string
+  case_manager_phone?: string
+  court_history?: string
+  next_court_date?: string
+  primary_concerns?: string
   text_reminders_enabled?: boolean
+  phone_number?: string
+  intake_completed?: boolean
+  intake_step?: number
   created_at?: string
+  updated_at?: string
 }
 
 interface SignUpData {
@@ -127,7 +140,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return { error: error as Error }
     }
   }
-const deleteAccount = async (password: string) => {
+  const deleteAccount = async (password: string) => {
     if (!user) return { error: new Error('No user logged in') }
     
     try {

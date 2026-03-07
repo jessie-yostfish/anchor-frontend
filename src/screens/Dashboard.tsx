@@ -93,7 +93,6 @@ useEffect(() => {
           .from('contacts')
           .select('name, role, phone')
           .eq('user_id', profile.id)
-          .order('is_primary', { ascending: false })
           .order('created_at', { ascending: true })
 
         if (data && data.length > 0) {
@@ -113,10 +112,14 @@ useEffect(() => {
 
   const loadCourtInfo = async () => {
     try {
+      const { data: { user: currentUser } } = await supabase.auth.getUser()
+      if (!currentUser) return
+
       const { data, error } = await supabase
         .from('court_info')
         .select('county, presiding_judge, next_court_date')
-        .single()
+        .eq('user_id', currentUser.id)
+        .maybeSingle()
 
       if (error && error.code !== 'PGRST116') {
         console.error('Error loading court info:', error)

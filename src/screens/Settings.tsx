@@ -210,10 +210,10 @@ export function Settings() {
 
   const fetchUserTimeline = async () => {
     const { data } = await supabase
-      .from('timeline_events')
+      .from('timeline_stages')
       .select('*')
       .eq('user_id', user?.id)
-      .order('event_date', { ascending: false })
+      .order('order_index', { ascending: true })
     return data || []
   }
 
@@ -250,9 +250,9 @@ export function Settings() {
       }
 
       await supabase.from('notes').delete().eq('user_id', user?.id)
-      await supabase.from('timeline_events').delete().eq('user_id', user?.id)
+      await supabase.from('timeline_stages').delete().eq('user_id', user?.id)
       await supabase.from('contacts').delete().eq('user_id', user?.id)
-      await supabase.from('preparation_notes').delete().eq('user_id', user?.id)
+      await supabase.from('court_info').delete().eq('user_id', user?.id)
       await supabase.from('profiles').delete().eq('id', user?.id)
 
       const { error: deleteError } = await supabase.rpc('delete_user')
