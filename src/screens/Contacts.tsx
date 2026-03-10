@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 import {
-  ArrowLeft,
   Plus,
   Users,
   Phone,
@@ -16,8 +14,10 @@ import {
   Heart,
   Brain,
   User,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react'
-import { Card, Button, BottomNav, AppHeader } from '../components'
+import { BottomNav, AppHeader } from '../components'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 import { haptics } from '../lib/haptics'
@@ -55,100 +55,62 @@ type RoleType =
   | 'Other'
 
 const ROLES: RoleType[] = [
-  'Attorney',
-  'Social Worker',
-  'Case Manager',
-  'CASA',
-  'Therapist',
-  'Supervisor',
-  'Judge',
-  'Other',
+  'Attorney', 'Social Worker', 'Case Manager',
+  'CASA', 'Therapist', 'Supervisor', 'Judge', 'Other',
 ]
 
 const CALIFORNIA_COUNTIES = [
-  'Alameda',
-  'Alpine',
-  'Amador',
-  'Butte',
-  'Calaveras',
-  'Colusa',
-  'Contra Costa',
-  'Del Norte',
-  'El Dorado',
-  'Fresno',
-  'Glenn',
-  'Humboldt',
-  'Imperial',
-  'Inyo',
-  'Kern',
-  'Kings',
-  'Lake',
-  'Lassen',
-  'Los Angeles',
-  'Madera',
-  'Marin',
-  'Mariposa',
-  'Mendocino',
-  'Merced',
-  'Modoc',
-  'Mono',
-  'Monterey',
-  'Napa',
-  'Nevada',
-  'Orange',
-  'Placer',
-  'Plumas',
-  'Riverside',
-  'Sacramento',
-  'San Benito',
-  'San Bernardino',
-  'San Diego',
-  'San Francisco',
-  'San Joaquin',
-  'San Luis Obispo',
-  'San Mateo',
-  'Santa Barbara',
-  'Santa Clara',
-  'Santa Cruz',
-  'Shasta',
-  'Sierra',
-  'Siskiyou',
-  'Solano',
-  'Sonoma',
-  'Stanislaus',
-  'Sutter',
-  'Tehama',
-  'Trinity',
-  'Tulare',
-  'Tuolumne',
-  'Ventura',
-  'Yolo',
-  'Yuba',
+  'Alameda','Alpine','Amador','Butte','Calaveras','Colusa','Contra Costa',
+  'Del Norte','El Dorado','Fresno','Glenn','Humboldt','Imperial','Inyo',
+  'Kern','Kings','Lake','Lassen','Los Angeles','Madera','Marin','Mariposa',
+  'Mendocino','Merced','Modoc','Mono','Monterey','Napa','Nevada','Orange',
+  'Placer','Plumas','Riverside','Sacramento','San Benito','San Bernardino',
+  'San Diego','San Francisco','San Joaquin','San Luis Obispo','San Mateo',
+  'Santa Barbara','Santa Clara','Santa Cruz','Shasta','Sierra','Siskiyou',
+  'Solano','Sonoma','Stanislaus','Sutter','Tehama','Trinity','Tulare',
+  'Tuolumne','Ventura','Yolo','Yuba',
 ]
+
+const ROLE_COLORS: Record<RoleType, { bg: string; text: string; dot: string }> = {
+  Attorney:       { bg: '#EAF0F8', text: '#3A5A80', dot: '#3A5A80' },
+  Judge:          { bg: '#F5ECD8', text: '#7A5A2A', dot: '#C8883A' },
+  'Social Worker':{ bg: '#F4EFF8', text: '#7A6690', dot: '#7A6690' },
+  'Case Manager': { bg: '#EAF4EE', text: '#4A7C59', dot: '#4A7C59' },
+  CASA:           { bg: '#FDF0F0', text: '#8A3A3A', dot: '#C84A4A' },
+  Therapist:      { bg: '#F0F4F8', text: '#3A5A70', dot: '#4A7A9A' },
+  Supervisor:     { bg: '#F4EFF8', text: '#5A4A70', dot: '#7A6690' },
+  Other:          { bg: '#F0EAE0', text: '#5A5065', dot: '#9A90A8' },
+}
 
 const getRoleIcon = (role: RoleType) => {
   switch (role) {
-    case 'Attorney':
-      return Scale
-    case 'Social Worker':
-      return UserCog
-    case 'Case Manager':
-      return ClipboardList
-    case 'CASA':
-      return Heart
-    case 'Therapist':
-      return Brain
-    case 'Judge':
-      return Gavel
-    case 'Supervisor':
-      return UserCog
-    default:
-      return User
+    case 'Attorney': return Scale
+    case 'Social Worker': return UserCog
+    case 'Case Manager': return ClipboardList
+    case 'CASA': return Heart
+    case 'Therapist': return Brain
+    case 'Judge': return Gavel
+    case 'Supervisor': return UserCog
+    default: return User
   }
 }
 
+const inputStyle: React.CSSProperties = {
+  width: '100%', boxSizing: 'border-box',
+  padding: '12px 16px',
+  background: '#F0EAE0',
+  border: '1.5px solid rgba(122,102,144,0.2)',
+  borderRadius: 16,
+  fontFamily: 'DM Sans, sans-serif', fontSize: 15, color: '#2A2030',
+  outline: 'none',
+}
+
+const labelStyle: React.CSSProperties = {
+  fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600,
+  color: '#5A5065', display: 'block', marginBottom: 6,
+}
+
 export function Contacts() {
-  const navigate = useNavigate()
   const { user } = useAuth()
   const [courtInfo, setCourtInfo] = useState<CourtInfo | null>(null)
   const [contacts, setContacts] = useState<Contact[]>([])
@@ -160,28 +122,16 @@ export function Contacts() {
   const [expandedContact, setExpandedContact] = useState<string | null>(null)
 
   const [contactForm, setContactForm] = useState({
-    name: '',
-    role: 'Attorney' as RoleType,
-    phone: '',
-    email: '',
-    notes: '',
+    name: '', role: 'Attorney' as RoleType, phone: '', email: '', notes: '',
   })
-
   const [courtForm, setCourtForm] = useState({
-    county: '',
-    presiding_judge: '',
-    next_court_date: '',
+    county: '', presiding_judge: '', next_court_date: '',
   })
 
-  useEffect(() => {
-    if (user) {
-      loadData()
-    }
-  }, [user])
+  useEffect(() => { if (user) loadData() }, [user])
 
   const loadData = async () => {
     if (!user) return
-
     try {
       await Promise.all([loadCourtInfo(), loadContacts()])
     } catch (error) {
@@ -193,45 +143,28 @@ export function Contacts() {
 
   const loadCourtInfo = async () => {
     if (!user) return
-
     try {
       const { data, error } = await supabase
-        .from('court_info')
-        .select('*')
-        .eq('user_id', user.id)
-        .maybeSingle()
-
+        .from('court_info').select('*').eq('user_id', user.id).maybeSingle()
       if (error) throw error
-
       setCourtInfo(data)
-      if (data) {
-        setCourtForm({
-          county: data.county || '',
-          presiding_judge: data.presiding_judge || '',
-          next_court_date: data.next_court_date || '',
-        })
-      }
-    } catch (error) {
-      console.error('Error loading court info:', error)
-    }
+      if (data) setCourtForm({
+        county: data.county || '',
+        presiding_judge: data.presiding_judge || '',
+        next_court_date: data.next_court_date || '',
+      })
+    } catch (error) { console.error('Error loading court info:', error) }
   }
 
   const loadContacts = async () => {
     if (!user) return
-
     try {
       const { data, error } = await supabase
-        .from('contacts')
-        .select('*')
-        .eq('user_id', user.id)
+        .from('contacts').select('*').eq('user_id', user.id)
         .order('created_at', { ascending: false })
-
       if (error) throw error
-
       setContacts(data || [])
-    } catch (error) {
-      console.error('Error loading contacts:', error)
-    }
+    } catch (error) { console.error('Error loading contacts:', error) }
   }
 
   const openAddContactModal = () => {
@@ -244,13 +177,7 @@ export function Contacts() {
   const openEditContactModal = (contact: Contact) => {
     haptics.light()
     setEditingContact(contact)
-    setContactForm({
-      name: contact.name,
-      role: contact.role,
-      phone: contact.phone,
-      email: contact.email,
-      notes: contact.notes,
-    })
+    setContactForm({ name: contact.name, role: contact.role, phone: contact.phone, email: contact.email, notes: contact.notes })
     setShowContactModal(true)
     setExpandedContact(null)
   }
@@ -262,394 +189,351 @@ export function Contacts() {
   }
 
   const openCourtModal = () => {
-    if (courtInfo) {
-      setCourtForm({
-        county: courtInfo.county || '',
-        presiding_judge: courtInfo.presiding_judge || '',
-        next_court_date: courtInfo.next_court_date || '',
-      })
-    }
+    if (courtInfo) setCourtForm({
+      county: courtInfo.county || '',
+      presiding_judge: courtInfo.presiding_judge || '',
+      next_court_date: courtInfo.next_court_date || '',
+    })
     setShowCourtModal(true)
   }
 
-  const closeCourtModal = () => {
-    setShowCourtModal(false)
-  }
-
   const handleSaveContact = async () => {
-    if (!user || !contactForm.name.trim() || !contactForm.role) return
-
+    if (!user || !contactForm.name.trim()) return
     try {
       if (editingContact) {
-        const { error } = await supabase
-          .from('contacts')
-          .update({
-            name: contactForm.name.trim(),
-            role: contactForm.role,
-            phone: contactForm.phone.trim(),
-            email: contactForm.email.trim(),
-            notes: contactForm.notes.trim(),
-          })
-          .eq('id', editingContact.id)
-
+        const { error } = await supabase.from('contacts').update({
+          name: contactForm.name.trim(), role: contactForm.role,
+          phone: contactForm.phone.trim(), email: contactForm.email.trim(),
+          notes: contactForm.notes.trim(),
+        }).eq('id', editingContact.id)
         if (error) throw error
       } else {
         const { error } = await supabase.from('contacts').insert({
-          user_id: user.id,
-          name: contactForm.name.trim(),
-          role: contactForm.role,
-          phone: contactForm.phone.trim(),
-          email: contactForm.email.trim(),
+          user_id: user.id, name: contactForm.name.trim(), role: contactForm.role,
+          phone: contactForm.phone.trim(), email: contactForm.email.trim(),
           notes: contactForm.notes.trim(),
         })
-
         if (error) throw error
       }
-
       haptics.success()
       await loadContacts()
       closeContactModal()
-    } catch (error) {
-      console.error('Error saving contact:', error)
-      haptics.error()
-    }
+    } catch (error) { console.error('Error saving contact:', error); haptics.error() }
   }
 
   const handleSaveCourtInfo = async () => {
     if (!user) return
-
     try {
       if (courtInfo) {
-        const { error } = await supabase
-          .from('court_info')
-          .update({
-            county: courtForm.county.trim(),
-            presiding_judge: courtForm.presiding_judge.trim(),
-            next_court_date: courtForm.next_court_date || null,
-          })
-          .eq('id', courtInfo.id)
-
-        if (error) throw error
-      } else {
-        const { error } = await supabase.from('court_info').insert({
-          user_id: user.id,
+        const { error } = await supabase.from('court_info').update({
           county: courtForm.county.trim(),
           presiding_judge: courtForm.presiding_judge.trim(),
           next_court_date: courtForm.next_court_date || null,
+        }).eq('id', courtInfo.id)
+        if (error) throw error
+      } else {
+        const { error } = await supabase.from('court_info').insert({
+          user_id: user.id, county: courtForm.county.trim(),
+          presiding_judge: courtForm.presiding_judge.trim(),
+          next_court_date: courtForm.next_court_date || null,
         })
-
         if (error) throw error
       }
-
       haptics.success()
       await loadCourtInfo()
-      closeCourtModal()
-    } catch (error) {
-      console.error('Error saving court info:', error)
-      haptics.error()
-    }
+      setShowCourtModal(false)
+    } catch (error) { console.error('Error saving court info:', error); haptics.error() }
   }
 
   const handleDeleteContact = async (id: string) => {
     try {
       const { error } = await supabase.from('contacts').delete().eq('id', id)
-
       if (error) throw error
-
       haptics.medium()
       await loadContacts()
       setDeleteConfirm(null)
       setExpandedContact(null)
-    } catch (error) {
-      console.error('Error deleting contact:', error)
-      haptics.error()
-    }
+    } catch (error) { console.error('Error deleting contact:', error); haptics.error() }
   }
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'Not set'
-    const date = new Date(dateString)
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    return new Date(dateString).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
   }
 
-  const formatPhoneNumber = (phone: string) => {
-    const cleaned = phone.replace(/\D/g, '')
-    if (cleaned.length === 10) {
-      return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6)}`
-    }
+  const formatPhone = (phone: string) => {
+    const c = phone.replace(/\D/g, '')
+    if (c.length === 10) return `(${c.slice(0,3)}) ${c.slice(3,6)}-${c.slice(6)}`
     return phone
   }
 
-  const toggleContactExpanded = (id: string) => {
-    setExpandedContact(expandedContact === id ? null : id)
+  const modalSheet: React.CSSProperties = {
+    background: '#FAF7F4', borderRadius: '24px 24px 0 0',
+    width: '100%', maxWidth: 480,
+    maxHeight: '95vh', overflowY: 'auto',
+    animation: 'slideUp 0.25s ease',
+  }
+
+  const modalHeader: React.CSSProperties = {
+    padding: '20px 20px 16px',
+    borderBottom: '1px solid rgba(122,102,144,0.12)',
+    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+    position: 'sticky', top: 0, background: '#FAF7F4',
+  }
+
+  const modalFooter: React.CSSProperties = {
+    padding: '16px 20px env(safe-area-inset-bottom, 32px)',
+    borderTop: '1px solid rgba(122,102,144,0.12)',
+    display: 'flex', gap: 12,
+    position: 'sticky', bottom: 0, background: '#FAF7F4',
+  }
+
+  const overlay: React.CSSProperties = {
+    position: 'fixed', inset: 0, background: 'rgba(42,32,48,0.5)',
+    display: 'flex', alignItems: 'flex-end', justifyContent: 'center', zIndex: 50,
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto" />
-          <p className="mt-4 text-gray-600">Loading contacts...</p>
+      <div style={{ minHeight: '100vh', background: '#F0EAE0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ width: 48, height: 48, borderRadius: '50%', border: '3px solid #E8DDE8', borderTopColor: '#7A6690', animation: 'spin 0.8s linear infinite', margin: '0 auto' }} />
+          <p style={{ marginTop: 16, color: '#5A5065', fontFamily: 'DM Sans, sans-serif' }}>Loading contacts…</p>
         </div>
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <AppHeader />
-      <div className="max-w-md mx-auto px-6 py-8 pb-24">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Contacts</h1>
+    <div style={{ minHeight: '100vh', background: '#F0EAE0' }}>
+      <AppHeader title="My Team" />
 
+      <div style={{ maxWidth: 480, margin: '0 auto', padding: '24px 20px 100px' }}>
+
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24 }}>
+          <div>
+            <h1 style={{ fontFamily: 'Fraunces, serif', fontSize: 28, fontWeight: 700, color: '#2A2030', margin: 0 }}>My Team</h1>
+            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#9A90A8', marginTop: 4 }}>
+              Everyone working on your case
+            </p>
+          </div>
           <button
             onClick={openAddContactModal}
-            className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium"
+            style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              background: '#7A6690', color: '#fff', border: 'none',
+              borderRadius: 16, padding: '10px 18px',
+              fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 14,
+              cursor: 'pointer', boxShadow: '0 4px 16px rgba(122,102,144,0.3)',
+            }}
           >
-            <Plus className="w-5 h-5" />
-            Add Contact
+            <Plus size={16} />
+            Add
           </button>
         </div>
 
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">My Contacts 📞</h1>
-          <p className="text-gray-600">Keep all your important contacts in one safe place</p>
-        </div>
-
-        <Card className="mb-6 bg-gradient-to-br from-blue-50 to-purple-50 border-blue-200">
-          <div className="flex items-start justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <Gavel className="w-6 h-6 text-blue-600" />
+        {/* Court info card */}
+        <div style={{
+          background: '#FAF7F4', border: '1px solid rgba(122,102,144,0.12)',
+          borderRadius: 20, padding: '18px 18px 16px', marginBottom: 24,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ width: 36, height: 36, borderRadius: 12, background: '#F5ECD8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Gavel size={18} color="#C8883A" />
               </div>
-              <h2 className="text-lg font-bold text-gray-900">Court Information</h2>
+              <span style={{ fontFamily: 'Fraunces, serif', fontSize: 17, fontWeight: 700, color: '#2A2030' }}>Court Info</span>
             </div>
             <button
               onClick={openCourtModal}
-              className="text-sm text-purple-600 hover:text-purple-700 font-medium"
+              style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600, color: '#7A6690', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px' }}
             >
               Edit
             </button>
           </div>
-
-          <div className="space-y-2">
-            <div className="flex justify-between">
-              <span className="text-sm text-gray-600">County:</span>
-              <span className="text-sm font-semibold text-gray-900">
-                {courtInfo?.county || 'Not set'}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-sm text-gray-600">Judge:</span>
-              <span className="text-sm font-semibold text-gray-900">
-                {courtInfo?.presiding_judge || 'Not set'}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-sm text-gray-600">Next Date:</span>
-              <span className="text-sm font-semibold text-gray-900">
-                {formatDate(courtInfo?.next_court_date || null)}
-              </span>
-            </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {[
+              { label: 'County', value: courtInfo?.county },
+              { label: 'Judge', value: courtInfo?.presiding_judge },
+              { label: 'Next date', value: formatDate(courtInfo?.next_court_date || null) },
+            ].map(({ label, value }) => (
+              <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: '#9A90A8' }}>{label}</span>
+                <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600, color: value ? '#2A2030' : '#C8C0D0' }}>
+                  {value || 'Not set'}
+                </span>
+              </div>
+            ))}
           </div>
-        </Card>
-
-        <div className="mb-4">
-          <h2 className="text-xl font-bold text-gray-900">My Team</h2>
         </div>
 
+        {/* Contacts list */}
         {contacts.length === 0 ? (
-          <div className="text-center py-16">
-            <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-700 mb-2">No contacts yet</h3>
-            <p className="text-gray-500">Add your first contact to get started!</p>
+          <div style={{ textAlign: 'center', padding: '64px 0' }}>
+            <div style={{ width: 72, height: 72, borderRadius: '50%', background: '#E8DDE8', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
+              <Users size={32} color="#7A6690" />
+            </div>
+            <h3 style={{ fontFamily: 'Fraunces, serif', fontSize: 20, fontWeight: 700, color: '#2A2030', marginBottom: 8 }}>No contacts yet</h3>
+            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#9A90A8' }}>Tap "Add" to save your attorney, social worker, and more</p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {contacts.map((contact) => {
               const Icon = getRoleIcon(contact.role)
+              const colors = ROLE_COLORS[contact.role] || ROLE_COLORS.Other
               const isExpanded = expandedContact === contact.id
-
               return (
-                <Card
+                <div
                   key={contact.id}
-                  className="cursor-pointer hover:shadow-md transition-shadow"
-                  onClick={() => toggleContactExpanded(contact.id)}
+                  style={{ background: '#FAF7F4', border: '1px solid rgba(122,102,144,0.12)', borderRadius: 20, overflow: 'hidden' }}
                 >
-                  <div className="flex items-start gap-4">
-                    <div className="p-2 bg-purple-100 rounded-lg flex-shrink-0">
-                      <Icon className="w-6 h-6 text-purple-600" />
+                  {/* Contact row */}
+                  <button
+                    onClick={() => setExpandedContact(isExpanded ? null : contact.id)}
+                    style={{
+                      width: '100%', background: 'none', border: 'none', cursor: 'pointer',
+                      padding: '16px', display: 'flex', alignItems: 'center', gap: 12, textAlign: 'left',
+                    }}
+                  >
+                    <div style={{ width: 44, height: 44, borderRadius: 14, background: colors.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <Icon size={20} color={colors.dot} />
                     </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontFamily: 'Fraunces, serif', fontSize: 16, fontWeight: 700, color: '#2A2030' }}>{contact.name}</div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 3 }}>
+                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: colors.dot, display: 'inline-block' }} />
+                        <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, fontWeight: 600, color: colors.text }}>{contact.role}</span>
+                      </div>
+                    </div>
+                    {isExpanded ? <ChevronUp size={16} color="#9A90A8" /> : <ChevronDown size={16} color="#9A90A8" />}
+                  </button>
 
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between mb-1">
-                        <h3 className="text-lg font-bold text-gray-900">{contact.name}</h3>
-                        {isExpanded && (
-                          <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-                            <button
-                              onClick={() => openEditContactModal(contact)}
-                              className="p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
-                            >
-                              <Pencil className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => setDeleteConfirm(contact.id)}
-                              className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
+                  {/* Expanded details */}
+                  {isExpanded && (
+                    <div style={{ padding: '0 16px 16px', borderTop: '1px solid rgba(122,102,144,0.08)' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, paddingTop: 14 }}>
+                        {contact.phone && (
+                          <a href={`tel:${contact.phone}`} style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
+                            <div style={{ width: 32, height: 32, borderRadius: 10, background: '#EAF4EE', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <Phone size={14} color="#4A7C59" />
+                            </div>
+                            <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#4A7C59', fontWeight: 600 }}>{formatPhone(contact.phone)}</span>
+                          </a>
+                        )}
+                        {contact.email && (
+                          <a href={`mailto:${contact.email}`} style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
+                            <div style={{ width: 32, height: 32, borderRadius: 10, background: '#EAF0F8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <Mail size={14} color="#3A5A80" />
+                            </div>
+                            <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#3A5A80', fontWeight: 600, wordBreak: 'break-all' }}>{contact.email}</span>
+                          </a>
+                        )}
+                        {contact.notes && (
+                          <div style={{ background: '#F0EAE0', borderRadius: 12, padding: '10px 12px' }}>
+                            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: '#5A5065', margin: 0, lineHeight: 1.5 }}>{contact.notes}</p>
                           </div>
                         )}
+                        {/* Edit / Delete */}
+                        <div style={{ display: 'flex', gap: 8, paddingTop: 4 }}>
+                          <button
+                            onClick={() => openEditContactModal(contact)}
+                            style={{
+                              flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                              padding: '9px', background: '#F4EFF8', border: 'none', borderRadius: 12,
+                              fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600, color: '#7A6690', cursor: 'pointer',
+                            }}
+                          >
+                            <Pencil size={13} /> Edit
+                          </button>
+                          <button
+                            onClick={() => setDeleteConfirm(contact.id)}
+                            style={{
+                              flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                              padding: '9px', background: '#FDF0F0', border: 'none', borderRadius: 12,
+                              fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600, color: '#C84A4A', cursor: 'pointer',
+                            }}
+                          >
+                            <Trash2 size={13} /> Delete
+                          </button>
+                        </div>
                       </div>
-
-                      <span className="inline-block px-2 py-1 bg-purple-100 text-purple-700 text-xs font-semibold rounded uppercase mb-2">
-                        {contact.role}
-                      </span>
-
-                      {isExpanded ? (
-                        <div className="space-y-2 mt-3">
-                          {contact.phone && (
-                            <a
-                              href={`tel:${contact.phone}`}
-                              onClick={(e) => e.stopPropagation()}
-                              className="flex items-center gap-2 text-sm text-gray-700 hover:text-purple-600 transition-colors"
-                            >
-                              <Phone className="w-4 h-4" />
-                              {formatPhoneNumber(contact.phone)}
-                            </a>
-                          )}
-                          {contact.email && (
-                            <a
-                              href={`mailto:${contact.email}`}
-                              onClick={(e) => e.stopPropagation()}
-                              className="flex items-center gap-2 text-sm text-gray-700 hover:text-purple-600 transition-colors break-all"
-                            >
-                              <Mail className="w-4 h-4 flex-shrink-0" />
-                              {contact.email}
-                            </a>
-                          )}
-                          {contact.notes && (
-                            <div className="mt-2 p-3 bg-gray-50 rounded-lg">
-                              <p className="text-sm text-gray-700">{contact.notes}</p>
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <div className="space-y-1">
-                          {contact.phone && (
-                            <p className="text-sm text-gray-600">{formatPhoneNumber(contact.phone)}</p>
-                          )}
-                        </div>
-                      )}
                     </div>
-                  </div>
-                </Card>
+                  )}
+                </div>
               )
             })}
           </div>
         )}
       </div>
 
+      {/* Contact modal */}
       {showContactModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+        <div style={overlay}>
+          <div style={modalSheet}>
+            <div style={modalHeader}>
               <div>
-                <h2 className="text-xl font-bold text-gray-900">
-                  {editingContact ? 'Edit Contact' : 'Add New Contact'}
+                <h2 style={{ fontFamily: 'Fraunces, serif', fontSize: 22, fontWeight: 700, color: '#2A2030', margin: 0 }}>
+                  {editingContact ? 'Edit Contact' : 'New Contact'}
                 </h2>
                 {!editingContact && (
-                  <p className="text-sm text-gray-600 mt-1">
-                    Add important people in your case. Saved securely in the cloud.
+                  <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: '#9A90A8', marginTop: 4 }}>
+                    Saved securely in your Anchor account
                   </p>
                 )}
               </div>
-              <button
-                onClick={closeContactModal}
-                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <X className="w-5 h-5" />
+              <button onClick={closeContactModal} style={{ width: 36, height: 36, borderRadius: 12, background: '#E8DDE8', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                <X size={16} color="#7A6690" />
               </button>
             </div>
 
-            <div className="p-6 space-y-4">
+            <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: 16 }}>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Name <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={contactForm.name}
-                  onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })}
-                  placeholder="Enter full name"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
+                <label style={labelStyle}>Name</label>
+                <input type="text" value={contactForm.name} onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })} placeholder="Full name" style={inputStyle} />
               </div>
-
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Role <span className="text-red-500">*</span>
-                </label>
-                <select
-                  value={contactForm.role}
-                  onChange={(e) =>
-                    setContactForm({ ...contactForm, role: e.target.value as RoleType })
-                  }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                >
-                  {ROLES.map((role) => (
-                    <option key={role} value={role}>
-                      {role}
-                    </option>
-                  ))}
-                </select>
+                <label style={labelStyle}>Role</label>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  {ROLES.map((role) => {
+                    const c = ROLE_COLORS[role]
+                    const sel = contactForm.role === role
+                    return (
+                      <button key={role} onClick={() => setContactForm({ ...contactForm, role })}
+                        style={{
+                          padding: '6px 14px', borderRadius: 20,
+                          border: sel ? `1.5px solid ${c.dot}` : '1.5px solid transparent',
+                          background: sel ? c.bg : '#F0EAE0',
+                          color: sel ? c.text : '#9A90A8',
+                          fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+                        }}
+                      >{role}</button>
+                    )
+                  })}
+                </div>
               </div>
-
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Phone Number
-                </label>
-                <input
-                  type="tel"
-                  value={contactForm.phone}
-                  onChange={(e) => setContactForm({ ...contactForm, phone: e.target.value })}
-                  placeholder="(555) 123-4567"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
+                <label style={labelStyle}>Phone</label>
+                <input type="tel" value={contactForm.phone} onChange={(e) => setContactForm({ ...contactForm, phone: e.target.value })} placeholder="(555) 123-4567" style={inputStyle} />
               </div>
-
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Email</label>
-                <input
-                  type="email"
-                  value={contactForm.email}
-                  onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
-                  placeholder="email@example.com"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
+                <label style={labelStyle}>Email</label>
+                <input type="email" value={contactForm.email} onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })} placeholder="email@example.com" style={inputStyle} />
               </div>
-
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Notes</label>
-                <textarea
-                  value={contactForm.notes}
-                  onChange={(e) => setContactForm({ ...contactForm, notes: e.target.value })}
-                  placeholder="Any important notes..."
-                  rows={4}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 resize-y"
-                />
+                <label style={labelStyle}>Notes</label>
+                <textarea value={contactForm.notes} onChange={(e) => setContactForm({ ...contactForm, notes: e.target.value })} placeholder="Anything important to remember…" rows={3}
+                  style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.6 }} />
               </div>
             </div>
 
-            <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex gap-3">
-              <Button variant="outline" onClick={closeContactModal} className="flex-1">
+            <div style={modalFooter}>
+              <button onClick={closeContactModal} style={{ flex: 1, padding: '13px', background: '#F0EAE0', border: '1.5px solid rgba(122,102,144,0.2)', borderRadius: 16, fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 15, color: '#7A6690', cursor: 'pointer' }}>
                 Cancel
-              </Button>
-              <button
-                onClick={handleSaveContact}
-                disabled={!contactForm.name.trim()}
-                className="flex-1 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors font-medium"
-              >
+              </button>
+              <button onClick={handleSaveContact} disabled={!contactForm.name.trim()}
+                style={{ flex: 1, padding: '13px', background: contactForm.name.trim() ? '#7A6690' : '#C8C0D0', border: 'none', borderRadius: 16, fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 15, color: '#fff', cursor: contactForm.name.trim() ? 'pointer' : 'not-allowed', boxShadow: contactForm.name.trim() ? '0 4px 16px rgba(122,102,144,0.3)' : 'none' }}>
                 {editingContact ? 'Save Changes' : 'Add Contact'}
               </button>
             </div>
@@ -657,74 +541,41 @@ export function Contacts() {
         </div>
       )}
 
+      {/* Court info modal */}
       {showCourtModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-gray-900">Court Information</h2>
-              <button
-                onClick={closeCourtModal}
-                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <X className="w-5 h-5" />
+        <div style={overlay}>
+          <div style={modalSheet}>
+            <div style={modalHeader}>
+              <h2 style={{ fontFamily: 'Fraunces, serif', fontSize: 22, fontWeight: 700, color: '#2A2030', margin: 0 }}>Court Info</h2>
+              <button onClick={() => setShowCourtModal(false)} style={{ width: 36, height: 36, borderRadius: 12, background: '#E8DDE8', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                <X size={16} color="#7A6690" />
               </button>
             </div>
 
-            <div className="p-6 space-y-4">
+            <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: 16 }}>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">County</label>
-                <select
-                  value={courtForm.county}
-                  onChange={(e) => setCourtForm({ ...courtForm, county: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                >
+                <label style={labelStyle}>County</label>
+                <select value={courtForm.county} onChange={(e) => setCourtForm({ ...courtForm, county: e.target.value })} style={{ ...inputStyle, appearance: 'none' }}>
                   <option value="">Select a county</option>
-                  {CALIFORNIA_COUNTIES.map((county) => (
-                    <option key={county} value={county}>
-                      {county}
-                    </option>
-                  ))}
+                  {CALIFORNIA_COUNTIES.map((c) => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
-
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Presiding Judge
-                </label>
-                <input
-                  type="text"
-                  value={courtForm.presiding_judge}
-                  onChange={(e) =>
-                    setCourtForm({ ...courtForm, presiding_judge: e.target.value })
-                  }
-                  placeholder="Enter judge name"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
+                <label style={labelStyle}>Presiding Judge</label>
+                <input type="text" value={courtForm.presiding_judge} onChange={(e) => setCourtForm({ ...courtForm, presiding_judge: e.target.value })} placeholder="Judge's name" style={inputStyle} />
               </div>
-
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Next Court Date
-                </label>
-                <input
-                  type="date"
-                  value={courtForm.next_court_date}
-                  onChange={(e) =>
-                    setCourtForm({ ...courtForm, next_court_date: e.target.value })
-                  }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
+                <label style={labelStyle}>Next Court Date</label>
+                <input type="date" value={courtForm.next_court_date} onChange={(e) => setCourtForm({ ...courtForm, next_court_date: e.target.value })} style={inputStyle} />
               </div>
             </div>
 
-            <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex gap-3">
-              <Button variant="outline" onClick={closeCourtModal} className="flex-1">
+            <div style={modalFooter}>
+              <button onClick={() => setShowCourtModal(false)} style={{ flex: 1, padding: '13px', background: '#F0EAE0', border: '1.5px solid rgba(122,102,144,0.2)', borderRadius: 16, fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 15, color: '#7A6690', cursor: 'pointer' }}>
                 Cancel
-              </Button>
-              <button
-                onClick={handleSaveCourtInfo}
-                className="flex-1 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium"
-              >
+              </button>
+              <button onClick={handleSaveCourtInfo}
+                style={{ flex: 1, padding: '13px', background: '#7A6690', border: 'none', borderRadius: 16, fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 15, color: '#fff', cursor: 'pointer', boxShadow: '0 4px 16px rgba(122,102,144,0.3)' }}>
                 Save
               </button>
             </div>
@@ -732,31 +583,25 @@ export function Contacts() {
         </div>
       )}
 
+      {/* Delete confirm */}
       {deleteConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-sm w-full p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-2">Delete this contact?</h2>
-            <p className="text-gray-600 mb-6">This action cannot be undone.</p>
-
-            <div className="flex gap-3">
-              <Button
-                variant="outline"
-                onClick={() => setDeleteConfirm(null)}
-                className="flex-1"
-              >
+        <div style={{ ...overlay, alignItems: 'center', padding: '0 20px' }}>
+          <div style={{ background: '#FAF7F4', borderRadius: 24, padding: '28px 24px', width: '100%', maxWidth: 360 }}>
+            <h2 style={{ fontFamily: 'Fraunces, serif', fontSize: 22, fontWeight: 700, color: '#2A2030', marginBottom: 8 }}>Remove this contact?</h2>
+            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#5A5065', marginBottom: 24 }}>This can't be undone.</p>
+            <div style={{ display: 'flex', gap: 12 }}>
+              <button onClick={() => setDeleteConfirm(null)} style={{ flex: 1, padding: '13px', background: '#F0EAE0', border: '1.5px solid rgba(122,102,144,0.2)', borderRadius: 16, fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 15, color: '#7A6690', cursor: 'pointer' }}>
                 Cancel
-              </Button>
-              <button
-                onClick={() => handleDeleteContact(deleteConfirm)}
-                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
-              >
-                Delete
+              </button>
+              <button onClick={() => handleDeleteContact(deleteConfirm)} style={{ flex: 1, padding: '13px', background: '#C0392B', border: 'none', borderRadius: 16, fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 15, color: '#fff', cursor: 'pointer' }}>
+                Remove
               </button>
             </div>
           </div>
         </div>
       )}
 
+      <style>{`@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } } @keyframes spin { to { transform: rotate(360deg); } }`}</style>
       <BottomNav />
     </div>
   )
