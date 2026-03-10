@@ -1,226 +1,126 @@
-import { useState, useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import {
-  ArrowLeft,
-  Lock,
   FileText,
   Users,
   CheckCircle,
   Sparkles,
-  Copy,
   Save,
-  Printer,
-  Check,
+  RotateCcw,
   AlertCircle,
   Loader2,
   Send,
+  Lock,
   X,
+  Check,
 } from 'lucide-react'
-import { Card, BottomNav, MarkdownDisplay, AppHeader } from '../components'
+import { BottomNav, AppHeader } from '../components'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 import { trackEvent } from '../lib/analytics'
 
 type PrepType = 'hearing' | 'meeting' | 'after_hearing' | null
 type Role = 'parent' | 'youth' | 'supporter'
-
-interface PrepOption {
-  type: PrepType
-  icon: typeof FileText
-  iconColor: string
-  iconBg: string
-  title: string
-  description: string
-  roles?: Role[]
-}
+type MeetingType = 'attorney' | 'social_worker' | 'casa' | 'therapist' | 'other' | null
 
 interface ChatMessage {
   role: 'user' | 'assistant'
   content: string
 }
 
-interface SaveModalState {
-  isOpen: boolean
-  date: string
-  title: string
-}
-
-type MeetingType = 'attorney' | 'social_worker' | 'casa' | 'therapist' | 'other' | null
-
-const MEETING_TYPES_BY_ROLE = {
-  parent: [
-    { value: 'attorney', label: 'Attorney / Lawyer' },
-    { value: 'social_worker', label: 'Social Worker / Caseworker' },
-    { value: 'therapist', label: 'Therapist / Counselor' },
-    { value: 'other', label: 'Other' },
-  ],
-  youth: [
-    { value: 'attorney', label: 'My Lawyer' },
-    { value: 'social_worker', label: 'Social Worker' },
-    { value: 'casa', label: 'CASA Volunteer' },
-    { value: 'therapist', label: 'Therapist / Counselor' },
-    { value: 'other', label: 'Other' },
-  ],
-  supporter: [
-    { value: 'attorney', label: 'Attorney (if consulting)' },
-    { value: 'social_worker', label: 'Social Worker' },
-    { value: 'other', label: 'Other Professional' },
-  ],
-}
-
-const PREP_OPTIONS_BY_ROLE = {
-  parent: [
-    {
-      type: 'hearing' as PrepType,
-      icon: FileText,
-      iconColor: 'text-purple-600',
-      iconBg: 'bg-purple-100',
-      title: 'Before a Hearing',
-      description: 'Prepare what you want to say to the judge and organize your questions.',
-    },
-    {
-      type: 'meeting' as PrepType,
-      icon: Users,
-      iconColor: 'text-blue-600',
-      iconBg: 'bg-blue-100',
-      title: 'Before a Meeting',
-      description: 'Prepare for calls or meetings with your attorney or social worker.',
-    },
-    {
-      type: 'after_hearing' as PrepType,
-      icon: CheckCircle,
-      iconColor: 'text-coral-600',
-      iconBg: 'bg-coral-100',
-      title: 'After a Hearing',
-      description: 'Summarize what happened and identify your next best actions.',
-    },
-  ],
-  youth: [
-    {
-      type: 'hearing' as PrepType,
-      icon: FileText,
-      iconColor: 'text-purple-600',
-      iconBg: 'bg-purple-100',
-      title: 'Before Court',
-      description: 'Prepare what you want to tell the judge and organize your thoughts.',
-    },
-    {
-      type: 'meeting' as PrepType,
-      icon: Users,
-      iconColor: 'text-blue-600',
-      iconBg: 'bg-blue-100',
-      title: 'Before a Meeting',
-      description: 'Get ready for meetings with your lawyer, social worker, or CASA.',
-    },
-    {
-      type: 'after_hearing' as PrepType,
-      icon: CheckCircle,
-      iconColor: 'text-coral-600',
-      iconBg: 'bg-coral-100',
-      title: 'After Court',
-      description: 'Think about what happened and what comes next.',
-    },
-  ],
-  supporter: [
-    {
-      type: 'hearing' as PrepType,
-      icon: FileText,
-      iconColor: 'text-purple-600',
-      iconBg: 'bg-purple-100',
-      title: 'Before a Hearing',
-      description: 'Prepare to support someone attending a court hearing.',
-    },
-    {
-      type: 'meeting' as PrepType,
-      icon: Users,
-      iconColor: 'text-blue-600',
-      iconBg: 'bg-blue-100',
-      title: 'Before a Meeting',
-      description: 'Get ready to support someone in meetings with professionals.',
-    },
-    {
-      type: 'after_hearing' as PrepType,
-      icon: CheckCircle,
-      iconColor: 'text-coral-600',
-      iconBg: 'bg-coral-100',
-      title: 'After a Hearing',
-      description: 'Help process what happened and plan next steps.',
-    },
-  ],
-}
-
-const PLACEHOLDERS_BY_ROLE = {
+// ── ROLE COPY ────────────────────────────────────────────────────────────────
+const COPY = {
   parent: {
-    hearing: "E.g., 'I want to talk about my visits' or 'I don't understand the new plan'",
-    meeting: "E.g., 'I need to understand my case plan better' or 'I want to discuss visitation schedule'",
-    after_hearing: "E.g., 'The judge said I need to complete parenting classes. What does that mean?'",
+    heading: 'Get Ready',
+    subheading: 'A little preparation goes a long way.',
+    privacyNote: 'None of your notes are shared with CPS or the court.',
+    prepOptions: [
+      { type: 'hearing' as PrepType, icon: FileText, title: 'Before a Hearing', description: 'What to say, what to bring, what to expect.' },
+      { type: 'meeting' as PrepType, icon: Users, title: 'Before a Meeting', description: 'Prepare for your attorney or social worker.' },
+      { type: 'after_hearing' as PrepType, icon: CheckCircle, title: 'After a Hearing', description: 'Make sense of what happened and what is next.' },
+    ],
+    meetingTypes: [
+      { value: 'attorney', label: 'My Attorney' },
+      { value: 'social_worker', label: 'Social Worker' },
+      { value: 'therapist', label: 'Therapist / Counselor' },
+      { value: 'other', label: 'Other' },
+    ],
+    questionLabel: (type: PrepType) => type === 'meeting' ? 'What do you want to talk about?' : 'What is on your mind right now?',
+    placeholder: (type: PrepType) => type === 'after_hearing'
+      ? "E.g., 'The judge said I need to complete parenting classes — I don't know what that means'"
+      : type === 'meeting'
+      ? "E.g., 'I want to understand my case plan better'"
+      : "E.g., 'I'm worried about what the judge will think about my housing'",
+    followUpPlaceholder: 'Ask a follow-up question...',
   },
   youth: {
-    hearing: "E.g., 'I want to stay with my current foster family' or 'I miss my siblings'",
-    meeting: "E.g., 'I want to talk about school' or 'I need help with my placement'",
-    after_hearing: "E.g., 'The judge talked about adoption. What happens now?'",
+    heading: 'Get Ready',
+    subheading: 'Your thoughts matter. Let\'s organize them.',
+    privacyNote: 'None of this is shared with your parents, social worker, or the court.',
+    prepOptions: [
+      { type: 'hearing' as PrepType, icon: FileText, title: 'Before Court', description: 'What to say, what to expect, how to feel ready.' },
+      { type: 'meeting' as PrepType, icon: Users, title: 'Before a Meeting', description: 'Get ready to talk to your lawyer, social worker, or CASA.' },
+      { type: 'after_hearing' as PrepType, icon: CheckCircle, title: 'After Court', description: 'Make sense of what happened.' },
+    ],
+    meetingTypes: [
+      { value: 'attorney', label: 'My Lawyer' },
+      { value: 'social_worker', label: 'Social Worker' },
+      { value: 'casa', label: 'CASA Volunteer' },
+      { value: 'therapist', label: 'Therapist' },
+      { value: 'other', label: 'Someone Else' },
+    ],
+    questionLabel: (_type: PrepType) => 'What is on your mind?',
+    placeholder: (type: PrepType) => type === 'after_hearing'
+      ? "E.g., 'The judge talked about adoption and I don't know what that means for me'"
+      : type === 'meeting'
+      ? "E.g., 'I want to talk about changing my placement'"
+      : "E.g., 'I want the judge to know I want to stay with my current foster family'",
+    followUpPlaceholder: 'Ask something else...',
   },
   supporter: {
-    hearing: "E.g., 'How can I help them prepare?' or 'What should I know about this hearing?'",
-    meeting: "E.g., 'How can I best support them in this meeting?'",
-    after_hearing: "E.g., 'How can I help them process what happened?'",
+    heading: 'Get Ready',
+    subheading: 'Being prepared helps you show up for them.',
+    privacyNote: 'None of this is shared with anyone.',
+    prepOptions: [
+      { type: 'hearing' as PrepType, icon: FileText, title: 'Before a Hearing', description: 'How to support someone going to court.' },
+      { type: 'meeting' as PrepType, icon: Users, title: 'Before a Meeting', description: 'Prepare to support someone meeting with professionals.' },
+      { type: 'after_hearing' as PrepType, icon: CheckCircle, title: 'After a Hearing', description: 'How to help them process what happened.' },
+    ],
+    meetingTypes: [
+      { value: 'social_worker', label: 'Social Worker' },
+      { value: 'attorney', label: 'Attorney' },
+      { value: 'other', label: 'Other Professional' },
+    ],
+    questionLabel: (_type: PrepType) => 'What do you need help with?',
+    placeholder: (_type: PrepType) => "E.g., 'She is really scared about her hearing next week and I don't know how to help'",
+    followUpPlaceholder: 'Ask a follow-up...',
   },
 }
 
 export function Preparation() {
-  const navigate = useNavigate()
   const { user, profile } = useAuth()
+  const userRole: Role = (profile?.role as Role) || 'parent'
+  const copy = COPY[userRole]
+
   const [selectedType, setSelectedType] = useState<PrepType>(null)
   const [meetingType, setMeetingType] = useState<MeetingType>(null)
   const [concerns, setConcerns] = useState('')
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([])
-  const [currentMessage, setCurrentMessage] = useState('')
+  const [followUp, setFollowUp] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [currentStage, setCurrentStage] = useState<string | null>(null)
   const [showSaveModal, setShowSaveModal] = useState(false)
-  const [saveModalState, setSaveModalState] = useState<SaveModalState>({
-    isOpen: false,
-    date: new Date().toISOString().split('T')[0],
-    title: '',
-  })
-  const chatEndRef = useRef<HTMLDivElement>(null)
-
-  const userRole: Role = (profile?.role as Role) || 'parent'
-  const prepOptions = PREP_OPTIONS_BY_ROLE[userRole]
-  const meetingTypes = MEETING_TYPES_BY_ROLE[userRole]
-  const placeholders = PLACEHOLDERS_BY_ROLE[userRole]
+  const [saveTitle, setSaveTitle] = useState('')
+  const [savedSuccess, setSavedSuccess] = useState(false)
 
   useEffect(() => {
-    const fetchCurrentStage = async () => {
+    const fetchStage = async () => {
       if (!user) return
-
-      try {
-        const { data } = await supabase
-          .from('profiles')
-          .select('current_stage')
-          .eq('id', user.id)
-          .maybeSingle()
-
-        if (data?.current_stage) {
-          setCurrentStage(data.current_stage)
-        }
-      } catch (error) {
-        console.error('Error fetching current stage:', error)
-      }
+      const { data } = await supabase.from('profiles').select('current_stage').eq('id', user.id).maybeSingle()
+      if (data?.current_stage) setCurrentStage(data.current_stage)
     }
-
-    fetchCurrentStage()
+    fetchStage()
   }, [user])
-
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [chatHistory])
-
-  const getMeetingTypeLabel = (type: MeetingType): string => {
-    const meetingTypeObj = meetingTypes.find((mt) => mt.value === type)
-    return meetingTypeObj?.label || 'professional'
-  }
 
   const getAuthHeaders = async () => {
     const { data } = await supabase.auth.getSession()
@@ -230,7 +130,7 @@ export function Preparation() {
     }
   }
 
-  const handleGetInitialGuide = async () => {
+  const handleGenerate = async () => {
     if (!selectedType || !concerns.trim()) return
     if (selectedType === 'meeting' && !meetingType) return
 
@@ -238,529 +138,525 @@ export function Preparation() {
     setError(null)
 
     try {
-      let promptText = concerns
-      if (selectedType === 'meeting' && meetingType) {
-        promptText = `${concerns} I am preparing for a meeting with my ${getMeetingTypeLabel(meetingType)}.`
-      }
+      const concernsWithContext = selectedType === 'meeting' && meetingType
+        ? `${concerns} (meeting with: ${copy.meetingTypes.find(m => m.value === meetingType)?.label})`
+        : concerns
 
       const headers = await getAuthHeaders()
+      const res = await fetch(
+        'https://dmrmgpidvfcywilcsmff.supabase.co/functions/v1/generate-preparation-guide',
+        {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            prepType: selectedType,
+            concerns: concernsWithContext,
+            currentStage,
+            userRole,
+          }),
+        }
+      )
 
-      const response = await fetch('https://dmrmgpidvfcywilcsmff.supabase.co/functions/v1/generate-preparation-guide', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          prepType: selectedType,
-          concerns: promptText,
-          currentStage: currentStage,
-          userRole: userRole,
-        }),
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to generate guidance')
-      }
-
-      const data = await response.json()
-      const generatedContent = data.response
-
-      if (!generatedContent) {
-        throw new Error('No response received from API')
-      }
+      if (!res.ok) throw new Error('Failed to generate guidance')
+      const data = await res.json()
+      if (!data.response) throw new Error('No response received')
 
       setChatHistory([
         { role: 'user', content: concerns },
-        { role: 'assistant', content: generatedContent },
+        { role: 'assistant', content: data.response },
       ])
-      trackEvent('preparation_started', { role: userRole, prep_type: selectedType || undefined })
+      trackEvent('preparation_started', { role: userRole, prep_type: selectedType })
 
       if (user) {
         await supabase.from('preparation_notes').insert({
           user_id: user.id,
           prep_type: selectedType,
-          concerns: concerns,
-          generated_guide: { content: generatedContent },
+          concerns,
+          generated_guide: { content: data.response },
           exported: false,
         })
       }
-    } catch (error) {
-      console.error('Error generating guide:', error)
-      setError('We could not generate your guide right now. Please try again in a moment.')
+    } catch (err) {
+      setError('Something went wrong. Please try again.')
     } finally {
       setLoading(false)
     }
   }
 
-  const handleSendFollowUp = async () => {
-    if (!currentMessage.trim() || !selectedType) return
+  const handleFollowUp = async () => {
+    if (!followUp.trim() || loading) return
 
+    const newMsg: ChatMessage = { role: 'user', content: followUp }
+    const updated = [...chatHistory, newMsg]
+    setChatHistory(updated)
+    setFollowUp('')
     setLoading(true)
     setError(null)
 
     try {
-      const newUserMessage: ChatMessage = { role: 'user', content: currentMessage }
-      const updatedHistory = [...chatHistory, newUserMessage]
-      setChatHistory(updatedHistory)
-      setCurrentMessage('')
-
       const headers = await getAuthHeaders()
+      const res = await fetch(
+        'https://dmrmgpidvfcywilcsmff.supabase.co/functions/v1/generate-preparation-guide',
+        {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            prepType: selectedType,
+            concerns,
+            currentStage,
+            userRole,
+            messages: updated,
+          }),
+        }
+      )
 
-      const response = await fetch('https://dmrmgpidvfcywilcsmff.supabase.co/functions/v1/generate-preparation-guide', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          prepType: selectedType,
-          concerns: concerns,
-          currentStage: currentStage,
-          userRole: userRole,
-          messages: updatedHistory,
-        }),
-      })
+      if (!res.ok) throw new Error('Failed to generate response')
+      const data = await res.json()
+      if (!data.response) throw new Error('No response received')
 
-      if (!response.ok) {
-        throw new Error('Failed to generate response')
-      }
-
-      const data = await response.json()
-      const generatedResponse = data.response
-
-      if (!generatedResponse) {
-        throw new Error('No response received from API')
-      }
-
-      setChatHistory((prev) => [...prev, { role: 'assistant', content: generatedResponse }])
-    } catch (error) {
-      console.error('Error generating response:', error)
-      setError('We could not generate a response. Please try again in a moment.')
-      setChatHistory((prev) => prev.slice(0, -1))
+      setChatHistory(prev => [...prev, { role: 'assistant', content: data.response }])
+    } catch (err) {
+      setError('Something went wrong. Please try again.')
+      setChatHistory(prev => prev.slice(0, -1))
     } finally {
       setLoading(false)
     }
   }
 
-  const handleSaveChatClick = () => {
-    const selectedOption = prepOptions.find((opt) => opt.type === selectedType)
-    let defaultTitle = `${selectedOption?.title}`
-    if (selectedType === 'meeting' && meetingType) {
-      defaultTitle += ` - ${getMeetingTypeLabel(meetingType)}`
-    }
-
-    setSaveModalState({
-      isOpen: true,
-      date: new Date().toISOString().split('T')[0],
-      title: defaultTitle,
-    })
-    setShowSaveModal(true)
-  }
-
-  const handleSaveChat = async () => {
-    if (!user || !saveModalState.title.trim()) return
-
+  const handleSave = async () => {
+    if (!user || !saveTitle.trim()) return
     try {
-      const chatContent = chatHistory
-        .map((msg) => {
-          const role = msg.role === 'user' ? 'You' : 'Preparation Guide'
-          return `${role}:\n${msg.content}`
-        })
-        .join('\n\n---\n\n')
-
-      const fullContent = `Date: ${saveModalState.date}\n\nYour Concerns: ${concerns}\n\n${chatContent}`
+      const content = [
+        `Date: ${new Date().toLocaleDateString()}`,
+        `Your question: ${concerns}`,
+        '',
+        ...chatHistory.map(m => `${m.role === 'user' ? 'You' : 'Preparation Guide'}:\n${m.content}`),
+      ].join('\n\n')
 
       await supabase.from('notes').insert({
         user_id: user.id,
-        title: saveModalState.title,
-        content: fullContent,
-        category: 'Other',
+        title: saveTitle,
+        content,
+        category: 'Preparation',
       })
 
       setShowSaveModal(false)
-      setSaveModalState({ isOpen: false, date: '', title: '' })
-
-      trackEvent('preparation_completed', { role: userRole, prep_type: selectedType || undefined })
-      alert('Chat saved as note!')
-    } catch (error) {
-      console.error('Error saving chat:', error)
-      setError('Failed to save chat. Please try again.')
+      setSavedSuccess(true)
+      setTimeout(() => setSavedSuccess(false), 3000)
+      trackEvent('preparation_completed', { role: userRole, prep_type: selectedType })
+    } catch {
+      setError('Could not save. Please try again.')
     }
   }
 
-  const handleChangeType = () => {
+  const reset = () => {
     setSelectedType(null)
     setMeetingType(null)
     setConcerns('')
     setChatHistory([])
-    setCurrentMessage('')
-    setShowSaveModal(false)
+    setFollowUp('')
+    setError(null)
   }
 
-  const handlePrint = () => {
-    window.print()
+  const hasResponse = chatHistory.length > 0
+  const assistantResponse = chatHistory.filter(m => m.role === 'assistant')
+
+  // ── STYLES ───────────────────────────────────────────────────────────────
+  const card: React.CSSProperties = {
+    background: '#FAF7F4',
+    border: '1px solid rgba(122,102,144,0.12)',
+    borderRadius: 24,
+    boxShadow: '0 2px 12px rgba(90,78,110,0.07)',
   }
-
-  const selectedOption = prepOptions.find((opt) => opt.type === selectedType)
-  const hasChat = chatHistory.length > 0
-
-  const getPrivacyMessage = () => {
-    if (userRole === 'youth') {
-      return 'None of your notes are shared with anyone - not your parents, social worker, or the court.'
-    }
-    return 'None of your notes are shared with CPS or the court.'
+  const inputStyle: React.CSSProperties = {
+    background: '#F0EAE0',
+    border: '1.5px solid rgba(122,102,144,0.2)',
+    borderRadius: 16,
+    padding: '12px 16px',
+    color: '#2A2030',
+    outline: 'none',
+    width: '100%',
+    fontSize: 15,
   }
-
-  const getQuestionLabel = () => {
-    if (userRole === 'youth') {
-      return selectedType === 'meeting' ? 'What do you want to talk about?' : 'What is on your mind?'
-    }
-    if (userRole === 'supporter') {
-      return selectedType === 'meeting' ? 'What do they need help with?' : 'What are your concerns?'
-    }
-    return selectedType === 'meeting' ? 'What do you want to discuss?' : 'Any specific concerns today?'
+  const primaryBtn: React.CSSProperties = {
+    background: '#7A6690',
+    color: 'white',
+    border: 'none',
+    borderRadius: 16,
+    padding: '14px 24px',
+    fontWeight: 700,
+    fontSize: 15,
+    cursor: 'pointer',
+    width: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    boxShadow: '0 4px 16px rgba(122,102,144,0.3)',
+  }
+  const ghostBtn: React.CSSProperties = {
+    background: 'transparent',
+    color: '#7A6690',
+    border: '1.5px solid rgba(122,102,144,0.35)',
+    borderRadius: 16,
+    padding: '12px 24px',
+    fontWeight: 600,
+    fontSize: 14,
+    cursor: 'pointer',
+    width: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen pb-24" style={{ background: '#F0EAE0' }}>
       <AppHeader />
 
-      <div className="bg-gradient-to-r from-amber-100 to-amber-50 border-b border-amber-200 px-6 py-3">
-        <div className="max-w-md mx-auto flex items-start gap-2">
-          <AlertCircle className="w-5 h-5 text-amber-700 flex-shrink-0 mt-0.5" />
-          <p className="text-sm text-amber-900 font-medium">
-            General info, not legal advice. Talk to your lawyer for your specific case.
-          </p>
-        </div>
-      </div>
+      <div className="max-w-md mx-auto px-5 py-6">
 
-      <div className="max-w-md mx-auto px-6 py-8 pb-24">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            {userRole === 'youth' ? 'Preparation and Reflection' : 'Preparation & Reflection'}
-          </h1>
-          <p className="text-gray-600">
-            {userRole === 'youth'
-              ? 'Your safe space for organizing thoughts and preparing for what is next.'
-              : userRole === 'supporter'
-              ? 'Help organize thoughts and prepare for supporting someone through their case.'
-              : 'Your "second brain" for organizing thoughts and self-advocating.'}
-          </p>
-        </div>
+        {/* ── HEADER ── */}
+        {!hasResponse && (
+          <div className="mb-6">
+            <h1
+              className="text-3xl font-bold mb-1"
+              style={{ fontFamily: "'Fraunces', Georgia, serif", color: '#2A2030' }}
+            >
+              {copy.heading}
+            </h1>
+            <p className="text-sm" style={{ color: '#5A5065' }}>{copy.subheading}</p>
+          </div>
+        )}
 
-        <Card className="mb-6 bg-purple-50 border-purple-200">
-          <div className="flex items-start gap-3">
-            <div className="flex-shrink-0">
-              <div className="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center">
-                <Lock className="w-5 h-5 text-white" />
-              </div>
+        {/* ── PRIVACY NOTE ── */}
+        {!hasResponse && (
+          <div
+            className="flex items-start gap-3 rounded-2xl px-4 py-3 mb-5"
+            style={{ background: '#FAF7F4', border: '1px solid rgba(122,102,144,0.12)' }}
+          >
+            <Lock className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#7A6690' }} />
+            <p className="text-xs leading-relaxed" style={{ color: '#5A5065' }}>
+              <span className="font-bold" style={{ color: '#2A2030' }}>Private. </span>
+              {copy.privacyNote}
+            </p>
+          </div>
+        )}
+
+        {/* ── STEP 1: CHOOSE TYPE ── */}
+        {!selectedType && (
+          <div className="space-y-3">
+            <p className="text-sm font-semibold mb-1" style={{ color: '#9A90A8', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              What do you need help with?
+            </p>
+            {copy.prepOptions.map(opt => {
+              const Icon = opt.icon
+              return (
+                <button
+                  key={opt.type}
+                  onClick={() => setSelectedType(opt.type)}
+                  className="w-full text-left p-4 rounded-3xl transition-all"
+                  style={{ ...card, cursor: 'pointer' }}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="rounded-2xl p-3 flex-shrink-0" style={{ background: '#E8DDE8' }}>
+                      <Icon className="w-5 h-5" style={{ color: '#7A6690' }} />
+                    </div>
+                    <div>
+                      <p className="font-bold text-base" style={{ color: '#2A2030' }}>{opt.title}</p>
+                      <p className="text-sm mt-0.5" style={{ color: '#5A5065' }}>{opt.description}</p>
+                    </div>
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+        )}
+
+        {/* ── STEP 2: MEETING TYPE (if meeting) ── */}
+        {selectedType === 'meeting' && !meetingType && (
+          <div style={card} className="p-5">
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-sm font-semibold uppercase tracking-wide" style={{ color: '#9A90A8' }}>
+                Who is this meeting with?
+              </p>
+              <button onClick={reset} style={{ color: '#9A90A8' }}>
+                <X className="w-4 h-4" />
+              </button>
             </div>
-            <div className="flex-1">
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Private and Safe</h3>
-              <p className="text-sm text-gray-700 mb-2">
-                {userRole === 'youth'
-                  ? 'Anchor helps you understand what is happening. These are educational suggestions, not legal advice.'
-                  : 'Anchor aims to help you understand what is happening. These are educational suggestions, not legal advice.'}
-              </p>
-              <p className="text-sm font-semibold text-coral-600">
-                {getPrivacyMessage()}
-              </p>
+            <div className="space-y-2">
+              {copy.meetingTypes.map(mt => (
+                <button
+                  key={mt.value}
+                  onClick={() => setMeetingType(mt.value as MeetingType)}
+                  className="w-full text-left rounded-2xl px-4 py-3 transition-all"
+                  style={{
+                    background: '#F0EAE0',
+                    border: '1.5px solid rgba(122,102,144,0.15)',
+                    color: '#2A2030',
+                    fontWeight: 600,
+                    fontSize: 15,
+                  }}
+                >
+                  {mt.label}
+                </button>
+              ))}
             </div>
           </div>
-        </Card>
+        )}
 
-        {!selectedType ? (
-          <>
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Choose a starting point</h2>
-            <div className="space-y-3">
-              {prepOptions.map((option) => {
-                const IconComponent = option.icon
-                return (
-                  <Card
-                    key={option.type}
-                    className="cursor-pointer hover:shadow-md transition-shadow"
-                    onClick={() => setSelectedType(option.type)}
-                  >
-                    <div className="flex items-start gap-4">
-                      <div className={`flex-shrink-0 w-12 h-12 ${option.iconBg} rounded-lg flex items-center justify-center`}>
-                        <IconComponent className={`w-6 h-6 ${option.iconColor}`} />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="text-lg font-bold text-gray-900 mb-1">{option.title}</h3>
-                        <p className="text-sm text-gray-600">{option.description}</p>
-                      </div>
-                    </div>
-                  </Card>
-                )
-              })}
-            </div>
-          </>
-        ) : !hasChat ? (
-          <Card>
+        {/* ── STEP 3: CONCERNS INPUT ── */}
+        {selectedType && (selectedType !== 'meeting' || meetingType) && !hasResponse && (
+          <div style={card} className="p-5">
             <div className="flex items-center justify-between mb-4">
-              <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-semibold">
-                {selectedOption?.title}
+              <span
+                className="text-xs font-bold uppercase tracking-wide px-3 py-1 rounded-full"
+                style={{ background: '#E8DDE8', color: '#7A6690' }}
+              >
+                {copy.prepOptions.find(o => o.type === selectedType)?.title}
+                {meetingType && ` · ${copy.meetingTypes.find(m => m.value === meetingType)?.label}`}
               </span>
-              <button onClick={handleChangeType} className="text-sm text-purple-600 hover:text-purple-700 font-medium">
-                Change
+              <button onClick={reset} style={{ color: '#9A90A8' }}>
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            {selectedType === 'meeting' && (
-              <>
-                <h3 className="text-lg font-bold text-gray-900 mb-3 uppercase">
-                  Who is this meeting with?
-                </h3>
-                <div className="grid grid-cols-1 gap-2 mb-6">
-                  {meetingTypes.map((type) => (
-                    <button
-                      key={type.value}
-                      onClick={() => setMeetingType(type.value as MeetingType)}
-                      className={`px-4 py-3 rounded-lg border-2 text-left font-medium transition-all ${
-                        meetingType === type.value
-                          ? 'border-blue-600 bg-blue-50 text-blue-900'
-                          : 'border-gray-200 bg-white text-gray-700 hover:border-blue-300'
-                      }`}
-                    >
-                      {type.label}
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
-
-            <h3 className="text-lg font-bold text-gray-900 mb-3 uppercase">
-              {getQuestionLabel()}
-            </h3>
-
+            <label
+              className="block text-sm font-semibold mb-2"
+              style={{ color: '#2A2030' }}
+            >
+              {copy.questionLabel(selectedType)}
+            </label>
             <textarea
               value={concerns}
-              onChange={(e) => setConcerns(e.target.value)}
-              placeholder={placeholders[selectedType as keyof typeof placeholders]}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
-              rows={5}
+              onChange={e => setConcerns(e.target.value)}
+              placeholder={copy.placeholder(selectedType)}
+              rows={4}
+              className="resize-none"
+              style={inputStyle}
             />
 
             {error && (
-              <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-sm text-red-700">{error}</p>
+              <div
+                className="mt-3 rounded-xl p-3 flex items-start gap-2"
+                style={{ background: '#F5ECD8', border: '1px solid rgba(200,136,58,0.2)' }}
+              >
+                <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#C8883A' }} />
+                <p className="text-xs" style={{ color: '#7A5A2A' }}>{error}</p>
               </div>
             )}
 
             <button
-              onClick={handleGetInitialGuide}
-              disabled={!concerns.trim() || loading || (selectedType === 'meeting' && !meetingType)}
-              className="mt-4 w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-coral-600 text-white rounded-lg hover:bg-coral-700 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={handleGenerate}
+              disabled={!concerns.trim() || loading}
+              style={{
+                ...primaryBtn,
+                marginTop: 16,
+                opacity: (!concerns.trim() || loading) ? 0.5 : 1,
+              }}
             >
               {loading ? (
                 <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  {selectedType === 'meeting' ? 'Preparing your meeting guide...' : 'Preparing your personalized guide...'}
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Getting your guide...
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-5 h-5" />
-                  Get Preparation Tips
+                  <Sparkles className="w-4 h-4" />
+                  Get My Guide
                 </>
               )}
             </button>
 
             {loading && (
-              <p className="mt-3 text-sm text-gray-600 text-center">
-                This may take 10-30 seconds while Claude generates personalized advice for you.
+              <p className="text-center text-xs mt-2" style={{ color: '#9A90A8' }}>
+                Usually ready in 5–10 seconds
               </p>
             )}
-          </Card>
-        ) : (
+          </div>
+        )}
+
+        {/* ── RESPONSE VIEW ── */}
+        {hasResponse && (
           <div className="space-y-4">
-            <Card>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-gray-900">
-                  {selectedType === 'meeting' ? 'Your Meeting Guide' : 'Your Guide'}
-                </h2>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={handlePrint}
-                    className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-                    title="Print"
-                  >
-                    <Printer className="w-5 h-5" />
-                  </button>
-                </div>
-              </div>
 
-              <div className="mb-4 p-3 bg-purple-50 rounded-lg">
-                {selectedType === 'meeting' && meetingType && (
-                  <p className="text-sm text-gray-700 mb-2">
-                    <span className="font-semibold">Meeting with:</span> {getMeetingTypeLabel(meetingType)}
-                  </p>
-                )}
-                <p className="text-sm text-gray-700">
-                  <span className="font-semibold">
-                    {userRole === 'youth' ? 'What is on your mind:' : 'Your concerns:'}
-                  </span> {concerns}
-                </p>
-              </div>
+            {/* Header row */}
+            <div className="flex items-center justify-between">
+              <h2
+                className="text-xl font-bold"
+                style={{ fontFamily: "'Fraunces', Georgia, serif", color: '#2A2030' }}
+              >
+                Your Guide
+              </h2>
+              <button
+                onClick={reset}
+                className="flex items-center gap-1.5 text-xs font-semibold rounded-xl px-3 py-1.5"
+                style={{ background: '#E8DDE8', color: '#7A6690' }}
+              >
+                <RotateCcw className="w-3 h-3" />
+                Start Over
+              </button>
+            </div>
 
-              <div className="mb-6 max-h-96 overflow-y-auto bg-white border border-gray-200 rounded-lg p-4 space-y-4">
-                {chatHistory.map((message, index) => (
-                  <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    <div
-                      className={`max-w-xs px-4 py-2 rounded-lg ${
-                        message.role === 'user'
-                          ? 'bg-coral-600 text-white rounded-br-none'
-                          : 'bg-gray-100 text-gray-900 rounded-bl-none'
-                      }`}
-                    >
-                      {message.role === 'user' ? (
-                        <p className="text-sm">{message.content}</p>
-                      ) : (
-                        <div className="text-sm">
-                          <MarkdownDisplay content={message.content} />
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-                {loading && (
-                  <div className="flex justify-start">
-                    <div className="bg-gray-100 text-gray-900 rounded-lg rounded-bl-none px-4 py-2">
-                      <Loader2 className="w-5 h-5 animate-spin text-purple-600" />
-                    </div>
-                  </div>
-                )}
-                <div ref={chatEndRef} />
-              </div>
+            {/* Your question */}
+            <div
+              className="rounded-2xl px-4 py-3"
+              style={{ background: '#E8DDE8' }}
+            >
+              <p className="text-xs font-bold uppercase tracking-wide mb-1" style={{ color: '#9A90A8' }}>
+                You said
+              </p>
+              <p className="text-sm" style={{ color: '#2A2030' }}>{concerns}</p>
+            </div>
 
-              <div className="mb-6">
-                <h3 className="text-lg font-bold text-gray-900 mb-3">Continue the conversation</h3>
-                <div className="flex gap-2">
-                  <textarea
-                    value={currentMessage}
-                    onChange={(e) => setCurrentMessage(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey && currentMessage.trim()) {
-                        e.preventDefault()
-                        handleSendFollowUp()
-                      }
-                    }}
-                    placeholder={
-                      userRole === 'youth'
-                        ? 'Ask another question or share more thoughts...'
-                        : 'Ask a follow-up question or share more concerns...'
-                    }
-                    className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
-                    rows={3}
-                    disabled={loading}
-                  />
-                  <button
-                    onClick={handleSendFollowUp}
-                    disabled={!currentMessage.trim() || loading}
-                    className="px-4 py-3 bg-coral-600 text-white rounded-lg hover:bg-coral-700 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                  >
-                    {loading ? (
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                    ) : (
-                      <Send className="w-5 h-5" />
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              {error && (
-                <div className="mb-6 p-3 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-sm text-red-700">{error}</p>
-                </div>
-              )}
-
-              <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-                <div className="flex items-start gap-2">
-                  <AlertCircle className="w-5 h-5 text-amber-700 flex-shrink-0 mt-0.5" />
-                  <p className="text-sm text-amber-900">
-                    <span className="font-semibold">Disclaimer:</span> This guidance is generated by AI based on
-                    general dependency court information. Always consult your attorney for advice specific to your
-                    case.
+            {/* AI responses */}
+            {assistantResponse.map((msg, i) => (
+              <div key={i} style={card} className="p-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <Sparkles className="w-4 h-4" style={{ color: '#7A6690' }} />
+                  <p className="text-xs font-bold uppercase tracking-wide" style={{ color: '#7A6690' }}>
+                    {i === 0 ? 'Your Preparation Guide' : 'Follow-up'}
                   </p>
                 </div>
+                <div
+                  className="text-sm leading-relaxed whitespace-pre-wrap"
+                  style={{ color: '#2A2030' }}
+                >
+                  {msg.content}
+                </div>
               </div>
+            ))}
 
-              <div className="space-y-2">
+            {/* Follow-up questions from user */}
+            {chatHistory.filter(m => m.role === 'user').slice(1).map((msg, i) => (
+              <div
+                key={i}
+                className="rounded-2xl px-4 py-3 self-end ml-8"
+                style={{ background: '#7A6690' }}
+              >
+                <p className="text-sm text-white">{msg.content}</p>
+              </div>
+            ))}
+
+            {/* Loading state */}
+            {loading && (
+              <div style={card} className="p-4 flex items-center gap-3">
+                <Loader2 className="w-4 h-4 animate-spin" style={{ color: '#7A6690' }} />
+                <p className="text-sm" style={{ color: '#9A90A8' }}>Getting your answer...</p>
+              </div>
+            )}
+
+            {error && (
+              <div
+                className="rounded-2xl p-3 flex items-start gap-2"
+                style={{ background: '#F5ECD8', border: '1px solid rgba(200,136,58,0.2)' }}
+              >
+                <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#C8883A' }} />
+                <p className="text-xs" style={{ color: '#7A5A2A' }}>{error}</p>
+              </div>
+            )}
+
+            {/* Disclaimer */}
+            <p className="text-xs text-center px-4" style={{ color: '#9A90A8' }}>
+              General information only — not legal advice. Talk to your attorney about your specific case.
+            </p>
+
+            {/* Follow-up input */}
+            <div style={card} className="p-4">
+              <p className="text-xs font-bold uppercase tracking-wide mb-2" style={{ color: '#9A90A8' }}>
+                Have a follow-up question?
+              </p>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={followUp}
+                  onChange={e => setFollowUp(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' && followUp.trim()) handleFollowUp()
+                  }}
+                  placeholder={copy.followUpPlaceholder}
+                  style={{ ...inputStyle, borderRadius: 12, padding: '10px 14px', flex: 1 }}
+                  disabled={loading}
+                />
                 <button
-                  onClick={handleSaveChatClick}
-                  className="w-full px-6 py-3 bg-coral-600 text-white rounded-lg hover:bg-coral-700 transition-colors font-semibold flex items-center justify-center gap-2"
+                  onClick={handleFollowUp}
+                  disabled={!followUp.trim() || loading}
+                  className="rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={{
+                    background: '#7A6690',
+                    border: 'none',
+                    width: 44,
+                    height: 44,
+                    opacity: (!followUp.trim() || loading) ? 0.5 : 1,
+                    cursor: 'pointer',
+                  }}
                 >
-                  <Save className="w-5 h-5" />
-                  Save This Chat to Notes
-                </button>
-                <button
-                  onClick={handleChangeType}
-                  className="w-full px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-semibold"
-                >
-                  Start New Preparation
+                  <Send className="w-4 h-4 text-white" />
                 </button>
               </div>
-            </Card>
+            </div>
+
+            {/* Save button */}
+            {savedSuccess ? (
+              <div
+                className="rounded-2xl p-4 flex items-center justify-center gap-2"
+                style={{ background: 'rgba(74,124,89,0.12)' }}
+              >
+                <Check className="w-4 h-4" style={{ color: '#4A7C59' }} />
+                <p className="text-sm font-semibold" style={{ color: '#4A7C59' }}>Saved to your notes!</p>
+              </div>
+            ) : (
+              <button
+                onClick={() => {
+                  setSaveTitle(`${copy.prepOptions.find(o => o.type === selectedType)?.title ?? 'Preparation'} — ${new Date().toLocaleDateString()}`)
+                  setShowSaveModal(true)
+                }}
+                style={ghostBtn}
+              >
+                <Save className="w-4 h-4" />
+                Save to My Notes
+              </button>
+            )}
           </div>
         )}
       </div>
 
+      {/* ── SAVE MODAL ── */}
       {showSaveModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <Card className="w-full max-w-md">
+        <div
+          className="fixed inset-0 flex items-end justify-center z-50 p-4"
+          style={{ background: 'rgba(42,32,48,0.5)' }}
+        >
+          <div
+            className="w-full max-w-md rounded-3xl p-6"
+            style={{ background: '#FAF7F4' }}
+          >
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-gray-900">Save This Chat</h2>
-              <button
-                onClick={() => setShowSaveModal(false)}
-                className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <X className="w-5 h-5" />
+              <h3 className="text-lg font-bold" style={{ fontFamily: "'Fraunces', Georgia, serif", color: '#2A2030' }}>
+                Save to Notes
+              </h3>
+              <button onClick={() => setShowSaveModal(false)}>
+                <X className="w-5 h-5" style={{ color: '#9A90A8' }} />
               </button>
             </div>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-2">Date</label>
-                <input
-                  type="date"
-                  value={saveModalState.date}
-                  onChange={(e) =>
-                    setSaveModalState((prev) => ({
-                      ...prev,
-                      date: e.target.value,
-                    }))
-                  }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-2">Title</label>
-                <input
-                  type="text"
-                  value={saveModalState.title}
-                  onChange={(e) =>
-                    setSaveModalState((prev) => ({
-                      ...prev,
-                      title: e.target.value,
-                    }))
-                  }
-                  placeholder="E.g., 'Custody Concerns - Feb 16'"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <button
-                  onClick={handleSaveChat}
-                  className="w-full px-6 py-3 bg-coral-600 text-white rounded-lg hover:bg-coral-700 transition-colors font-semibold flex items-center justify-center gap-2"
-                >
-                  <Check className="w-5 h-5" />
-                  Save Chat
-                </button>
-                <button
-                  onClick={() => setShowSaveModal(false)}
-                  className="w-full px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-semibold"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </Card>
+            <label className="block text-xs font-bold uppercase tracking-wide mb-2" style={{ color: '#9A90A8' }}>
+              Title
+            </label>
+            <input
+              type="text"
+              value={saveTitle}
+              onChange={e => setSaveTitle(e.target.value)}
+              style={{ ...inputStyle, marginBottom: 16 }}
+            />
+            <button
+              onClick={handleSave}
+              disabled={!saveTitle.trim()}
+              style={{ ...primaryBtn, opacity: !saveTitle.trim() ? 0.5 : 1 }}
+            >
+              <Check className="w-4 h-4" />
+              Save
+            </button>
+          </div>
         </div>
       )}
 
