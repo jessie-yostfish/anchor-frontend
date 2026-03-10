@@ -1,8 +1,60 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Heart, Check, AlertCircle, Eye, EyeOff } from 'lucide-react'
-import { Button, Input } from '../components'
+import { Lock, Check, AlertCircle, Eye, EyeOff } from 'lucide-react'
 import { supabase } from '../lib/supabase'
+
+const inputStyle: React.CSSProperties = {
+  width: '100%',
+  borderRadius: 16,
+  padding: '12px 16px',
+  fontSize: 14,
+  background: '#F0EAE0',
+  border: '1.5px solid rgba(122,102,144,0.2)',
+  color: '#2A2030',
+  outline: 'none',
+  fontFamily: "'DM Sans', sans-serif",
+}
+
+const labelStyle: React.CSSProperties = {
+  display: 'block',
+  marginBottom: 6,
+  fontSize: 11,
+  fontWeight: 600,
+  letterSpacing: '0.08em',
+  textTransform: 'uppercase' as const,
+  color: '#9A90A8',
+}
+
+function LogoMark() {
+  return (
+    <img
+      src="/anchor-logo-new.png"
+      alt="Anchor"
+      style={{
+        width: 72,
+        height: 72,
+        objectFit: 'contain',
+        filter: 'drop-shadow(0 4px 14px rgba(122,102,144,0.25))',
+        marginBottom: 16,
+      }}
+    />
+  )
+}
+
+function PageShell({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center px-5 py-12" style={{ background: '#F0EAE0' }}>
+      <div className="w-full max-w-md">
+        <div className="flex flex-col items-center mb-6">
+          <LogoMark />
+        </div>
+        <div className="rounded-3xl p-8" style={{ background: '#FAF7F4', border: '1px solid rgba(122,102,144,0.12)', boxShadow: '0 4px 20px rgba(90,78,110,0.08)' }}>
+          {children}
+        </div>
+      </div>
+    </div>
+  )
+}
 
 export function ResetPasswordScreen() {
   const navigate = useNavigate()
@@ -72,150 +124,159 @@ export function ResetPasswordScreen() {
     navigate('/login')
   }
 
+  // Loading state
   if (validSession === null) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-coral-50 flex items-center justify-center px-6 py-12">
-        <div className="w-full max-w-md">
-          <div className="bg-white rounded-2xl shadow-xl p-8">
-            <div className="flex justify-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
-            </div>
-          </div>
-        </div>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#F0EAE0' }}>
+        <div className="w-10 h-10 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: '#7A6690', borderTopColor: 'transparent' }} />
       </div>
     )
   }
 
+  // Expired link
   if (validSession === false) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-coral-50 flex items-center justify-center px-6 py-12">
-        <div className="w-full max-w-md">
-          <div className="flex justify-center mb-8">
-            <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-coral-600 rounded-2xl flex items-center justify-center">
-              <Heart className="w-8 h-8 text-white" />
-            </div>
+      <PageShell>
+        <div className="text-center">
+          <div
+            className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5"
+            style={{ background: '#F5ECD8' }}
+          >
+            <AlertCircle className="w-8 h-8" style={{ color: '#C8883A' }} />
           </div>
 
-          <div className="bg-white rounded-2xl shadow-xl p-8">
-            <div className="flex justify-center mb-6">
-              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
-                <AlertCircle className="w-8 h-8 text-red-600" />
-              </div>
-            </div>
+          <h1 className="text-2xl font-bold mb-2" style={{ fontFamily: "'Fraunces', Georgia, serif", color: '#2A2030' }}>
+            Link Expired
+          </h1>
+          <p className="text-sm mb-8" style={{ color: '#5A5065' }}>{error}</p>
 
-            <h1 className="text-2xl font-bold text-gray-900 text-center mb-2">Link Expired</h1>
-            <p className="text-gray-600 text-center mb-6">{error}</p>
+          <button
+            onClick={() => navigate('/forgot-password')}
+            className="w-full py-3.5 rounded-2xl font-semibold text-white mb-3 transition-all active:scale-95"
+            style={{ background: '#7A6690', boxShadow: '0 4px 16px rgba(122,102,144,0.3)', fontFamily: "'DM Sans', sans-serif" }}
+          >
+            Request New Link
+          </button>
 
-            <Button onClick={() => navigate('/forgot-password')} className="w-full mb-3">
-              Request New Link
-            </Button>
-
-            <Button onClick={handleSignIn} variant="outline" className="w-full">
-              Back to Sign In
-            </Button>
-          </div>
+          <button
+            onClick={handleSignIn}
+            className="w-full py-3.5 rounded-2xl font-semibold transition-all active:scale-95"
+            style={{ background: 'transparent', border: '1.5px solid rgba(122,102,144,0.3)', color: '#7A6690', fontFamily: "'DM Sans', sans-serif" }}
+          >
+            Back to Sign In
+          </button>
         </div>
-      </div>
+      </PageShell>
     )
   }
 
+  // Success state
   if (success) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-coral-50 flex items-center justify-center px-6 py-12">
-        <div className="w-full max-w-md">
-          <div className="flex justify-center mb-8">
-            <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-coral-600 rounded-2xl flex items-center justify-center">
-              <Heart className="w-8 h-8 text-white" />
-            </div>
+      <PageShell>
+        <div className="text-center">
+          <div
+            className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5"
+            style={{ background: 'rgba(74,124,89,0.12)' }}
+          >
+            <Check className="w-8 h-8" style={{ color: '#4A7C59' }} />
           </div>
 
-          <div className="bg-white rounded-2xl shadow-xl p-8">
-            <div className="flex justify-center mb-6">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-                <Check className="w-8 h-8 text-green-600" />
-              </div>
-            </div>
+          <h1 className="text-2xl font-bold mb-2" style={{ fontFamily: "'Fraunces', Georgia, serif", color: '#2A2030' }}>
+            Password Updated!
+          </h1>
+          <p className="text-sm mb-8" style={{ color: '#5A5065' }}>
+            Your password has been successfully changed.
+          </p>
 
-            <h1 className="text-2xl font-bold text-gray-900 text-center mb-2">Password Updated!</h1>
-            <p className="text-gray-600 text-center mb-8">
-              Your password has been successfully changed.
-            </p>
-
-            <Button onClick={handleSignIn} className="w-full">
-              Sign In
-            </Button>
-          </div>
+          <button
+            onClick={handleSignIn}
+            className="w-full py-3.5 rounded-2xl font-semibold text-white transition-all active:scale-95"
+            style={{ background: '#7A6690', boxShadow: '0 4px 16px rgba(122,102,144,0.3)', fontFamily: "'DM Sans', sans-serif" }}
+          >
+            Sign In
+          </button>
         </div>
-      </div>
+      </PageShell>
     )
   }
 
+  // Main form
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-coral-50 flex items-center justify-center px-6 py-12">
-      <div className="w-full max-w-md">
-        <div className="flex justify-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-coral-600 rounded-2xl flex items-center justify-center">
-            <Heart className="w-8 h-8 text-white" />
+    <PageShell>
+      <h1 className="text-3xl font-bold text-center mb-2" style={{ fontFamily: "'Fraunces', Georgia, serif", color: '#2A2030' }}>
+        Create New Password
+      </h1>
+      <p className="text-sm text-center mb-8" style={{ color: '#5A5065' }}>
+        Enter your new password below.
+      </p>
+
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div>
+          <label style={labelStyle}>New Password</label>
+          <div className="relative">
+            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#9A90A8' }} />
+            <input
+              type={showPassword ? 'text' : 'password'}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter new password"
+              style={{ ...inputStyle, paddingLeft: 40, paddingRight: 44 }}
+              required
+              autoComplete="new-password"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2"
+              style={{ color: '#9A90A8' }}
+            >
+              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
+          </div>
+          <p className="text-xs mt-1" style={{ color: '#9A90A8' }}>At least 6 characters</p>
+        </div>
+
+        <div>
+          <label style={labelStyle}>Confirm Password</label>
+          <div className="relative">
+            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#9A90A8' }} />
+            <input
+              type={showConfirmPassword ? 'text' : 'password'}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Confirm new password"
+              style={{ ...inputStyle, paddingLeft: 40, paddingRight: 44 }}
+              required
+              autoComplete="new-password"
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2"
+              style={{ color: '#9A90A8' }}
+            >
+              {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-xl p-8">
-          <h1 className="text-3xl font-bold text-gray-900 text-center mb-2">Create New Password</h1>
-          <p className="text-gray-600 text-center mb-8">Enter your new password below.</p>
+        {error && (
+          <div className="p-3 rounded-xl flex items-start gap-2" style={{ background: '#F5ECD8', border: '1px solid rgba(200,136,58,0.25)' }}>
+            <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#C8883A' }} />
+            <p className="text-sm" style={{ color: '#7A5A2A' }}>{error}</p>
+          </div>
+        )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="relative">
-              <Input
-                label="New Password"
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter new password"
-                required
-                autoComplete="new-password"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-9 text-gray-500 hover:text-gray-700"
-              >
-                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-              </button>
-              <p className="text-xs text-gray-500 mt-1">At least 6 characters</p>
-            </div>
-
-            <div className="relative">
-              <Input
-                label="Confirm Password"
-                type={showConfirmPassword ? 'text' : 'password'}
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Confirm new password"
-                required
-                autoComplete="new-password"
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-9 text-gray-500 hover:text-gray-700"
-              >
-                {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-              </button>
-            </div>
-
-            {error && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
-                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-red-700">{error}</p>
-              </div>
-            )}
-
-            <Button type="submit" className="w-full" disabled={loading || !password || !confirmPassword}>
-              {loading ? 'Resetting...' : 'Reset Password'}
-            </Button>
-          </form>
-        </div>
-      </div>
-    </div>
+        <button
+          type="submit"
+          disabled={loading || !password || !confirmPassword}
+          className="w-full py-3.5 rounded-2xl font-semibold text-white transition-all active:scale-95 disabled:opacity-50"
+          style={{ background: '#7A6690', boxShadow: '0 4px 16px rgba(122,102,144,0.3)', fontFamily: "'DM Sans', sans-serif" }}
+        >
+          {loading ? 'Resetting...' : 'Reset Password'}
+        </button>
+      </form>
+    </PageShell>
   )
 }
