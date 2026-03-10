@@ -2,22 +2,18 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { Home, List, FileText, MapPin, Scale, Users } from 'lucide-react'
 import { haptics } from '../lib/haptics'
 
+const tabs = [
+  { id: 'home',      label: 'Home',      icon: Home,     path: '/dashboard' },
+  { id: 'timeline',  label: 'Timeline',  icon: List,     path: '/timeline' },
+  { id: 'notes',     label: 'Notes',     icon: FileText, path: '/notes' },
+  { id: 'resources', label: 'Resources', icon: MapPin,   path: '/resources' },
+  { id: 'legal',     label: 'Legal',     icon: Scale,    path: '/legal' },
+  { id: 'contacts',  label: 'Team',      icon: Users,    path: '/contacts' },
+]
+
 export function BottomNav() {
   const location = useLocation()
   const navigate = useNavigate()
-
-  const tabs = [
-    { id: 'home', label: 'HOME', icon: Home, path: '/dashboard' },
-    { id: 'timeline', label: 'TIMELINE', icon: List, path: '/timeline' },
-    { id: 'notes', label: 'NOTES', icon: FileText, path: '/notes' },
-    { id: 'resources', label: 'RESOURCES', icon: MapPin, path: '/resources' },
-    { id: 'legal', label: 'LEGAL', icon: Scale, path: '/legal' },
-    { id: 'contacts', label: 'CONTACTS', icon: Users, path: '/contacts' },
-  ]
-
-  const isActive = (path: string) => {
-    return location.pathname === path
-  }
 
   const handleNavigation = (path: string) => {
     haptics.light()
@@ -25,27 +21,67 @@ export function BottomNav() {
   }
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 safe-area-inset-bottom z-50">
-      <div className="max-w-screen-xl mx-auto px-2">
-        <div className="flex items-center justify-around">
+    <>
+      <nav style={{
+        position: 'fixed', bottom: 0, left: 0, right: 0,
+        background: '#FAF7F4',
+        borderTop: '1px solid rgba(122,102,144,0.15)',
+        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+        zIndex: 50,
+      }}>
+        <div style={{ maxWidth: 480, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-around' }}>
           {tabs.map((tab) => {
             const Icon = tab.icon
-            const active = isActive(tab.path)
+            const active = location.pathname === tab.path
             return (
               <button
                 key={tab.id}
                 onClick={() => handleNavigation(tab.path)}
-                className={`flex flex-col items-center py-2 px-3 min-w-0 flex-1 transition-colors ${
-                  active ? 'text-purple-600' : 'text-gray-500'
-                }`}
+                style={{
+                  flex: 1,
+                  display: 'flex', flexDirection: 'column', alignItems: 'center',
+                  padding: '10px 4px 8px',
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  position: 'relative',
+                }}
               >
-                <Icon className={`w-5 h-5 mb-1 ${active ? 'fill-purple-600' : ''}`} />
-                <span className="text-[10px] font-semibold tracking-wide">{tab.label}</span>
+                {/* Active indicator dot */}
+                {active && (
+                  <span style={{
+                    position: 'absolute', top: 6, left: '50%', transform: 'translateX(-50%)',
+                    width: 4, height: 4, borderRadius: '50%', background: '#7A6690',
+                  }} />
+                )}
+
+                <div style={{
+                  width: 36, height: 30,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  borderRadius: 12,
+                  background: active ? '#F4EFF8' : 'transparent',
+                  marginBottom: 3,
+                  transition: 'background 0.15s',
+                }}>
+                  <Icon
+                    size={18}
+                    color={active ? '#7A6690' : '#9A90A8'}
+                    strokeWidth={active ? 2.2 : 1.8}
+                  />
+                </div>
+
+                <span style={{
+                  fontFamily: 'DM Sans, sans-serif',
+                  fontSize: 10,
+                  fontWeight: active ? 700 : 500,
+                  color: active ? '#7A6690' : '#9A90A8',
+                  letterSpacing: '0.01em',
+                }}>
+                  {tab.label}
+                </span>
               </button>
             )
           })}
         </div>
-      </div>
-    </nav>
+      </nav>
+    </>
   )
 }
