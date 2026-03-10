@@ -24,8 +24,8 @@ export function AppHeader({ showBack = true, title }: AppHeaderProps) {
           borderBottom: '1px solid rgba(122,102,144,0.12)',
         }}
       >
-        <div className="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+        <div className="max-w-md mx-auto px-4 flex items-center justify-between" style={{ paddingTop: title ? 10 : 8, paddingBottom: title ? 10 : 8 }}>
+          <div className="flex items-center gap-3">
             {showBack && (
               <button
                 onClick={() => { haptics.light(); navigate(-1) }}
@@ -40,10 +40,10 @@ export function AppHeader({ showBack = true, title }: AppHeaderProps) {
               src="/anchor-logo-transparent.png"
               alt="Anchor"
               style={{
-                width: 34,
-                height: 34,
+                width: title ? 44 : 52,
+                height: title ? 44 : 52,
                 objectFit: 'contain',
-                filter: 'drop-shadow(0 1px 3px rgba(122,102,144,0.2))',
+                filter: 'drop-shadow(0 2px 6px rgba(122,102,144,0.35))',
               }}
             />
             <div>
@@ -51,9 +51,9 @@ export function AppHeader({ showBack = true, title }: AppHeaderProps) {
                 style={{
                   fontFamily: "'Fraunces', Georgia, serif",
                   fontWeight: 700,
-                  fontSize: 18,
+                  fontSize: title ? 17 : 22,
                   color: '#2A2030',
-                  lineHeight: 1,
+                  lineHeight: 1.1,
                   display: 'block',
                 }}
               >
@@ -62,7 +62,7 @@ export function AppHeader({ showBack = true, title }: AppHeaderProps) {
               {!title && (
                 <span
                   style={{
-                    fontSize: 10,
+                    fontSize: 11,
                     color: '#9A90A8',
                     fontWeight: 500,
                     letterSpacing: '0.04em',
