@@ -234,7 +234,10 @@ export function Onboarding() {
 
   useEffect(() => {
     if (profile?.first_name) setFirstName(profile.first_name)
-    if (profile?.intake_completed) { navigate('/dashboard'); return }
+    if (profile?.intake_completed) {
+      navigate(profile?.onboarding_foster_care_seen ? '/dashboard' : '/foster-care-intro')
+      return
+    }
     if (profile?.intake_step && profile.intake_step <= 10) setStep(profile.intake_step)
   }, [profile, navigate])
 
