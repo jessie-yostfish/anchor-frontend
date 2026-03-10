@@ -8,6 +8,7 @@ import {
   ForgotPasswordScreen,
   ResetPasswordScreen,
   Onboarding,
+  FosterCareIntro,
   Dashboard,
   Settings,
   Timeline,
@@ -42,7 +43,14 @@ function App() {
           />
           <Route path="/delete-account" element={<DeleteAccount />} />
           <Route
-            path="/dashboard"
+            path="/foster-care-intro"
+            element={
+              <ProtectedRoute>
+                <FosterCareIntro />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             element={
               <ProtectedRoute>
                 <Dashboard />

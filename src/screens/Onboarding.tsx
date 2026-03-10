@@ -330,7 +330,7 @@ export function Onboarding() {
 
     if (nextStep >= 11 || (role === 'supporter' && nextStep >= 8)) {
       await updateProfile({ intake_completed: true })
-      navigate('/dashboard')
+      navigate('/foster-care-intro')
     } else {
       setStep(nextStep)
     }
