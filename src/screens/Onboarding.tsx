@@ -15,6 +15,7 @@ import {
   Check,
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
+import { supabase } from '../lib/supabase'
 
 type Role = 'parent' | 'youth' | 'supporter'
 type ChildrenStatus = 'at_home' | 'removed' | 'with_family'
@@ -197,7 +198,7 @@ function ContactFields({
 }
 
 export function Onboarding() {
-  const { profile, updateProfile } = useAuth()
+  const { user, profile, updateProfile } = useAuth()
   const navigate = useNavigate()
   const [step, setStep] = useState(1)
   const [saving, setSaving] = useState(false)
@@ -231,6 +232,145 @@ export function Onboarding() {
   const [whoSupporting, setWhoSupporting] = useState('')
 
   const role = (profile?.role as Role) || 'parent'
+
+  // ── SEED ONBOARDING DATA INTO TIMELINE + CONTACTS ──────────────────────────
+  // Called once when onboarding completes, before navigating away.
+  // Maps the court stage, court date, and team member info the user
+  // already provided into the timeline_stages and contacts tables
+  // so they don't have to re-enter anything.
+  const seedOnboardingData = async (userId: string) => {
+    try {
+      // ── 1. Initialize the timeline, then mark stages based on court history ──
+      const { error: rpcError } = await supabase.rpc('initialize_user_timeline', { p_user_id: userId })
+      if (rpcError) console.error('Timeline init error:', rpcError)
+
+      // Map onboarding stage keys to timeline stage keys
+      const STAGE_KEY_ORDER = [
+        'case-opening',
+        'detention',
+        'jurisdiction',
+        'disposition',
+        // review stages handled separately
+      ]
+      const ONBOARDING_TO_TIMELINE: Record<string, string> = {
+        detention: 'detention',
+        jurisdiction: 'jurisdiction',
+        disposition: 'disposition',
+        review: '6_month_review',
+        permanency: '18_month_permanency',
+      }
+
+      // If user selected stages during onboarding, mark them completed
+      if (selectedStages.length > 0) {
+        // Fetch the newly-created timeline stages
+        const { data: timelineRows } = await supabase
+          .from('timeline_stages')
+          .select('id, stage_key, order_index')
+          .eq('user_id', userId)
+          .order('order_index')
+
+        if (timelineRows && timelineRows.length > 0) {
+          // Find the highest order_index that should be marked completed
+          let highestCompletedOrder = 0
+          for (const onboardingKey of selectedStages) {
+            const timelineKey = ONBOARDING_TO_TIMELINE[onboardingKey]
+            if (timelineKey) {
+              const match = timelineRows.find(r => r.stage_key === timelineKey)
+              if (match && match.order_index > highestCompletedOrder) {
+                highestCompletedOrder = match.order_index
+              }
+            }
+          }
+
+          // Mark everything up to that point completed, next one in_progress
+          for (const row of timelineRows) {
+            let newStatus: string
+            if (row.order_index < highestCompletedOrder) {
+              newStatus = 'completed'
+            } else if (row.order_index === highestCompletedOrder) {
+              newStatus = 'completed'
+            } else if (row.order_index === highestCompletedOrder + 1) {
+              newStatus = 'in_progress'
+            } else {
+              continue // leave as not_started
+            }
+
+            await supabase
+              .from('timeline_stages')
+              .update({ status: newStatus })
+              .eq('id', row.id)
+          }
+
+          // If user provided a next court date, attach it to the current in_progress stage
+          if (nextCourtDate) {
+            const currentInProgress = timelineRows.find(r => r.order_index === highestCompletedOrder + 1)
+            if (currentInProgress) {
+              await supabase
+                .from('timeline_stages')
+                .update({ court_date: nextCourtDate })
+                .eq('id', currentInProgress.id)
+            }
+          }
+        }
+      } else if (nextCourtDate) {
+        // No stages selected but they have a court date — put it on case-opening (first stage)
+        const { data: firstStage } = await supabase
+          .from('timeline_stages')
+          .select('id')
+          .eq('user_id', userId)
+          .eq('stage_key', 'case-opening')
+          .maybeSingle()
+
+        if (firstStage) {
+          await supabase
+            .from('timeline_stages')
+            .update({ court_date: nextCourtDate })
+            .eq('id', firstStage.id)
+        }
+      }
+
+      // ── 2. Seed contacts from lawyer / case manager / CASA info ──
+      const contactsToInsert: Array<{ user_id: string; name: string; role: string; phone: string }> = []
+
+      if (lawyerStatus === 'yes' && lawyerName.trim()) {
+        contactsToInsert.push({
+          user_id: userId,
+          name: lawyerName.trim(),
+          role: 'Attorney',
+          phone: lawyerPhone.trim(),
+        })
+      }
+
+      if (caseManagerStatus === 'yes' && caseManagerName.trim()) {
+        contactsToInsert.push({
+          user_id: userId,
+          name: caseManagerName.trim(),
+          role: 'Social Worker',
+          phone: caseManagerPhone.trim(),
+        })
+      }
+
+      // Youth-only: CASA volunteer
+      if (role === 'youth' && hasCASD === 'yes' && casdName.trim()) {
+        contactsToInsert.push({
+          user_id: userId,
+          name: casdName.trim(),
+          role: 'CASA Volunteer',
+          phone: casdPhone.trim(),
+        })
+      }
+
+      if (contactsToInsert.length > 0) {
+        const { error: contactError } = await supabase
+          .from('contacts')
+          .insert(contactsToInsert)
+        if (contactError) console.error('Contact seeding error:', contactError)
+      }
+    } catch (err) {
+      // Non-blocking — don't prevent onboarding from completing
+      console.error('Error seeding onboarding data:', err)
+    }
+  }
 
   useEffect(() => {
     if (profile?.first_name) setFirstName(profile.first_name)
@@ -332,6 +472,10 @@ export function Onboarding() {
     await saveProgress(nextStep, updates)
 
     if (nextStep >= 11 || (role === 'supporter' && nextStep >= 8)) {
+      // Seed timeline stages + contacts from onboarding answers before marking complete
+      if (user) {
+        await seedOnboardingData(user.id)
+      }
       await updateProfile({ intake_completed: true })
       navigate('/foster-care-intro')
     } else {
