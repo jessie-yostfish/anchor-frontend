@@ -196,10 +196,8 @@ export function Legal() {
   setSearchQuery('')
   setExpandedContentId(null)
   setTimeout(() => {
-    const searchElement = document.getElementById('legal-search')
-    if (searchElement) {
-      searchElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
-    }
+    const el = document.getElementById('category-pills')
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }, 100)
 }}
           >
@@ -266,7 +264,7 @@ export function Legal() {
           </div>
         </div>
 
-        <div className="mb-6 overflow-x-auto scrollbar-hide">
+        <div id="category-pills" className="mb-6 overflow-x-auto scrollbar-hide">
           <div className="flex gap-2 pb-2">
             {CATEGORIES.map((category) => (
               <button
