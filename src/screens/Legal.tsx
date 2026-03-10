@@ -381,6 +381,20 @@ export function Legal() {
                               </div>
                             </div>
                           )}
+
+                          {content.external_link && (
+                            <a
+                              href={content.external_link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-xl text-sm font-semibold"
+                              style={{ background: '#7A6690', color: 'white' }}
+                            >
+                              <ExternalLink className="w-4 h-4" />
+                              View Official Form
+                            </a>
+                          )}
                         </div>
                       )}
                     </div>
