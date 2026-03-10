@@ -166,9 +166,11 @@ export function Settings() {
 
   const [editedFirstName, setEditedFirstName] = useState(profile?.first_name || '')
   const [editedUsername, setEditedUsername] = useState(profile?.username || '')
+  const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [newEmail, setNewEmail] = useState(user?.email || '')
+  const [currentEmailPassword, setCurrentEmailPassword] = useState('')
   const [newPhone, setNewPhone] = useState(profile?.phone_number || '')
   const [deletePassword, setDeletePassword] = useState('')
 
@@ -211,22 +213,29 @@ export function Settings() {
   }
 
   const handleChangePassword = async () => {
-    if (newPassword !== confirmPassword) { setError('Passwords do not match'); return }
-    if (newPassword.length < 6) { setError('Must be at least 6 characters'); return }
+    if (!currentPassword.trim()) { setError('Please enter your current password'); return }
+    if (newPassword !== confirmPassword) { setError('New passwords do not match'); return }
+    if (newPassword.length < 6) { setError('New password must be at least 6 characters'); return }
     setLoading(true); setError('')
+    // Verify current password first
+    const { error: signInError } = await supabase.auth.signInWithPassword({ email: user?.email || '', password: currentPassword })
+    if (signInError) { setError('Current password is incorrect'); setLoading(false); return }
     const { error } = await supabase.auth.updateUser({ password: newPassword })
     if (error) { setError(error.message) } else {
-      setShowChangePassword(false); setNewPassword(''); setConfirmPassword('')
+      setShowChangePassword(false); setCurrentPassword(''); setNewPassword(''); setConfirmPassword('')
       haptics.success(); flash('Password updated')
     }
     setLoading(false)
   }
 
   const handleUpdateEmail = async () => {
+    if (!currentEmailPassword.trim()) { setError('Please enter your current password to confirm'); return }
     setLoading(true); setError('')
+    const { error: signInError } = await supabase.auth.signInWithPassword({ email: user?.email || '', password: currentEmailPassword })
+    if (signInError) { setError('Password is incorrect'); setLoading(false); return }
     const { error } = await supabase.auth.updateUser({ email: newEmail })
     if (error) { setError(error.message) } else {
-      setShowUpdateEmail(false); haptics.success(); flash('Check your new email for a confirmation link')
+      setShowUpdateEmail(false); setCurrentEmailPassword(''); haptics.success(); flash('Check your new email for a confirmation link')
     }
     setLoading(false)
   }
@@ -535,40 +544,50 @@ export function Settings() {
 
       {/* ── CHANGE PASSWORD MODAL ── */}
       {showChangePassword && (
-        <Modal title="Change Password" onClose={() => { setShowChangePassword(false); setError(''); setNewPassword(''); setConfirmPassword('') }}>
+        <Modal title="Change Password" onClose={() => { setShowChangePassword(false); setError(''); setCurrentPassword(''); setNewPassword(''); setConfirmPassword('') }}>
           {error && <ErrorBox msg={error} />}
           <div className="space-y-4 mb-5">
+            <div>
+              <label style={label}>Current Password</label>
+              <input type="password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} placeholder="Your current password" style={input} />
+            </div>
             <div>
               <label style={label}>New Password</label>
               <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="At least 6 characters" style={input} />
             </div>
             <div>
-              <label style={label}>Confirm Password</label>
-              <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="Re-enter password" style={input} />
+              <label style={label}>Confirm New Password</label>
+              <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="Re-enter new password" style={input} />
             </div>
           </div>
           <div className="space-y-2">
             <button onClick={handleChangePassword} disabled={loading} style={{ ...primaryBtn, opacity: loading ? 0.6 : 1 }}>
               {loading ? 'Updating...' : 'Update Password'}
             </button>
-            <button onClick={() => { setShowChangePassword(false); setError(''); setNewPassword(''); setConfirmPassword('') }} style={ghostBtn}>Cancel</button>
+            <button onClick={() => { setShowChangePassword(false); setError(''); setCurrentPassword(''); setNewPassword(''); setConfirmPassword('') }} style={ghostBtn}>Cancel</button>
           </div>
         </Modal>
       )}
 
       {/* ── UPDATE EMAIL MODAL ── */}
       {showUpdateEmail && (
-        <Modal title="Update Email" onClose={() => { setShowUpdateEmail(false); setError('') }}>
+        <Modal title="Update Email" onClose={() => { setShowUpdateEmail(false); setError(''); setCurrentEmailPassword('') }}>
           {error && <ErrorBox msg={error} />}
-          <div className="mb-5">
-            <label style={label}>New Email Address</label>
-            <input type="email" value={newEmail} onChange={e => setNewEmail(e.target.value)} style={input} />
+          <div className="space-y-4 mb-5">
+            <div>
+              <label style={label}>New Email Address</label>
+              <input type="email" value={newEmail} onChange={e => setNewEmail(e.target.value)} style={input} />
+            </div>
+            <div>
+              <label style={label}>Current Password</label>
+              <input type="password" value={currentEmailPassword} onChange={e => setCurrentEmailPassword(e.target.value)} placeholder="Confirm with your password" style={input} />
+            </div>
           </div>
           <div className="space-y-2">
             <button onClick={handleUpdateEmail} disabled={loading} style={{ ...primaryBtn, opacity: loading ? 0.6 : 1 }}>
               {loading ? 'Updating...' : 'Update Email'}
             </button>
-            <button onClick={() => { setShowUpdateEmail(false); setError('') }} style={ghostBtn}>Cancel</button>
+            <button onClick={() => { setShowUpdateEmail(false); setError(''); setCurrentEmailPassword('') }} style={ghostBtn}>Cancel</button>
           </div>
         </Modal>
       )}

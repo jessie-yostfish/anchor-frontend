@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, LogOut, Settings } from 'lucide-react'
+import { ArrowLeft, Settings } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { haptics } from '../lib/haptics'
 import { ConfirmDialog } from './ConfirmDialog'
@@ -15,75 +15,80 @@ export function AppHeader({ showBack = true, title }: AppHeaderProps) {
   const navigate = useNavigate()
   const [showLogoutDialog, setShowLogoutDialog] = useState(false)
 
-  const handleBack = () => {
-    haptics.light()
-    navigate(-1)
-  }
-
-  const handleLogout = async () => {
-    haptics.medium()
-    await signOut()
-  }
-
   return (
     <>
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-50">
-        <div className="max-w-4xl mx-auto px-6 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+      <div
+        className="sticky top-0 z-50"
+        style={{
+          background: '#FAF7F4',
+          borderBottom: '1px solid rgba(122,102,144,0.12)',
+        }}
+      >
+        <div className="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-2">
             {showBack && (
               <button
-                onClick={handleBack}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                onClick={() => { haptics.light(); navigate(-1) }}
+                className="rounded-xl p-2 transition-colors"
+                style={{ background: '#E8DDE8' }}
                 aria-label="Go back"
               >
-                <ArrowLeft className="w-5 h-5 text-gray-700" />
+                <ArrowLeft className="w-4 h-4" style={{ color: '#7A6690' }} />
               </button>
             )}
             <img
-              src="/anchor-logo.png"
+              src="/anchor-logo-new.png"
               alt="Anchor"
-              className="w-10 h-10 object-contain"
+              style={{
+                width: 34,
+                height: 34,
+                objectFit: 'contain',
+                filter: 'drop-shadow(0 1px 3px rgba(122,102,144,0.2))',
+              }}
             />
-            <div className="flex flex-col">
-              <span className="text-xl font-bold text-purple-800 tracking-tight" style={{ fontFamily: '"DM Serif Display", Georgia, serif' }}>
+            <div>
+              <span
+                style={{
+                  fontFamily: "'Fraunces', Georgia, serif",
+                  fontWeight: 700,
+                  fontSize: 18,
+                  color: '#2A2030',
+                  lineHeight: 1,
+                  display: 'block',
+                }}
+              >
                 {title || 'Anchor'}
               </span>
-              <span className="text-[10px] text-purple-400 font-medium -mt-1 tracking-wide">
-                Find your footing.
-              </span>
+              {!title && (
+                <span
+                  style={{
+                    fontSize: 10,
+                    color: '#9A90A8',
+                    fontWeight: 500,
+                    letterSpacing: '0.04em',
+                  }}
+                >
+                  Find your footing.
+                </span>
+              )}
             </div>
           </div>
 
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => {
-                haptics.light()
-                navigate('/settings')
-              }}
-              className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors"
-              aria-label="Settings"
-            >
-              <Settings className="w-5 h-5" />
-            </button>
-            <button
-              onClick={() => {
-                haptics.light()
-                setShowLogoutDialog(true)
-              }}
-              className="flex items-center gap-2 px-3 py-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors text-sm"
-              aria-label="Sign out"
-            >
-              <LogOut className="w-4 h-4" />
-              <span className="font-medium hidden sm:inline">Sign Out</span>
-            </button>
-          </div>
+          <button
+            onClick={() => { haptics.light(); navigate('/settings') }}
+            className="rounded-xl p-2 transition-colors"
+            style={{ background: '#E8DDE8' }}
+            aria-label="Settings"
+          >
+            <Settings className="w-4 h-4" style={{ color: '#7A6690' }} />
+          </button>
         </div>
       </div>
 
       <ConfirmDialog
         isOpen={showLogoutDialog}
         onCancel={() => setShowLogoutDialog(false)}
-        onConfirm={handleLogout}
+        onConfirm={signOut}
         title="Sign Out"
         message="Are you sure you want to sign out?"
         confirmLabel="Sign Out"
