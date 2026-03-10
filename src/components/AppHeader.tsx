@@ -37,7 +37,7 @@ export function AppHeader({ showBack = true, title }: AppHeaderProps) {
               </button>
             )}
             <img
-              src="/anchor-logo-new.png"
+              src="/anchor-logo-transparent.png"
               alt="Anchor"
               style={{
                 width: 34,
