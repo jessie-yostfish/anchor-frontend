@@ -8,23 +8,15 @@ import { trackEvent } from '../lib/analytics'
 interface RightDuty {
   id: string
   title: string
-  role: string           // 'Parents' | 'Youth' | 'Duties'
+  user_role: string      // 'parent' | 'youth' | 'supporter' | 'both'
+  right_key: string
+  category: string       // 'right' | 'duty'
   description: string
-  full_content: string
-  plain_language: string
   legal_reference: string
   practical_tips: string
-  sort_order: number
 }
 
 type RoleTab = 'parent' | 'youth' | 'supporter'
-
-// Map UI tab → DB role values to include
-const ROLE_TO_DB: Record<RoleTab, string[]> = {
-  parent:    ['Parents', 'Duties'],
-  youth:     ['Youth', 'Duties'],
-  supporter: ['Parents', 'Youth', 'Duties'],
-}
 
 const tabConfig: Record<RoleTab, {
   label: string
@@ -32,7 +24,7 @@ const tabConfig: Record<RoleTab, {
   billTitle: string
   billDesc: string
   accentColor: string
-  badgeStyle: React.CSSProperties
+  rightBadge: React.CSSProperties
 }> = {
   parent: {
     label: 'Parents',
@@ -40,7 +32,7 @@ const tabConfig: Record<RoleTab, {
     billTitle: "Parent's Bill of Rights",
     billDesc: 'As a parent in dependency court, you have important rights protected by California law. Understanding these rights helps you advocate for yourself and your child.',
     accentColor: '#7A6690',
-    badgeStyle: { background: '#E8DDE8', color: '#7A6690' },
+    rightBadge: { background: '#E8DDE8', color: '#7A6690' },
   },
   youth: {
     label: 'Youth',
@@ -48,7 +40,7 @@ const tabConfig: Record<RoleTab, {
     billTitle: 'Foster Youth Bill of Rights',
     billDesc: 'If you are in foster care or dependency court, these are your rights under California law. You deserve to be treated with respect and have your voice heard.',
     accentColor: '#4A7C59',
-    badgeStyle: { background: 'rgba(74,124,89,0.12)', color: '#4A7C59' },
+    rightBadge: { background: 'rgba(74,124,89,0.12)', color: '#4A7C59' },
   },
   supporter: {
     label: 'Supporters',
@@ -56,7 +48,7 @@ const tabConfig: Record<RoleTab, {
     billTitle: 'Rights & Responsibilities for Supporters',
     billDesc: 'As a relative caregiver, foster parent, or support person, you have important rights and responsibilities in the dependency process.',
     accentColor: '#C8883A',
-    badgeStyle: { background: '#F5ECD8', color: '#C8883A' },
+    rightBadge: { background: '#F5ECD8', color: '#C8883A' },
   },
 }
 
@@ -69,7 +61,6 @@ export function RightsScreen() {
   const [showLegalBasis, setShowLegalBasis] = useState(false)
   const [showDutiesOnly, setShowDutiesOnly] = useState(false)
 
-  // Default tab to user's own role
   useEffect(() => {
     if (profile?.role && ['parent', 'youth', 'supporter'].includes(profile.role)) {
       setActiveTab(profile.role as RoleTab)
@@ -84,8 +75,8 @@ export function RightsScreen() {
     try {
       const { data, error } = await supabase
         .from('rights_duties')
-        .select('id, title, role, description, full_content, plain_language, legal_reference, practical_tips, sort_order')
-        .order('sort_order', { ascending: true })
+        .select('id, title, user_role, right_key, category, description, legal_reference, practical_tips')
+        .order('category', { ascending: true })  // rights before duties
         .order('title', { ascending: true })
 
       if (error) throw error
@@ -98,15 +89,13 @@ export function RightsScreen() {
     }
   }
 
-  // Filter to items relevant to the active tab
-  const dbRoles = ROLE_TO_DB[activeTab]
-  const visibleItems = allItems.filter(item => dbRoles.includes(item.role))
+  // Items for the active tab: include role-specific rows + 'both' rows
+  const visibleItems = allItems.filter(item =>
+    item.user_role === activeTab || item.user_role === 'both'
+  )
 
-  const rightsItems = visibleItems.filter(item => item.role !== 'Duties')
-  const dutiesItems = visibleItems.filter(item => item.role === 'Duties')
-
-  const displayedRights = showDutiesOnly ? [] : rightsItems
-  const displayedDuties = dutiesItems
+  const rightsItems = visibleItems.filter(item => item.category === 'right')
+  const dutiesItems = visibleItems.filter(item => item.category === 'duty')
 
   const tab = tabConfig[activeTab]
 
@@ -114,8 +103,7 @@ export function RightsScreen() {
     const isExpanded = expandedId === item.id
     const badgeStyle = isDuty
       ? { background: '#F5ECD8', color: '#C8883A' }
-      : tab.badgeStyle
-    const badgeLabel = isDuty ? 'RESPONSIBILITY' : 'RIGHT'
+      : tab.rightBadge
 
     return (
       <div
@@ -127,40 +115,31 @@ export function RightsScreen() {
           border: isExpanded
             ? `1.5px solid ${isDuty ? '#C8883A' : tab.accentColor}`
             : '1px solid rgba(122,102,144,0.12)',
-          boxShadow: isExpanded ? '0 4px 16px rgba(90,78,110,0.10)' : '0 1px 4px rgba(90,78,110,0.05)',
+          boxShadow: isExpanded
+            ? '0 4px 16px rgba(90,78,110,0.10)'
+            : '0 1px 4px rgba(90,78,110,0.05)',
         }}
       >
         <div className="p-4">
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1 flex-wrap">
-                <span
-                  className="text-xs font-bold px-2 py-0.5 rounded-full uppercase tracking-wide"
-                  style={badgeStyle}
-                >
-                  {badgeLabel}
-                </span>
-              </div>
-              <h3 className="text-base font-bold mb-1" style={{ color: '#2A2030' }}>{item.title}</h3>
-
-              {/* Plain language summary — always shown */}
-              {item.plain_language ? (
-                <p className="text-sm leading-relaxed" style={{ color: '#5A5065' }}>
-                  {isExpanded ? item.plain_language : (
-                    item.plain_language.length > 120
-                      ? item.plain_language.slice(0, 120) + '…'
-                      : item.plain_language
-                  )}
-                </p>
-              ) : (
-                <p className="text-sm leading-relaxed" style={{ color: '#5A5065' }}>
-                  {isExpanded ? item.description : (
-                    item.description.length > 120
-                      ? item.description.slice(0, 120) + '…'
-                      : item.description
-                  )}
-                </p>
-              )}
+              <span
+                className="inline-block text-xs font-bold px-2 py-0.5 rounded-full uppercase tracking-wide mb-2"
+                style={badgeStyle}
+              >
+                {isDuty ? 'Responsibility' : 'Right'}
+              </span>
+              <h3 className="text-base font-bold mb-1" style={{ color: '#2A2030' }}>
+                {item.title}
+              </h3>
+              <p className="text-sm leading-relaxed" style={{ color: '#5A5065' }}>
+                {isExpanded
+                  ? item.description
+                  : item.description.length > 120
+                    ? item.description.slice(0, 120) + '…'
+                    : item.description
+                }
+              </p>
             </div>
             <div className="flex-shrink-0 mt-1">
               {isExpanded
@@ -170,32 +149,19 @@ export function RightsScreen() {
             </div>
           </div>
 
-          {/* Expanded content */}
           {isExpanded && (
             <div className="mt-4 space-y-3" onClick={e => e.stopPropagation()}>
 
-              {/* Full content (if different from plain_language) */}
-              {item.full_content && item.full_content !== item.plain_language && (
-                <div
-                  className="rounded-xl p-3"
-                  style={{ background: '#F0EAE0' }}
-                >
-                  <p className="text-xs font-bold uppercase tracking-wide mb-2" style={{ color: '#9A90A8' }}>
-                    More Detail
-                  </p>
-                  <p className="text-sm leading-relaxed whitespace-pre-line" style={{ color: '#2A2030' }}>
-                    {item.full_content}
-                  </p>
-                </div>
-              )}
-
-              {/* Practical tips */}
               {item.practical_tips && (
                 <div
                   className="rounded-xl p-3"
-                  style={{ background: isDuty ? '#FDF6EC' : '#F4EFF8', border: `1px solid ${isDuty ? 'rgba(200,136,58,0.2)' : 'rgba(122,102,144,0.15)'}` }}
+                  style={{
+                    background: isDuty ? '#FDF6EC' : '#F4EFF8',
+                    border: `1px solid ${isDuty ? 'rgba(200,136,58,0.2)' : 'rgba(122,102,144,0.15)'}`,
+                  }}
                 >
-                  <p className="text-xs font-bold uppercase tracking-wide mb-2" style={{ color: isDuty ? '#C8883A' : tab.accentColor }}>
+                  <p className="text-xs font-bold uppercase tracking-wide mb-2"
+                    style={{ color: isDuty ? '#C8883A' : tab.accentColor }}>
                     💡 What this means for you
                   </p>
                   <p className="text-sm leading-relaxed whitespace-pre-line" style={{ color: '#2A2030' }}>
@@ -204,7 +170,6 @@ export function RightsScreen() {
                 </div>
               )}
 
-              {/* Legal basis (toggle-gated) */}
               {showLegalBasis && item.legal_reference && (
                 <div
                   className="rounded-xl p-3"
@@ -213,7 +178,9 @@ export function RightsScreen() {
                   <p className="text-xs font-bold uppercase tracking-wide mb-1" style={{ color: '#9A90A8' }}>
                     Legal Basis
                   </p>
-                  <p className="text-xs font-mono" style={{ color: '#5A5065' }}>{item.legal_reference}</p>
+                  <p className="text-xs font-mono" style={{ color: '#5A5065' }}>
+                    {item.legal_reference}
+                  </p>
                 </div>
               )}
             </div>
@@ -227,8 +194,10 @@ export function RightsScreen() {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#F0EAE0' }}>
         <div className="text-center">
-          <div className="w-10 h-10 rounded-full border-2 border-t-transparent animate-spin mx-auto mb-3"
-            style={{ borderColor: '#7A6690', borderTopColor: 'transparent' }} />
+          <div
+            className="w-10 h-10 rounded-full border-2 border-t-transparent animate-spin mx-auto mb-3"
+            style={{ borderColor: '#7A6690', borderTopColor: 'transparent' }}
+          />
           <p className="text-sm" style={{ color: '#5A5065' }}>Loading rights and responsibilities...</p>
         </div>
       </div>
@@ -258,17 +227,12 @@ export function RightsScreen() {
           style={{ background: '#FAF7F4', border: '1px solid rgba(122,102,144,0.12)' }}
         >
           <MapPin className="w-4 h-4 flex-shrink-0" style={{ color: '#7A6690' }} />
-          <div>
-            <span className="text-xs font-bold" style={{ color: '#2A2030' }}>State: California</span>
-            <span className="text-xs ml-2" style={{ color: '#9A90A8' }}>More states coming soon</span>
-          </div>
+          <span className="text-xs font-bold" style={{ color: '#2A2030' }}>State: California</span>
+          <span className="text-xs" style={{ color: '#9A90A8' }}>· More states coming soon</span>
         </div>
 
         {/* ── ROLE TABS ── */}
-        <div
-          className="flex rounded-2xl p-1 mb-5"
-          style={{ background: '#E8DDE8' }}
-        >
+        <div className="flex rounded-2xl p-1 mb-5" style={{ background: '#E8DDE8' }}>
           {(Object.keys(tabConfig) as RoleTab[]).map((key) => (
             <button
               key={key}
@@ -295,7 +259,7 @@ export function RightsScreen() {
           className="rounded-3xl p-5 mb-5"
           style={{
             background: '#FAF7F4',
-            border: `1.5px solid ${tab.accentColor}22`,
+            border: `1.5px solid ${tab.accentColor}33`,
             boxShadow: '0 2px 12px rgba(90,78,110,0.07)',
           }}
         >
@@ -317,7 +281,6 @@ export function RightsScreen() {
 
         {/* ── TOGGLES ── */}
         <div className="space-y-2 mb-5">
-          {/* Show Legal Basis */}
           <div
             className="flex items-center justify-between rounded-2xl px-4 py-3"
             style={{ background: '#FAF7F4', border: '1px solid rgba(122,102,144,0.12)' }}
@@ -335,13 +298,12 @@ export function RightsScreen() {
               style={{ background: showLegalBasis ? '#7A6690' : '#D4CDD8' }}
             >
               <span
-                className="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
+                className="inline-block h-4 w-4 rounded-full bg-white transition-transform"
                 style={{ transform: showLegalBasis ? 'translateX(24px)' : 'translateX(4px)' }}
               />
             </button>
           </div>
 
-          {/* Show Duties Only */}
           {dutiesItems.length > 0 && rightsItems.length > 0 && (
             <div
               className="flex items-center justify-between rounded-2xl px-4 py-3"
@@ -357,7 +319,7 @@ export function RightsScreen() {
                 style={{ background: showDutiesOnly ? '#C8883A' : '#D4CDD8' }}
               >
                 <span
-                  className="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
+                  className="inline-block h-4 w-4 rounded-full bg-white transition-transform"
                   style={{ transform: showDutiesOnly ? 'translateX(24px)' : 'translateX(4px)' }}
                 />
               </button>
@@ -365,38 +327,31 @@ export function RightsScreen() {
           )}
         </div>
 
-        {/* ── RIGHTS LIST ── */}
-        {!showDutiesOnly && displayedRights.length > 0 && (
+        {/* ── RIGHTS ── */}
+        {!showDutiesOnly && rightsItems.length > 0 && (
           <div className="mb-6">
-            <h2
-              className="text-xs font-bold uppercase tracking-widest mb-3"
-              style={{ color: tab.accentColor }}
-            >
-              Rights ({displayedRights.length})
+            <h2 className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: tab.accentColor }}>
+              Rights ({rightsItems.length})
             </h2>
             <div className="space-y-3">
-              {displayedRights.map(item => renderItem(item, false))}
+              {rightsItems.map(item => renderItem(item, false))}
             </div>
           </div>
         )}
 
-        {/* ── DUTIES LIST ── */}
-        {displayedDuties.length > 0 && (
+        {/* ── DUTIES ── */}
+        {dutiesItems.length > 0 && (
           <div className="mb-6">
-            <h2
-              className="text-xs font-bold uppercase tracking-widest mb-3"
-              style={{ color: '#C8883A' }}
-            >
-              Responsibilities ({displayedDuties.length})
+            <h2 className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: '#C8883A' }}>
+              Responsibilities ({dutiesItems.length})
             </h2>
             <div className="space-y-3">
-              {displayedDuties.map(item => renderItem(item, true))}
+              {dutiesItems.map(item => renderItem(item, true))}
             </div>
           </div>
         )}
 
-        {/* Empty state */}
-        {displayedRights.length === 0 && displayedDuties.length === 0 && (
+        {visibleItems.length === 0 && (
           <div
             className="rounded-3xl p-8 text-center"
             style={{ background: '#FAF7F4', border: '1px solid rgba(122,102,144,0.12)' }}
@@ -405,9 +360,9 @@ export function RightsScreen() {
           </div>
         )}
 
-        {/* ── KNOW YOUR RIGHTS FOOTER ── */}
+        {/* ── FOOTER NOTE ── */}
         <div
-          className="rounded-3xl p-4 mt-6"
+          className="rounded-3xl p-4 mt-2"
           style={{ background: '#F5ECD8', border: '1px solid rgba(200,136,58,0.2)' }}
         >
           <div className="flex gap-3">
@@ -422,7 +377,6 @@ export function RightsScreen() {
         </div>
 
       </div>
-
       <BottomNav />
     </div>
   )
