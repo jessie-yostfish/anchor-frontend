@@ -7,10 +7,9 @@ import { ConfirmDialog } from './ConfirmDialog'
 
 interface AppHeaderProps {
   showBack?: boolean
-  title?: string
 }
 
-export function AppHeader({ showBack = true, title }: AppHeaderProps) {
+export function AppHeader({ showBack = true }: AppHeaderProps) {
   const { signOut } = useAuth()
   const navigate = useNavigate()
   const [showLogoutDialog, setShowLogoutDialog] = useState(false)
@@ -24,7 +23,7 @@ export function AppHeader({ showBack = true, title }: AppHeaderProps) {
           borderBottom: '1px solid rgba(122,102,144,0.12)',
         }}
       >
-        <div className="max-w-md mx-auto px-4 flex items-center justify-between" style={{ paddingTop: title ? 10 : 8, paddingBottom: title ? 10 : 8 }}>
+        <div className="max-w-md mx-auto px-4 flex items-center justify-between" style={{ paddingTop: 8, paddingBottom: 8 }}>
           <div className="flex items-center gap-3">
             {showBack && (
               <button
@@ -40,38 +39,12 @@ export function AppHeader({ showBack = true, title }: AppHeaderProps) {
               src="/anchor-logo-transparent.png"
               alt="Anchor"
               style={{
-                width: title ? 44 : 52,
-                height: title ? 44 : 52,
+                width: 52,
+                height: 52,
                 objectFit: 'contain',
                 filter: 'drop-shadow(0 2px 6px rgba(122,102,144,0.35))',
               }}
             />
-            <div>
-              <span
-                style={{
-                  fontFamily: "'Fraunces', Georgia, serif",
-                  fontWeight: 700,
-                  fontSize: title ? 17 : 22,
-                  color: '#2A2030',
-                  lineHeight: 1.1,
-                  display: 'block',
-                }}
-              >
-                {title || 'Anchor'}
-              </span>
-              {!title && (
-                <span
-                  style={{
-                    fontSize: 11,
-                    color: '#9A90A8',
-                    fontWeight: 500,
-                    letterSpacing: '0.04em',
-                  }}
-                >
-                  Find your footing.
-                </span>
-              )}
-            </div>
           </div>
 
           <button
