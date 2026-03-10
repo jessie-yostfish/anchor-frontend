@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { Welcome } from '../screens'
 
 export function HomeRoute() {
-  const { user, loading } = useAuth()
+  const { user, profile, loading } = useAuth()
 
   if (loading) {
     return (
@@ -17,6 +17,9 @@ export function HomeRoute() {
   }
 
   if (user) {
+    if (profile && !profile.intake_completed) {
+      return <Navigate to="/onboarding" replace />
+    }
     return <Navigate to="/dashboard" replace />
   }
 
