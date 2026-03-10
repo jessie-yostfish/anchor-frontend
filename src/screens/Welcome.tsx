@@ -7,139 +7,71 @@ export function Welcome() {
   const features = [
     {
       icon: Shield,
-      title: 'Know Your Rights',
-      description: 'Plain-language explanations of every stage of your case',
-      color: 'bg-purple-100',
+      title: 'Trauma-Informed Support',
+      description: 'Designed with your wellbeing in mind at every step',
+      iconBg: 'bg-purple-100',
       iconColor: 'text-purple-700',
     },
     {
       icon: Users,
-      title: 'Your Support Team',
-      description: 'Keep your attorney, social worker, and contacts in one place',
-      color: 'bg-amber-100',
+      title: 'Know Your Rights',
+      description: 'Understanding your role in dependency court proceedings',
+      iconBg: 'bg-amber-100',
       iconColor: 'text-amber-700',
     },
     {
       icon: FileText,
-      title: 'Track Your Journey',
-      description: 'Follow your timeline and prepare for every hearing',
-      color: 'bg-green-100',
+      title: 'Track Your Case',
+      description: 'Keep important dates, documents, and contacts organized',
+      iconBg: 'bg-green-100',
       iconColor: 'text-green-700',
     },
   ]
 
   return (
-    <div
-      className="min-h-screen flex flex-col"
-      style={{ background: '#F0EAE0' }}
-    >
-      {/* ── HEADER / LOGO HERO ── */}
-      <div
-        className="flex flex-col items-center pt-16 pb-10 px-6"
-        style={{ background: '#F0EAE0' }}
-      >
-        {/* Logo mark */}
-        <div
-          className="mb-5"
-          style={{
-            filter: 'drop-shadow(0 8px 24px rgba(122,102,144,0.28))',
-          }}
-        >
-          <img
-            src="/anchor-logo-new.png"
-            alt="Anchor"
-            style={{
-              width: 110,
-              height: 110,
-              objectFit: 'contain',
-            }}
-          />
-        </div>
+    <div className="min-h-screen flex flex-col" style={{ background: '#F0EAE0' }}>
 
-        {/* Brand name */}
-        <h1
-          className="text-4xl font-bold mb-1 tracking-tight"
+      {/* ── LOGO HERO ── */}
+      <div className="flex flex-col items-center pt-16 pb-8 px-6 text-center">
+        <img
+          src="/anchor-logo-new.png"
+          alt="Anchor"
           style={{
-            fontFamily: "'Fraunces', Georgia, serif",
-            color: '#7A6690',
-            letterSpacing: '-0.3px',
+            width: 120,
+            height: 120,
+            objectFit: 'contain',
+            filter: 'drop-shadow(0 6px 18px rgba(122,102,144,0.25))',
+            marginBottom: 16,
           }}
+        />
+        <h1
+          className="text-4xl font-bold mb-2"
+          style={{ fontFamily: "'Fraunces', Georgia, serif", color: '#7A6690', letterSpacing: '-0.3px' }}
         >
           Anchor
         </h1>
-        <p
-          className="text-xs font-medium tracking-widest uppercase mb-6"
-          style={{ color: '#9A90A8', letterSpacing: '2px' }}
-        >
-          Find your footing.
+        <p className="text-lg" style={{ color: '#5A5065' }}>
+          Your guide through California dependency court
         </p>
-
-        {/* Hero text */}
-        <div className="text-center max-w-xs">
-          <h2
-            className="text-2xl font-bold mb-3 leading-tight"
-            style={{
-              fontFamily: "'Fraunces', Georgia, serif",
-              color: '#2A2030',
-              letterSpacing: '-0.3px',
-            }}
-          >
-            You deserve support{' '}
-            <em
-              className="not-italic"
-              style={{ color: '#7A6690' }}
-            >
-              every step
-            </em>{' '}
-            of the way.
-          </h2>
-          <p
-            className="text-sm leading-relaxed"
-            style={{ color: '#5A5065', fontWeight: 300 }}
-          >
-            A free, private guide for California families navigating dependency court.
-          </p>
-        </div>
       </div>
 
       {/* ── DIVIDER ── */}
-      <div
-        className="mx-6"
-        style={{
-          height: 1,
-          background: 'linear-gradient(90deg, transparent, rgba(122,102,144,0.18), transparent)',
-          marginBottom: 24,
-        }}
-      />
+      <div className="mx-6 mb-6" style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(122,102,144,0.18), transparent)' }} />
 
       {/* ── FEATURE CARDS ── */}
       <div className="px-5 space-y-3 mb-6">
         {features.map((feature, index) => (
           <div
             key={index}
-            className="flex items-center gap-4 rounded-2xl px-5 py-4"
-            style={{
-              background: '#FAF7F4',
-              border: '1px solid rgba(122,102,144,0.12)',
-              boxShadow: '0 2px 8px rgba(90,78,110,0.06)',
-            }}
+            className="flex items-start gap-4 rounded-2xl px-5 py-4"
+            style={{ background: '#FAF7F4', border: '1px solid rgba(122,102,144,0.12)', boxShadow: '0 2px 8px rgba(90,78,110,0.06)' }}
           >
-            <div className={`p-2.5 rounded-xl ${feature.color} flex-shrink-0`}>
-              <feature.icon className={`w-5 h-5 ${feature.iconColor}`} />
+            <div className={`p-3 rounded-xl flex-shrink-0 ${feature.iconBg}`}>
+              <feature.icon className={`w-6 h-6 ${feature.iconColor}`} />
             </div>
             <div>
-              <p
-                className="font-semibold text-sm mb-0.5"
-                style={{ color: '#2A2030' }}
-              >
-                {feature.title}
-              </p>
-              <p
-                className="text-xs leading-relaxed"
-                style={{ color: '#5A5065', fontWeight: 300 }}
-              >
-                {feature.description}
-              </p>
+              <h3 className="font-semibold mb-1" style={{ color: '#2A2030' }}>{feature.title}</h3>
+              <p className="text-sm" style={{ color: '#5A5065' }}>{feature.description}</p>
             </div>
           </div>
         ))}
@@ -149,16 +81,13 @@ export function Welcome() {
       <div className="px-5 mb-8">
         <div
           className="flex items-start gap-3 rounded-2xl px-4 py-3"
-          style={{
-            background: '#F5ECD8',
-            border: '1px solid rgba(200,136,58,0.2)',
-          }}
+          style={{ background: '#F5ECD8', border: '1px solid rgba(200,136,58,0.2)' }}
         >
           <Lock className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#C8883A' }} />
-          <p className="text-xs leading-relaxed" style={{ color: '#7A5A2A' }}>
-            <span className="font-semibold">Your information stays private.</span>{' '}
-            We only ask what we need to help guide you.
-          </p>
+          <div className="text-sm" style={{ color: '#7A5A2A' }}>
+            <p className="font-semibold mb-0.5">Your answers are private and secure</p>
+            <p style={{ fontWeight: 300 }}>We only ask what we need to help guide you</p>
+          </div>
         </div>
       </div>
 
@@ -167,35 +96,22 @@ export function Welcome() {
         <button
           onClick={() => navigate('/auth?mode=signup')}
           className="w-full py-4 rounded-2xl font-semibold text-white text-base transition-all active:scale-95"
-          style={{
-            background: '#7A6690',
-            boxShadow: '0 6px 20px rgba(122,102,144,0.35)',
-            fontFamily: "'DM Sans', sans-serif",
-          }}
+          style={{ background: '#7A6690', boxShadow: '0 6px 20px rgba(122,102,144,0.35)', fontFamily: "'DM Sans', sans-serif" }}
         >
-          Get Started — It's Free
+          Get Started
         </button>
-
         <button
           onClick={() => navigate('/auth?mode=signin')}
           className="w-full py-4 rounded-2xl font-semibold text-base transition-all active:scale-95"
-          style={{
-            background: 'transparent',
-            border: '1.5px solid rgba(122,102,144,0.35)',
-            color: '#7A6690',
-            fontFamily: "'DM Sans', sans-serif",
-          }}
+          style={{ background: 'transparent', border: '1.5px solid rgba(122,102,144,0.4)', color: '#7A6690', fontFamily: "'DM Sans', sans-serif" }}
         >
           I Already Have an Account
         </button>
-
-        <p
-          className="text-center text-xs pt-2"
-          style={{ color: '#9A90A8', fontWeight: 300 }}
-        >
-          Free and confidential · California families only
+        <p className="text-center text-xs pt-1" style={{ color: '#9A90A8' }}>
+          Free and confidential support for families in California
         </p>
       </div>
+
     </div>
   )
 }
