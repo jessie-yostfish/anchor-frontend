@@ -15,7 +15,7 @@ export function Auth() {
   const [role, setRole] = useState<'parent' | 'youth' | 'supporter'>('parent')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const { signIn, signUp } = useAuth()
+  const { signIn, signUp, updateProfile } = useAuth()
   const navigate = useNavigate()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -52,6 +52,8 @@ export function Auth() {
         if (error) {
           setError(error.message)
         } else {
+          // Safety net: write role to profile in case DB trigger missed it
+          await updateProfile({ role, first_name: firstName })
           navigate('/onboarding')
         }
       } else {

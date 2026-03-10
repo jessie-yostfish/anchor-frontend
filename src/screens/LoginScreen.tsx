@@ -26,7 +26,7 @@ export function LoginScreen() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const { signIn, signUp } = useAuth()
+  const { signIn, signUp, updateProfile } = useAuth()
   const navigate = useNavigate()
 
   const handleSignIn = async (e: React.FormEvent) => {
@@ -136,6 +136,10 @@ export function LoginScreen() {
           setError("We're having trouble connecting. Please check your internet and try again.")
         }
       } else {
+        // Safety net: write role to profile in case DB trigger missed it
+        if (selectedRole) {
+          await updateProfile({ role: selectedRole, first_name: firstName })
+        }
         navigate('/onboarding')
       }
     } catch (err) {
