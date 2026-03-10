@@ -237,7 +237,7 @@ export function Preparation() {
         user_id: user.id,
         title: saveTitle,
         content,
-        category: 'Preparation',
+        category: 'Other',
       })
 
       setShowSaveModal(false)
