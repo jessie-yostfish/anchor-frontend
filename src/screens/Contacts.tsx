@@ -270,7 +270,8 @@ export function Contacts() {
   const modalSheet: React.CSSProperties = {
     background: '#FAF7F4', borderRadius: '24px 24px 0 0',
     width: '100%', maxWidth: 480,
-    maxHeight: '95vh', overflowY: 'auto',
+    maxHeight: '95vh',
+    display: 'flex', flexDirection: 'column',
     animation: 'slideUp 0.25s ease',
   }
 
@@ -278,14 +279,14 @@ export function Contacts() {
     padding: '20px 20px 16px',
     borderBottom: '1px solid rgba(122,102,144,0.12)',
     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-    position: 'sticky', top: 0, background: '#FAF7F4',
+    flexShrink: 0,
   }
 
   const modalFooter: React.CSSProperties = {
     padding: '16px 20px env(safe-area-inset-bottom, 32px)',
     borderTop: '1px solid rgba(122,102,144,0.12)',
     display: 'flex', gap: 12,
-    position: 'sticky', bottom: 0, background: '#FAF7F4',
+    flexShrink: 0,
   }
 
   const overlay: React.CSSProperties = {
@@ -488,7 +489,7 @@ export function Contacts() {
               </button>
             </div>
 
-            <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: 16, overflowY: 'auto', flex: 1 }}>
               <div>
                 <label style={labelStyle}>Name</label>
                 <input type="text" value={contactForm.name} onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })} placeholder="Full name" style={inputStyle} />
@@ -552,7 +553,7 @@ export function Contacts() {
               </button>
             </div>
 
-            <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: 16, overflowY: 'auto', flex: 1 }}>
               <div>
                 <label style={labelStyle}>County</label>
                 <select value={courtForm.county} onChange={(e) => setCourtForm({ ...courtForm, county: e.target.value })} style={{ ...inputStyle, appearance: 'none' }}>
