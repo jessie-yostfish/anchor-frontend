@@ -57,29 +57,6 @@ export function Notes() {
   }, [user])
 
   useEffect(() => {
-    filterNotes()
-  }, [searchQuery, notes])
-
-  const loadNotes = async () => {
-    if (!user) return
-    try {
-      const { data, error } = await supabase
-        .from('notes')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('is_pinned', { ascending: false })
-        .order('created_at', { ascending: false })
-      if (error) throw error
-      setNotes(data || [])
-      setFilteredNotes(data || [])
-    } catch (error) {
-      console.error('Error loading notes:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const filterNotes = () => {
     if (!searchQuery.trim()) {
       setFilteredNotes(notes)
       return
@@ -93,6 +70,24 @@ export function Notes() {
           note.category.toLowerCase().includes(query)
       )
     )
+  }, [searchQuery, notes])
+
+  const loadNotes = async () => {
+    if (!user) return
+    try {
+      const { data, error } = await supabase
+        .from('notes')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('is_pinned', { ascending: false })
+        .order('created_at', { ascending: false })
+      if (error) throw error
+      setNotes(data || [])
+    } catch (error) {
+      console.error('Error loading notes:', error)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const openAddModal = () => {
