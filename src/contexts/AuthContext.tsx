@@ -87,8 +87,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Listen for auth changes (login, signup, signout)
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      (async () => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      // Only re-fetch profile on meaningful auth events
+      // TOKEN_REFRESHED and USER_UPDATED don't need a full profile reload
+      if (event === 'TOKEN_REFRESHED') return
+
+      ;(async () => {
         setSession(session)
         setUser(session?.user ?? null)
         if (session?.user) {

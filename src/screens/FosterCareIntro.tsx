@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowRight, ChevronDown, ChevronUp } from 'lucide-react'
-import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 import { haptics } from '../lib/haptics'
 
@@ -105,7 +104,7 @@ const CONTENT: Record<string, { headline: string; subtitle: string; sections: Se
 
 export function FosterCareIntro() {
   const navigate = useNavigate()
-  const { user, profile } = useAuth()
+  const { user, profile, updateProfile } = useAuth()
   const [expandedIndex, setExpandedIndex] = useState<number | null>(0)
   const [saving, setSaving] = useState(false)
 
@@ -124,14 +123,12 @@ export function FosterCareIntro() {
     setSaving(true)
     try {
       if (user) {
-        await supabase
-          .from('profiles')
-          .update({ onboarding_foster_care_seen: true })
-          .eq('id', user.id)
+        await updateProfile({ onboarding_foster_care_seen: true })
       }
     } catch (e) {
       console.error('Error marking foster care intro seen:', e)
     } finally {
+      setSaving(false)
       navigate('/dashboard', { replace: true })
     }
   }
