@@ -12,7 +12,7 @@ interface Section {
 
 const CONTENT: Record<string, { headline: string; subtitle: string; sections: Section[] }> = {
   parent: {
-    headline: 'What is foster care — and what it isn't',
+    headline: "What is foster care \u2014 and what it isn't",
     subtitle: 'Before you dive in, here are a few things that are important to know.',
     sections: [
       {
