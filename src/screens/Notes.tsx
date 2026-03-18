@@ -353,7 +353,7 @@ export function Notes() {
           <div style={{
             background: '#FAF7F4', borderRadius: '24px 24px 0 0',
             width: '100%', maxWidth: 480,
-            maxHeight: '95vh', overflowY: 'auto',
+            maxHeight: '95vh', display: 'flex', flexDirection: 'column',
             animation: 'slideUp 0.25s ease',
           }}>
             {/* Modal header */}
@@ -380,7 +380,7 @@ export function Notes() {
             </div>
 
             {/* Modal body */}
-            <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: 16, overflowY: 'auto', flex: 1 }}>
               {/* Title */}
               <div>
                 <label style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600, color: '#5A5065', display: 'block', marginBottom: 6 }}>
@@ -461,7 +461,7 @@ export function Notes() {
               padding: '16px 20px env(safe-area-inset-bottom, 32px)',
               borderTop: '1px solid rgba(122,102,144,0.12)',
               display: 'flex', gap: 12,
-              position: 'sticky', bottom: 0, background: '#FAF7F4',
+              flexShrink: 0, background: '#FAF7F4',
             }}>
               <button
                 onClick={closeModal}
