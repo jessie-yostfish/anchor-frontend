@@ -46,6 +46,7 @@ export function Notes() {
   const [showModal, setShowModal] = useState(false)
   const [editingNote, setEditingNote] = useState<Note | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
+  const [keyboardHeight, setKeyboardHeight] = useState(0)
   const [formData, setFormData] = useState({
     title: '',
     content: '',
@@ -71,6 +72,18 @@ export function Notes() {
       )
     )
   }, [searchQuery, notes])
+
+  useEffect(() => {
+    const vv = window.visualViewport
+    if (!vv) return
+    const handler = () => {
+      const hidden = window.innerHeight - vv.height - vv.offsetTop
+      setKeyboardHeight(hidden > 0 ? hidden : 0)
+    }
+    vv.addEventListener('resize', handler)
+    vv.addEventListener('scroll', handler)
+    return () => { vv.removeEventListener('resize', handler); vv.removeEventListener('scroll', handler) }
+  }, [])
 
   const loadNotes = async () => {
     if (!user) return
@@ -348,7 +361,7 @@ export function Notes() {
         <div style={{
           position: 'fixed', inset: 0, background: 'rgba(42,32,48,0.5)',
           display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
-          zIndex: 50,
+          zIndex: 50, paddingBottom: keyboardHeight,
         }}>
           <div style={{
             background: '#FAF7F4', borderRadius: '24px 24px 0 0',

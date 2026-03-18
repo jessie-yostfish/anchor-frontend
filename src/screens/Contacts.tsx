@@ -120,6 +120,7 @@ export function Contacts() {
   const [editingContact, setEditingContact] = useState<Contact | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
   const [expandedContact, setExpandedContact] = useState<string | null>(null)
+  const [keyboardHeight, setKeyboardHeight] = useState(0)
 
   const [contactForm, setContactForm] = useState({
     name: '', role: 'Attorney' as RoleType, phone: '', email: '', notes: '',
@@ -129,6 +130,18 @@ export function Contacts() {
   })
 
   useEffect(() => { if (user) loadData() }, [user])
+
+  useEffect(() => {
+    const vv = window.visualViewport
+    if (!vv) return
+    const handler = () => {
+      const hidden = window.innerHeight - vv.height - vv.offsetTop
+      setKeyboardHeight(hidden > 0 ? hidden : 0)
+    }
+    vv.addEventListener('resize', handler)
+    vv.addEventListener('scroll', handler)
+    return () => { vv.removeEventListener('resize', handler); vv.removeEventListener('scroll', handler) }
+  }, [])
 
   const loadData = async () => {
     if (!user) return
@@ -471,7 +484,7 @@ export function Contacts() {
 
       {/* Contact modal */}
       {showContactModal && (
-        <div style={overlay}>
+        <div style={{ ...overlay, paddingBottom: keyboardHeight }}>
           <div style={modalSheet}>
             <div style={modalHeader}>
               <div>
@@ -544,7 +557,7 @@ export function Contacts() {
 
       {/* Court info modal */}
       {showCourtModal && (
-        <div style={overlay}>
+        <div style={{ ...overlay, paddingBottom: keyboardHeight }}>
           <div style={modalSheet}>
             <div style={modalHeader}>
               <h2 style={{ fontFamily: 'Fraunces, serif', fontSize: 22, fontWeight: 700, color: '#2A2030', margin: 0 }}>Court Info</h2>
