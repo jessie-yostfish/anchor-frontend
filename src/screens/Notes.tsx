@@ -467,42 +467,37 @@ export function Notes() {
                   }}
                 />
               </div>
-            </div>
 
-            {/* Modal footer */}
-            <div style={{
-              padding: '16px 20px env(safe-area-inset-bottom, 32px)',
-              borderTop: '1px solid rgba(122,102,144,0.12)',
-              display: 'flex', gap: 12,
-              flexShrink: 0, background: '#FAF7F4',
-            }}>
-              <button
-                onClick={closeModal}
-                style={{
-                  flex: 1, padding: '13px',
-                  background: '#F0EAE0',
-                  border: '1.5px solid rgba(122,102,144,0.2)',
-                  borderRadius: 16,
-                  fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 15,
-                  color: '#7A6690', cursor: 'pointer',
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSave}
-                disabled={!formData.title.trim()}
-                style={{
-                  flex: 1, padding: '13px',
-                  background: formData.title.trim() ? '#7A6690' : '#C8C0D0',
-                  border: 'none', borderRadius: 16,
-                  fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 15,
-                  color: '#fff', cursor: formData.title.trim() ? 'pointer' : 'not-allowed',
-                  boxShadow: formData.title.trim() ? '0 4px 16px rgba(122,102,144,0.3)' : 'none',
-                }}
-              >
-                Save Note
-              </button>
+              {/* Action buttons — inside scroll so always reachable */}
+              <div style={{ display: 'flex', gap: 12, paddingTop: 4, paddingBottom: 'env(safe-area-inset-bottom, 16px)' }}>
+                <button
+                  onClick={closeModal}
+                  style={{
+                    flex: 1, padding: '14px',
+                    background: '#F0EAE0',
+                    border: '1.5px solid rgba(122,102,144,0.2)',
+                    borderRadius: 16,
+                    fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 15,
+                    color: '#7A6690', cursor: 'pointer',
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSave}
+                  disabled={!formData.title.trim()}
+                  style={{
+                    flex: 1, padding: '14px',
+                    background: formData.title.trim() ? '#7A6690' : '#C8C0D0',
+                    border: 'none', borderRadius: 16,
+                    fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 15,
+                    color: '#fff', cursor: formData.title.trim() ? 'pointer' : 'not-allowed',
+                    boxShadow: formData.title.trim() ? '0 4px 16px rgba(122,102,144,0.3)' : 'none',
+                  }}
+                >
+                  Save Note
+                </button>
+              </div>
             </div>
           </div>
         </div>

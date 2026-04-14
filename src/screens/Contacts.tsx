@@ -540,16 +540,16 @@ export function Contacts() {
                 <textarea value={contactForm.notes} onChange={(e) => setContactForm({ ...contactForm, notes: e.target.value })} placeholder="Anything important to remember…" rows={3}
                   style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.6 }} />
               </div>
-            </div>
-
-            <div style={modalFooter}>
-              <button onClick={closeContactModal} style={{ flex: 1, padding: '13px', background: '#F0EAE0', border: '1.5px solid rgba(122,102,144,0.2)', borderRadius: 16, fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 15, color: '#7A6690', cursor: 'pointer' }}>
-                Cancel
-              </button>
-              <button onClick={handleSaveContact} disabled={!contactForm.name.trim()}
-                style={{ flex: 1, padding: '13px', background: contactForm.name.trim() ? '#7A6690' : '#C8C0D0', border: 'none', borderRadius: 16, fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 15, color: '#fff', cursor: contactForm.name.trim() ? 'pointer' : 'not-allowed', boxShadow: contactForm.name.trim() ? '0 4px 16px rgba(122,102,144,0.3)' : 'none' }}>
-                {editingContact ? 'Save Changes' : 'Add Contact'}
-              </button>
+              {/* Buttons inside scroll — always reachable */}
+              <div style={{ display: 'flex', gap: 12, paddingTop: 4, paddingBottom: 'env(safe-area-inset-bottom, 16px)' }}>
+                <button onClick={closeContactModal} style={{ flex: 1, padding: '14px', background: '#F0EAE0', border: '1.5px solid rgba(122,102,144,0.2)', borderRadius: 16, fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 15, color: '#7A6690', cursor: 'pointer' }}>
+                  Cancel
+                </button>
+                <button onClick={handleSaveContact} disabled={!contactForm.name.trim()}
+                  style={{ flex: 1, padding: '14px', background: contactForm.name.trim() ? '#7A6690' : '#C8C0D0', border: 'none', borderRadius: 16, fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 15, color: '#fff', cursor: contactForm.name.trim() ? 'pointer' : 'not-allowed', boxShadow: contactForm.name.trim() ? '0 4px 16px rgba(122,102,144,0.3)' : 'none' }}>
+                  {editingContact ? 'Save Changes' : 'Add to Team'}
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -582,16 +582,16 @@ export function Contacts() {
                 <label style={labelStyle}>Next Court Date</label>
                 <input type="date" value={courtForm.next_court_date} onChange={(e) => setCourtForm({ ...courtForm, next_court_date: e.target.value })} style={inputStyle} />
               </div>
-            </div>
-
-            <div style={modalFooter}>
-              <button onClick={() => setShowCourtModal(false)} style={{ flex: 1, padding: '13px', background: '#F0EAE0', border: '1.5px solid rgba(122,102,144,0.2)', borderRadius: 16, fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 15, color: '#7A6690', cursor: 'pointer' }}>
-                Cancel
-              </button>
-              <button onClick={handleSaveCourtInfo}
-                style={{ flex: 1, padding: '13px', background: '#7A6690', border: 'none', borderRadius: 16, fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 15, color: '#fff', cursor: 'pointer', boxShadow: '0 4px 16px rgba(122,102,144,0.3)' }}>
-                Save
-              </button>
+              {/* Buttons inside scroll — always reachable */}
+              <div style={{ display: 'flex', gap: 12, paddingTop: 4, paddingBottom: 'env(safe-area-inset-bottom, 16px)' }}>
+                <button onClick={() => setShowCourtModal(false)} style={{ flex: 1, padding: '14px', background: '#F0EAE0', border: '1.5px solid rgba(122,102,144,0.2)', borderRadius: 16, fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 15, color: '#7A6690', cursor: 'pointer' }}>
+                  Cancel
+                </button>
+                <button onClick={handleSaveCourtInfo}
+                  style={{ flex: 1, padding: '14px', background: '#7A6690', border: 'none', borderRadius: 16, fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 15, color: '#fff', cursor: 'pointer', boxShadow: '0 4px 16px rgba(122,102,144,0.3)' }}>
+                  Save Court Info
+                </button>
+              </div>
             </div>
           </div>
         </div>
