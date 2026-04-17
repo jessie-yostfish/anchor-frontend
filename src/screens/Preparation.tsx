@@ -311,33 +311,31 @@ export function Preparation() {
   }
 
   return (
-    <div className="min-h-screen pb-24" style={{ background: '#F0EAE0' }}>
+    <div style={{ minHeight: '100vh', background: '#F0EAE0', display: 'flex', flexDirection: 'column' }}>
       <AppHeader />
 
-      <div className="max-w-md mx-auto px-5 py-6">
+      <div style={{ flex: 1, overflowY: 'auto', paddingBottom: 90 }}><div style={{ maxWidth: 480, margin: '0 auto', padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: 16 }}>
 
         {/* ── HEADER ── */}
         {!hasResponse && (
-          <div className="mb-6">
+          <div>
             <h1
-              className="text-3xl font-bold mb-1"
-              style={{ fontFamily: "'Fraunces', Georgia, serif", color: '#2A2030' }}
+              style={{ fontFamily: "Fraunces, serif", fontSize: 28, fontWeight: 700, color: '#2A2030', margin: '0 0 4px' }}
             >
               {copy.heading}
             </h1>
-            <p className="text-sm" style={{ color: '#5A5065' }}>{copy.subheading}</p>
+            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#9A90A8', margin: 0 }}>{copy.subheading}</p>
           </div>
         )}
 
         {/* ── PRIVACY NOTE ── */}
         {!hasResponse && (
           <div
-            className="flex items-start gap-3 rounded-2xl px-4 py-3 mb-5"
-            style={{ background: '#FAF7F4', border: '1px solid rgba(122,102,144,0.12)' }}
+            style={{ background: '#FAF7F4', borderRadius: 16, padding: '12px 14px', display: 'flex', alignItems: 'flex-start', gap: 10, border: '1px solid rgba(122,102,144,0.12)' }}
           >
-            <Lock className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#7A6690' }} />
-            <p className="text-xs leading-relaxed" style={{ color: '#5A5065' }}>
-              <span className="font-bold" style={{ color: '#2A2030' }}>Private. </span>
+            <Lock size={15} style={{ color: '#7A6690', flexShrink: 0, marginTop: 2 }} />
+            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: '#5A5065', margin: 0, lineHeight: 1.6 }}>
+              <span style={{ fontWeight: 700, color: '#2A2030' }}>Private. </span>
               {copy.privacyNote}
             </p>
           </div>
@@ -345,8 +343,8 @@ export function Preparation() {
 
         {/* ── STEP 1: CHOOSE TYPE ── */}
         {!selectedType && (
-          <div className="space-y-3">
-            <p className="text-sm font-semibold mb-1" style={{ color: '#9A90A8', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, fontWeight: 700, color: '#9A90A8', textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>
               What do you need help with?
             </p>
             {copy.prepOptions.map(opt => {
@@ -355,16 +353,15 @@ export function Preparation() {
                 <button
                   key={opt.type}
                   onClick={() => setSelectedType(opt.type)}
-                  className="w-full text-left p-4 rounded-3xl transition-all"
-                  style={{ ...card, cursor: 'pointer' }}
+                  style={{ ...card, cursor: 'pointer', padding: 16, textAlign: 'left', width: '100%' }}
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="rounded-2xl p-3 flex-shrink-0" style={{ background: '#E8DDE8' }}>
-                      <Icon className="w-5 h-5" style={{ color: '#7A6690' }} />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                    <div style={{ borderRadius: 12, padding: 10, flexShrink: 0, background: '#E8DDE8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <Icon size={18} style={{ color: '#7A6690' }} />
                     </div>
                     <div>
-                      <p className="font-bold text-base" style={{ color: '#2A2030' }}>{opt.title}</p>
-                      <p className="text-sm mt-0.5" style={{ color: '#5A5065' }}>{opt.description}</p>
+                      <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, fontWeight: 700, color: '#2A2030', margin: 0 }}>{opt.title}</p>
+                      <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: '#5A5065', margin: '3px 0 0' }}>{opt.description}</p>
                     </div>
                   </div>
                 </button>
@@ -375,22 +372,21 @@ export function Preparation() {
 
         {/* ── STEP 2: MEETING TYPE (if meeting) ── */}
         {selectedType === 'meeting' && !meetingType && (
-          <div style={card} className="p-5">
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-semibold uppercase tracking-wide" style={{ color: '#9A90A8' }}>
+          <div style={{ ...card, padding: 20 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+              <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, fontWeight: 700, color: '#9A90A8', textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>
                 Who is this meeting with?
               </p>
               <button onClick={reset} style={{ color: '#9A90A8' }}>
-                <X className="w-4 h-4" />
+                <X size={16} color="#9A90A8" />
               </button>
             </div>
-            <div className="space-y-2">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {copy.meetingTypes.map(mt => (
                 <button
                   key={mt.value}
                   onClick={() => setMeetingType(mt.value as MeetingType)}
-                  className="w-full text-left rounded-2xl px-4 py-3 transition-all"
-                  style={{
+                  style={{ cursor: 'pointer',
                     background: '#F0EAE0',
                     border: '1.5px solid rgba(122,102,144,0.15)',
                     color: '#2A2030',
@@ -407,23 +403,21 @@ export function Preparation() {
 
         {/* ── STEP 3: CONCERNS INPUT ── */}
         {selectedType && (selectedType !== 'meeting' || meetingType) && !hasResponse && (
-          <div style={card} className="p-5">
-            <div className="flex items-center justify-between mb-4">
+          <div style={{ ...card, padding: 20 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
               <span
-                className="text-xs font-bold uppercase tracking-wide px-3 py-1 rounded-full"
-                style={{ background: '#E8DDE8', color: '#7A6690' }}
+                style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', padding: '3px 12px', borderRadius: 20, background: '#E8DDE8', color: '#7A6690' }}
               >
                 {copy.prepOptions.find(o => o.type === selectedType)?.title}
                 {meetingType && ` · ${copy.meetingTypes.find(m => m.value === meetingType)?.label}`}
               </span>
               <button onClick={reset} style={{ color: '#9A90A8' }}>
-                <X className="w-4 h-4" />
+                <X size={16} color="#9A90A8" />
               </button>
             </div>
 
             <label
-              className="block text-sm font-semibold mb-2"
-              style={{ color: '#2A2030' }}
+              style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 700, color: '#2A2030', display: 'block', marginBottom: 8 }}
             >
               {copy.questionLabel(selectedType)}
             </label>
@@ -432,17 +426,16 @@ export function Preparation() {
               onChange={e => setConcerns(e.target.value)}
               placeholder={copy.placeholder(selectedType)}
               rows={4}
-              className="resize-none"
-              style={inputStyle}
+              style={{ ...inputStyle, resize: 'none', fontFamily: 'DM Sans, sans-serif', lineHeight: 1.6 }}
             />
 
             {error && (
               <div
-                className="mt-3 rounded-xl p-3 flex items-start gap-2"
+                style={{ marginTop: 10, borderRadius: 12, padding: 10, display: 'flex', alignItems: 'flex-start', gap: 8 }}
                 style={{ background: '#F5ECD8', border: '1px solid rgba(200,136,58,0.2)' }}
               >
-                <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#C8883A' }} />
-                <p className="text-xs" style={{ color: '#7A5A2A' }}>{error}</p>
+                <AlertCircle size={15} style={{ color: '#C8883A', flexShrink: 0, marginTop: 2 }} />
+                <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: '#7A5A2A', margin: 0 }}>{error}</p>
               </div>
             )}
 
@@ -457,19 +450,19 @@ export function Preparation() {
             >
               {loading ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader2 size={15} style={{ animation: 'spin 1s linear infinite' }} />
                   Getting your guide...
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-4 h-4" />
+                  <Sparkles size={15} />
                   Get My Guide
                 </>
               )}
             </button>
 
             {loading && (
-              <p className="text-center text-xs mt-2" style={{ color: '#9A90A8' }}>
+              <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, textAlign: 'center', marginTop: 6, color: '#9A90A8' }}>
                 Usually ready in 5–10 seconds
               </p>
             )}
@@ -478,49 +471,45 @@ export function Preparation() {
 
         {/* ── RESPONSE VIEW ── */}
         {hasResponse && (
-          <div className="space-y-4">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
 
             {/* Header row */}
-            <div className="flex items-center justify-between">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <h2
-                className="text-xl font-bold"
-                style={{ fontFamily: "'Fraunces', Georgia, serif", color: '#2A2030' }}
+                style={{ fontFamily: 'Fraunces, serif', fontSize: 22, fontWeight: 700, color: '#2A2030', margin: 0 }}
               >
                 Your Guide
               </h2>
               <button
                 onClick={reset}
-                className="flex items-center gap-1.5 text-xs font-semibold rounded-xl px-3 py-1.5"
-                style={{ background: '#E8DDE8', color: '#7A6690' }}
+                style={{ display: 'flex', alignItems: 'center', gap: 6, fontFamily: 'DM Sans, sans-serif', fontSize: 12, fontWeight: 700, borderRadius: 12, padding: '7px 12px', background: '#E8DDE8', color: '#7A6690', border: 'none', cursor: 'pointer' }}
               >
-                <RotateCcw className="w-3 h-3" />
+                <RotateCcw size={12} />
                 Start Over
               </button>
             </div>
 
             {/* Your question */}
             <div
-              className="rounded-2xl px-4 py-3"
-              style={{ background: '#E8DDE8' }}
+              style={{ background: '#E8DDE8', borderRadius: 16, padding: '12px 14px' }}
             >
-              <p className="text-xs font-bold uppercase tracking-wide mb-1" style={{ color: '#9A90A8' }}>
+              <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#9A90A8', margin: '0 0 4px' }}>
                 You said
               </p>
-              <p className="text-sm" style={{ color: '#2A2030' }}>{concerns}</p>
+              <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: '#2A2030', margin: 0 }}>{concerns}</p>
             </div>
 
             {/* AI responses */}
             {assistantResponse.map((msg, i) => (
-              <div key={i} style={card} className="p-5">
-                <div className="flex items-center gap-2 mb-3">
-                  <Sparkles className="w-4 h-4" style={{ color: '#7A6690' }} />
-                  <p className="text-xs font-bold uppercase tracking-wide" style={{ color: '#7A6690' }}>
+              <div key={i} style={{ ...card, padding: 20 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                  <Sparkles size={15} color="#7A6690" />
+                  <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#7A6690', margin: 0 }}>
                     {i === 0 ? 'Your Preparation Guide' : 'Follow-up'}
                   </p>
                 </div>
                 <div
-                  className="text-sm leading-relaxed whitespace-pre-wrap"
-                  style={{ color: '#2A2030' }}
+                  style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#2A2030', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}
                 >
                   {msg.content}
                 </div>
@@ -531,42 +520,40 @@ export function Preparation() {
             {chatHistory.filter(m => m.role === 'user').slice(1).map((msg, i) => (
               <div
                 key={i}
-                className="rounded-2xl px-4 py-3 self-end ml-8"
-                style={{ background: '#7A6690' }}
+                style={{ background: '#7A6690', borderRadius: 16, padding: '10px 14px', alignSelf: 'flex-end', marginLeft: 32 }}
               >
-                <p className="text-sm text-white">{msg.content}</p>
+                <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: '#fff', margin: 0 }}>{msg.content}</p>
               </div>
             ))}
 
             {/* Loading state */}
             {loading && (
-              <div style={card} className="p-4 flex items-center gap-3">
-                <Loader2 className="w-4 h-4 animate-spin" style={{ color: '#7A6690' }} />
-                <p className="text-sm" style={{ color: '#9A90A8' }}>Getting your answer...</p>
+              <div style={{ ...card, padding: 14, display: 'flex', alignItems: 'center', gap: 10 }}>
+                <Loader2 size={15} style={{ color: '#7A6690', animation: 'spin 1s linear infinite' }} />
+                <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: '#9A90A8', margin: 0 }}>Getting your answer...</p>
               </div>
             )}
 
             {error && (
               <div
-                className="rounded-2xl p-3 flex items-start gap-2"
-                style={{ background: '#F5ECD8', border: '1px solid rgba(200,136,58,0.2)' }}
+                style={{ borderRadius: 16, padding: 12, display: 'flex', alignItems: 'flex-start', gap: 8, background: '#F5ECD8', border: '1px solid rgba(200,136,58,0.2)' }}
               >
-                <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#C8883A' }} />
-                <p className="text-xs" style={{ color: '#7A5A2A' }}>{error}</p>
+                <AlertCircle size={15} style={{ color: '#C8883A', flexShrink: 0, marginTop: 2 }} />
+                <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: '#7A5A2A', margin: 0 }}>{error}</p>
               </div>
             )}
 
             {/* Disclaimer */}
-            <p className="text-xs text-center px-4" style={{ color: '#9A90A8' }}>
+            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, textAlign: 'center', padding: '0 16px', color: '#9A90A8', margin: 0 }}>
               General information only — not legal advice. Talk to your attorney about your specific case.
             </p>
 
             {/* Follow-up input */}
-            <div style={card} className="p-4">
-              <p className="text-xs font-bold uppercase tracking-wide mb-2" style={{ color: '#9A90A8' }}>
+            <div style={{ ...card, padding: 14 }}>
+              <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#9A90A8', margin: '0 0 8px', display: 'block' }}>
                 Have a follow-up question?
               </p>
-              <div className="flex gap-2">
+              <div style={{ display: 'flex', gap: 8 }}>
                 <input
                   type="text"
                   value={followUp}
@@ -581,7 +568,7 @@ export function Preparation() {
                 <button
                   onClick={handleFollowUp}
                   disabled={!followUp.trim() || loading}
-                  className="rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={{ borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
                   style={{
                     background: '#7A6690',
                     border: 'none',
@@ -591,7 +578,7 @@ export function Preparation() {
                     cursor: 'pointer',
                   }}
                 >
-                  <Send className="w-4 h-4 text-white" />
+                  <Send size={15} color="#fff" />
                 </button>
               </div>
             </div>
@@ -599,11 +586,10 @@ export function Preparation() {
             {/* Save button */}
             {savedSuccess ? (
               <div
-                className="rounded-2xl p-4 flex items-center justify-center gap-2"
-                style={{ background: 'rgba(74,124,89,0.12)' }}
+                style={{ borderRadius: 16, padding: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, background: 'rgba(74,124,89,0.12)' }}
               >
-                <Check className="w-4 h-4" style={{ color: '#4A7C59' }} />
-                <p className="text-sm font-semibold" style={{ color: '#4A7C59' }}>Saved to your notes!</p>
+                <Check size={15} style={{ color: '#4A7C59' }} />
+                <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 700, color: '#4A7C59', margin: 0 }}>Saved to your notes!</p>
               </div>
             ) : (
               <button
@@ -613,33 +599,31 @@ export function Preparation() {
                 }}
                 style={ghostBtn}
               >
-                <Save className="w-4 h-4" />
+                <Save size={15} />
                 Save to My Notes
               </button>
             )}
           </div>
         )}
-      </div>
+      </div></div>
 
       {/* ── SAVE MODAL ── */}
       {showSaveModal && (
         <div
-          className="fixed inset-0 flex items-end justify-center z-50 p-4"
-          style={{ background: 'rgba(42,32,48,0.5)' }}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(42,32,48,0.5)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', zIndex: 50, padding: 16 }}
         >
           <div
-            className="w-full max-w-md rounded-3xl p-6"
-            style={{ background: '#FAF7F4' }}
+            style={{ width: '100%', maxWidth: 480, borderRadius: '24px 24px 0 0', padding: 24, background: '#FAF7F4' }}
           >
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold" style={{ fontFamily: "'Fraunces', Georgia, serif", color: '#2A2030' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+              <h3 style={{ fontFamily: 'Fraunces, serif', fontSize: 20, fontWeight: 700, color: '#2A2030', margin: 0 }}>
                 Save to Notes
               </h3>
               <button onClick={() => setShowSaveModal(false)}>
-                <X className="w-5 h-5" style={{ color: '#9A90A8' }} />
+                <X size={18} color="#9A90A8" />
               </button>
             </div>
-            <label className="block text-xs font-bold uppercase tracking-wide mb-2" style={{ color: '#9A90A8' }}>
+            <label style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#9A90A8', display: 'block', marginBottom: 8 }}>
               Title
             </label>
             <input
@@ -653,7 +637,7 @@ export function Preparation() {
               disabled={!saveTitle.trim()}
               style={{ ...primaryBtn, opacity: !saveTitle.trim() ? 0.5 : 1 }}
             >
-              <Check className="w-4 h-4" />
+              <Check size={15} />
               Save
             </button>
           </div>
