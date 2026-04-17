@@ -151,7 +151,7 @@ export function FosterCareIntro() {
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
         <img
-          src="/anchor-logo-transparent.png"
+          src="/anchor-icon-only.png"
           alt="Anchor"
           style={{ width: 48, height: 48, objectFit: 'contain', filter: 'drop-shadow(0 2px 6px rgba(122,102,144,0.35))' }}
         />

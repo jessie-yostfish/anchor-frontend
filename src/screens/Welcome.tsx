@@ -34,7 +34,7 @@ export function Welcome() {
       {/* ── LOGO HERO ── */}
       <div className="flex flex-col items-center pt-16 pb-8 px-6 text-center">
         <img
-          src="/anchor-logo-new.png"
+          src="/anchor-icon-only.png"
           alt="Anchor"
           style={{
             width: 120,

@@ -28,7 +28,7 @@ const labelStyle: React.CSSProperties = {
 function LogoMark() {
   return (
     <img
-      src="/anchor-logo-new.png"
+      src="/anchor-icon-only.png"
       alt="Anchor"
       style={{
         width: 72,

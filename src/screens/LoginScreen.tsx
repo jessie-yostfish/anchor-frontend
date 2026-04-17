@@ -188,7 +188,7 @@ export function LoginScreen() {
         {/* ── LOGO ── */}
         <div className="flex flex-col items-center mb-8">
           <img
-            src="/anchor-logo-new.png"
+            src="/anchor-icon-only.png"
             alt="Anchor"
             style={{
               width: 80,
