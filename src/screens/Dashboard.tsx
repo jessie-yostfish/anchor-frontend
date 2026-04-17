@@ -347,14 +347,11 @@ export function Dashboard() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F0EAE0', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
-      {/* Watermark */}
-      <div style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 0, pointerEvents: 'none' }}>
-        <img src='/anchor-icon-only.png' alt='' aria-hidden='true' style={{ width: 360, height: 360, objectFit: 'contain', opacity: 0.13, filter: 'saturate(1.4) brightness(0.7)' }} />
-      </div>
-      <div style={{ position: 'relative', zIndex: 1 }}><AppHeader /></div>
+    <div style={{ minHeight: '100vh', background: '#F0EAE0', display: 'flex', flexDirection: 'column' }}>
 
-      <div style={{ flex: 1, overflowY: 'auto', paddingBottom: 90, position: 'relative', zIndex: 1 }}>
+      <AppHeader />
+
+      <div style={{ flex: 1, overflowY: 'auto', paddingBottom: 90 }}>
         <div style={{ maxWidth: 480, margin: '0 auto', padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: 16 }}>
 
           {/* Logo + Greeting */}
