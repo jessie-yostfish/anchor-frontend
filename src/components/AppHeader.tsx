@@ -16,19 +16,19 @@ export function AppHeader({ showBack = true }: AppHeaderProps) {
 
   return (
     <>
-      <div
-        style={{
-          position: 'sticky', top: 0, zIndex: 50,
-          background: '#FAF7F4',
-          borderBottom: '1px solid rgba(122,102,144,0.12)',
-        }}
-      >
+      <div style={{
+        position: 'sticky', top: 0, zIndex: 50,
+        background: '#FAF7F4',
+        borderBottom: '1px solid rgba(122,102,144,0.12)',
+      }}>
         <div style={{
           maxWidth: 480, margin: '0 auto',
           padding: '8px 16px',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          position: 'relative',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          {/* Left — back button or spacer */}
+          <div style={{ width: 34, flexShrink: 0 }}>
             {showBack && (
               <button
                 onClick={() => { haptics.light(); navigate(-1) }}
@@ -36,31 +36,35 @@ export function AppHeader({ showBack = true }: AppHeaderProps) {
                   width: 34, height: 34, borderRadius: 10,
                   background: '#E8DDE8', border: 'none',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  cursor: 'pointer', flexShrink: 0,
+                  cursor: 'pointer',
                 }}
                 aria-label="Go back"
               >
                 <ArrowLeft size={16} color="#7A6690" />
               </button>
             )}
+          </div>
+
+          {/* Center — logo absolutely centered */}
+          <div style={{
+            position: 'absolute', left: '50%', top: '50%',
+            transform: 'translate(-50%, -50%)',
+          }}>
             <img
               src="/anchor-icon-only.png"
               alt="Anchor"
-              style={{
-                width: 44,
-                height: 44,
-                objectFit: 'contain',
-              }}
+              style={{ width: 42, height: 42, objectFit: 'contain' }}
             />
           </div>
 
+          {/* Right — settings */}
           <button
             onClick={() => { haptics.light(); navigate('/settings') }}
             style={{
               width: 34, height: 34, borderRadius: 10,
               background: '#E8DDE8', border: 'none',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              cursor: 'pointer',
+              cursor: 'pointer', flexShrink: 0,
             }}
             aria-label="Settings"
           >

@@ -1,9 +1,9 @@
 import { useLocation, useNavigate } from 'react-router-dom'
-import { Home, List, FileText, MapPin, Scale, Users } from 'lucide-react'
+import { List, FileText, MapPin, Scale, Users } from 'lucide-react'
 import { haptics } from '../lib/haptics'
 
 const tabs = [
-  { id: 'home',      label: 'Home',      icon: Home,     path: '/dashboard' },
+  { id: 'home',      label: 'Home',      icon: null,     path: '/dashboard' },
   { id: 'timeline',  label: 'Timeline',  icon: List,     path: '/timeline' },
   { id: 'notes',     label: 'Notes',     icon: FileText, path: '/notes' },
   { id: 'resources', label: 'Resources', icon: MapPin,   path: '/resources' },
@@ -31,7 +31,7 @@ export function BottomNav() {
       }}>
         <div style={{ maxWidth: 480, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-around' }}>
           {tabs.map((tab) => {
-            const Icon = tab.icon
+            const Icon = tab.icon as React.ElementType | null
             const active = location.pathname === tab.path
             return (
               <button
@@ -61,11 +61,22 @@ export function BottomNav() {
                   marginBottom: 3,
                   transition: 'background 0.15s',
                 }}>
-                  <Icon
-                    size={18}
-                    color={active ? '#7A6690' : '#9A90A8'}
-                    strokeWidth={active ? 2.2 : 1.8}
-                  />
+                  {tab.id === 'home' ? (
+                    <img
+                      src='/anchor-icon-only.png'
+                      alt=''
+                      style={{
+                        width: 22, height: 22, objectFit: 'contain',
+                        opacity: active ? 1 : 0.45,
+                      }}
+                    />
+                  ) : (
+                    <Icon
+                      size={18}
+                      color={active ? '#7A6690' : '#9A90A8'}
+                      strokeWidth={active ? 2.2 : 1.8}
+                    />
+                  )}
                 </div>
 
                 <span style={{

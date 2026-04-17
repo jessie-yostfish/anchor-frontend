@@ -347,14 +347,23 @@ export function Dashboard() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F0EAE0', display: 'flex', flexDirection: 'column' }}>
-      <AppHeader />
+    <div style={{ minHeight: '100vh', background: '#F0EAE0', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
+      {/* Watermark */}
+      <div style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 0, pointerEvents: 'none' }}>
+        <img src='/anchor-icon-only.png' alt='' aria-hidden='true' style={{ width: 340, height: 340, objectFit: 'contain', opacity: 0.055 }} />
+      </div>
+      <div style={{ position: 'relative', zIndex: 1 }}><AppHeader /></div>
 
-      <div style={{ flex: 1, overflowY: 'auto', paddingBottom: 90 }}>
+      <div style={{ flex: 1, overflowY: 'auto', paddingBottom: 90, position: 'relative', zIndex: 1 }}>
         <div style={{ maxWidth: 480, margin: '0 auto', padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: 16 }}>
 
-          {/* Greeting */}
-          <div>
+          {/* Logo + Greeting */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', paddingTop: 4, paddingBottom: 4 }}>
+            <img
+              src='/anchor-icon-only.png'
+              alt='Anchor'
+              style={{ width: 80, height: 80, objectFit: 'contain', marginBottom: 10 }}
+            />
             <h1 style={{ fontFamily: 'Fraunces, serif', fontSize: 28, fontWeight: 700, color: '#2A2030', margin: '0 0 4px' }}>
               {profile?.first_name ? `Hi, ${profile.first_name}` : 'Your Blueprint'}
             </h1>
