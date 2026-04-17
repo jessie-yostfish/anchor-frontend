@@ -17,43 +17,54 @@ export function AppHeader({ showBack = true }: AppHeaderProps) {
   return (
     <>
       <div
-        className="sticky top-0 z-50"
         style={{
+          position: 'sticky', top: 0, zIndex: 50,
           background: '#FAF7F4',
           borderBottom: '1px solid rgba(122,102,144,0.12)',
         }}
       >
-        <div className="max-w-md mx-auto px-4 flex items-center justify-between" style={{ paddingTop: 8, paddingBottom: 8 }}>
-          <div className="flex items-center gap-3">
+        <div style={{
+          maxWidth: 480, margin: '0 auto',
+          padding: '8px 16px',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             {showBack && (
               <button
                 onClick={() => { haptics.light(); navigate(-1) }}
-                className="rounded-xl p-2 transition-colors"
-                style={{ background: '#E8DDE8' }}
+                style={{
+                  width: 34, height: 34, borderRadius: 10,
+                  background: '#E8DDE8', border: 'none',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  cursor: 'pointer', flexShrink: 0,
+                }}
                 aria-label="Go back"
               >
-                <ArrowLeft className="w-4 h-4" style={{ color: '#7A6690' }} />
+                <ArrowLeft size={16} color="#7A6690" />
               </button>
             )}
             <img
-              src="/anchor-logo-transparent.png"
+              src="/anchor-icon-only.png"
               alt="Anchor"
               style={{
-                width: 52,
-                height: 52,
+                width: 44,
+                height: 44,
                 objectFit: 'contain',
-                filter: 'drop-shadow(0 2px 6px rgba(122,102,144,0.35))',
               }}
             />
           </div>
 
           <button
             onClick={() => { haptics.light(); navigate('/settings') }}
-            className="rounded-xl p-2 transition-colors"
-            style={{ background: '#E8DDE8' }}
+            style={{
+              width: 34, height: 34, borderRadius: 10,
+              background: '#E8DDE8', border: 'none',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer',
+            }}
             aria-label="Settings"
           >
-            <Settings className="w-4 h-4" style={{ color: '#7A6690' }} />
+            <Settings size={16} color="#7A6690" />
           </button>
         </div>
       </div>
