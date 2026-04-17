@@ -4,13 +4,14 @@ import { BottomNav, AppHeader } from '../components'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 import { trackEvent } from '../lib/analytics'
+import { haptics } from '../lib/haptics'
 
 interface RightDuty {
   id: string
   title: string
-  user_role: string      // 'parent' | 'youth' | 'supporter' | 'both'
+  user_role: string
   right_key: string
-  category: string       // 'right' | 'duty'
+  category: string
   description: string
   legal_reference: string
   practical_tips: string
@@ -24,30 +25,34 @@ const tabConfig: Record<RoleTab, {
   billTitle: string
   billDesc: string
   accentColor: string
-  rightBadge: React.CSSProperties
+  accentBg: string
+  rightBadge: { background: string; color: string }
 }> = {
   parent: {
     label: 'Parents',
-    icon: <Users className="w-4 h-4" />,
+    icon: <Users size={14} />,
     billTitle: "Parent's Bill of Rights",
     billDesc: 'As a parent in dependency court, you have important rights protected by California law. Understanding these rights helps you advocate for yourself and your child.',
     accentColor: '#7A6690',
+    accentBg: '#E8DDE8',
     rightBadge: { background: '#E8DDE8', color: '#7A6690' },
   },
   youth: {
     label: 'Youth',
-    icon: <User className="w-4 h-4" />,
+    icon: <User size={14} />,
     billTitle: 'Foster Youth Bill of Rights',
     billDesc: 'If you are in foster care or dependency court, these are your rights under California law. You deserve to be treated with respect and have your voice heard.',
     accentColor: '#4A7C59',
-    rightBadge: { background: 'rgba(74,124,89,0.12)', color: '#4A7C59' },
+    accentBg: '#EAF4EE',
+    rightBadge: { background: '#EAF4EE', color: '#4A7C59' },
   },
   supporter: {
     label: 'Supporters',
-    icon: <Heart className="w-4 h-4" />,
+    icon: <Heart size={14} />,
     billTitle: 'Rights & Responsibilities for Supporters',
     billDesc: 'As a relative caregiver, foster parent, or support person, you have important rights and responsibilities in the dependency process.',
     accentColor: '#C8883A',
+    accentBg: '#F5ECD8',
     rightBadge: { background: '#F5ECD8', color: '#C8883A' },
   },
 }
@@ -67,18 +72,15 @@ export function RightsScreen() {
     }
   }, [profile?.role])
 
-  useEffect(() => {
-    loadRightsAndDuties()
-  }, [])
+  useEffect(() => { loadRightsAndDuties() }, [])
 
   const loadRightsAndDuties = async () => {
     try {
       const { data, error } = await supabase
         .from('rights_duties')
         .select('id, title, user_role, right_key, category, description, legal_reference, practical_tips')
-        .order('category', { ascending: true })  // rights before duties
+        .order('category', { ascending: true })
         .order('title', { ascending: true })
-
       if (error) throw error
       setAllItems(data || [])
       trackEvent('rights_viewed', { role: profile?.role || undefined })
@@ -89,50 +91,48 @@ export function RightsScreen() {
     }
   }
 
-  // Items for the active tab: include role-specific rows + 'both' rows
   const visibleItems = allItems.filter(item =>
     item.user_role === activeTab || item.user_role === 'both'
   )
-
   const rightsItems = visibleItems.filter(item => item.category === 'right')
   const dutiesItems = visibleItems.filter(item => item.category === 'duty')
-
   const tab = tabConfig[activeTab]
 
   const renderItem = (item: RightDuty, isDuty: boolean) => {
     const isExpanded = expandedId === item.id
-    const badgeStyle = isDuty
-      ? { background: '#F5ECD8', color: '#C8883A' }
-      : tab.rightBadge
+    const badgeStyle = isDuty ? { background: '#F5ECD8', color: '#C8883A' } : tab.rightBadge
 
     return (
       <div
         key={item.id}
-        onClick={() => setExpandedId(isExpanded ? null : item.id)}
-        className="rounded-2xl cursor-pointer transition-all"
+        onClick={() => { haptics.light(); setExpandedId(isExpanded ? null : item.id) }}
         style={{
           background: '#FAF7F4',
           border: isExpanded
             ? `1.5px solid ${isDuty ? '#C8883A' : tab.accentColor}`
             : '1px solid rgba(122,102,144,0.12)',
-          boxShadow: isExpanded
-            ? '0 4px 16px rgba(90,78,110,0.10)'
-            : '0 1px 4px rgba(90,78,110,0.05)',
+          borderRadius: 20,
+          cursor: 'pointer',
+          overflow: 'hidden',
         }}
       >
-        <div className="p-4">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex-1 min-w-0">
-              <span
-                className="inline-block text-xs font-bold px-2 py-0.5 rounded-full uppercase tracking-wide mb-2"
-                style={badgeStyle}
-              >
+        <div style={{ padding: '14px 16px' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <span style={{
+                display: 'inline-block',
+                fontFamily: 'DM Sans, sans-serif', fontSize: 10, fontWeight: 700,
+                padding: '2px 10px', borderRadius: 20,
+                textTransform: 'uppercase', letterSpacing: '0.05em',
+                marginBottom: 6,
+                ...badgeStyle,
+              }}>
                 {isDuty ? 'Responsibility' : 'Right'}
               </span>
-              <h3 className="text-base font-bold mb-1" style={{ color: '#2A2030' }}>
+              <h3 style={{ fontFamily: 'Fraunces, serif', fontSize: 16, fontWeight: 700, color: '#2A2030', margin: '0 0 4px', lineHeight: 1.3 }}>
                 {item.title}
               </h3>
-              <p className="text-sm leading-relaxed" style={{ color: '#5A5065' }}>
+              <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: '#5A5065', margin: 0, lineHeight: 1.6 }}>
                 {isExpanded
                   ? item.description
                   : item.description.length > 120
@@ -141,44 +141,46 @@ export function RightsScreen() {
                 }
               </p>
             </div>
-            <div className="flex-shrink-0 mt-1">
+            <div style={{ flexShrink: 0, marginTop: 2 }}>
               {isExpanded
-                ? <ChevronUp className="w-4 h-4" style={{ color: '#9A90A8' }} />
-                : <ChevronDown className="w-4 h-4" style={{ color: '#9A90A8' }} />
+                ? <ChevronUp size={16} color="#9A90A8" />
+                : <ChevronDown size={16} color="#9A90A8" />
               }
             </div>
           </div>
 
           {isExpanded && (
-            <div className="mt-4 space-y-3" onClick={e => e.stopPropagation()}>
+            <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 10 }} onClick={e => e.stopPropagation()}>
 
               {item.practical_tips && (
-                <div
-                  className="rounded-xl p-3"
-                  style={{
-                    background: isDuty ? '#FDF6EC' : '#F4EFF8',
-                    border: `1px solid ${isDuty ? 'rgba(200,136,58,0.2)' : 'rgba(122,102,144,0.15)'}`,
-                  }}
-                >
-                  <p className="text-xs font-bold uppercase tracking-wide mb-2"
-                    style={{ color: isDuty ? '#C8883A' : tab.accentColor }}>
-                    💡 What this means for you
+                <div style={{
+                  background: isDuty ? '#FDF6EC' : '#F4EFF8',
+                  border: `1px solid ${isDuty ? 'rgba(200,136,58,0.2)' : 'rgba(122,102,144,0.15)'}`,
+                  borderRadius: 14, padding: '12px 14px',
+                }}>
+                  <p style={{
+                    fontFamily: 'DM Sans, sans-serif', fontSize: 11, fontWeight: 700,
+                    textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 6px',
+                    color: isDuty ? '#C8883A' : tab.accentColor,
+                  }}>
+                    What this means for you
                   </p>
-                  <p className="text-sm leading-relaxed whitespace-pre-line" style={{ color: '#2A2030' }}>
+                  <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: '#2A2030', margin: 0, lineHeight: 1.6, whiteSpace: 'pre-line' }}>
                     {item.practical_tips}
                   </p>
                 </div>
               )}
 
               {showLegalBasis && item.legal_reference && (
-                <div
-                  className="rounded-xl p-3"
-                  style={{ background: '#F0EAE0', border: '1px solid rgba(122,102,144,0.15)' }}
-                >
-                  <p className="text-xs font-bold uppercase tracking-wide mb-1" style={{ color: '#9A90A8' }}>
-                    Legal Basis
+                <div style={{
+                  background: '#F0EAE0',
+                  border: '1px solid rgba(122,102,144,0.15)',
+                  borderRadius: 14, padding: '12px 14px',
+                }}>
+                  <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#9A90A8', margin: '0 0 4px' }}>
+                    Legal basis
                   </p>
-                  <p className="text-xs font-mono" style={{ color: '#5A5065' }}>
+                  <p style={{ fontFamily: 'DM Mono, monospace', fontSize: 12, color: '#5A5065', margin: 0 }}>
                     {item.legal_reference}
                   </p>
                 </div>
@@ -192,190 +194,204 @@ export function RightsScreen() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#F0EAE0' }}>
-        <div className="text-center">
-          <div
-            className="w-10 h-10 rounded-full border-2 border-t-transparent animate-spin mx-auto mb-3"
-            style={{ borderColor: '#7A6690', borderTopColor: 'transparent' }}
-          />
-          <p className="text-sm" style={{ color: '#5A5065' }}>Loading rights and responsibilities...</p>
+      <div style={{ minHeight: '100vh', background: '#F0EAE0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ width: 44, height: 44, border: '3px solid #7A6690', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 16px' }} />
+          <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+          <p style={{ fontFamily: 'DM Sans, sans-serif', color: '#9A90A8', fontSize: 14 }}>Loading rights and responsibilities…</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen pb-24" style={{ background: '#F0EAE0' }}>
+    <div style={{ minHeight: '100vh', background: '#F0EAE0', display: 'flex', flexDirection: 'column' }}>
       <AppHeader />
 
-      <div className="max-w-md mx-auto px-5 py-6">
+      <div style={{ flex: 1, overflowY: 'auto', paddingBottom: 90 }}>
+        <div style={{ maxWidth: 480, margin: '0 auto', padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: 14 }}>
 
-        {/* ── PAGE TITLE ── */}
-        <div className="mb-5">
-          <h1
-            className="text-3xl font-bold mb-1"
-            style={{ fontFamily: "'Fraunces', Georgia, serif", color: '#2A2030' }}
-          >
-            Your Rights &amp; Responsibilities
-          </h1>
-          <p className="text-sm" style={{ color: '#5A5065' }}>Know your rights in dependency court</p>
-        </div>
+          {/* Page title */}
+          <div>
+            <h1 style={{ fontFamily: 'Fraunces, serif', fontSize: 28, fontWeight: 700, color: '#2A2030', margin: '0 0 4px' }}>
+              Your Rights &amp; Responsibilities
+            </h1>
+            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#9A90A8', margin: 0 }}>
+              Know your rights in dependency court
+            </p>
+          </div>
 
-        {/* ── CALIFORNIA BADGE ── */}
-        <div
-          className="flex items-center gap-2 rounded-2xl px-4 py-3 mb-5"
-          style={{ background: '#FAF7F4', border: '1px solid rgba(122,102,144,0.12)' }}
-        >
-          <MapPin className="w-4 h-4 flex-shrink-0" style={{ color: '#7A6690' }} />
-          <span className="text-xs font-bold" style={{ color: '#2A2030' }}>State: California</span>
-          <span className="text-xs" style={{ color: '#9A90A8' }}>· More states coming soon</span>
-        </div>
+          {/* California badge */}
+          <div style={{
+            background: '#FAF7F4', borderRadius: 16, padding: '10px 14px',
+            display: 'flex', alignItems: 'center', gap: 8,
+            border: '1px solid rgba(122,102,144,0.12)',
+          }}>
+            <MapPin size={14} color="#7A6690" style={{ flexShrink: 0 }} />
+            <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, fontWeight: 700, color: '#2A2030' }}>State: California</span>
+            <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: '#9A90A8' }}>· More states coming soon</span>
+          </div>
 
-        {/* ── ROLE TABS ── */}
-        <div className="flex rounded-2xl p-1 mb-5" style={{ background: '#E8DDE8' }}>
-          {(Object.keys(tabConfig) as RoleTab[]).map((key) => (
-            <button
-              key={key}
-              onClick={() => {
-                setActiveTab(key)
-                setExpandedId(null)
-                setShowDutiesOnly(false)
-              }}
-              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-semibold transition-all"
-              style={
-                activeTab === key
-                  ? { background: '#FAF7F4', color: tabConfig[key].accentColor, boxShadow: '0 2px 8px rgba(122,102,144,0.15)' }
-                  : { background: 'transparent', color: '#9A90A8' }
-              }
-            >
-              {tabConfig[key].icon}
-              <span>{tabConfig[key].label}</span>
-            </button>
-          ))}
-        </div>
+          {/* Role tabs */}
+          <div style={{ background: '#E8DDE8', borderRadius: 20, padding: 4, display: 'flex', gap: 4 }}>
+            {(Object.keys(tabConfig) as RoleTab[]).map((key) => (
+              <button
+                key={key}
+                onClick={() => { haptics.light(); setActiveTab(key); setExpandedId(null); setShowDutiesOnly(false) }}
+                style={{
+                  flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                  padding: '10px 4px', borderRadius: 16, border: 'none', cursor: 'pointer',
+                  fontFamily: 'DM Sans, sans-serif', fontSize: 12, fontWeight: 700,
+                  transition: 'all 0.15s',
+                  ...(activeTab === key
+                    ? { background: '#FAF7F4', color: tabConfig[key].accentColor, boxShadow: '0 2px 8px rgba(122,102,144,0.15)' }
+                    : { background: 'transparent', color: '#9A90A8' }
+                  ),
+                }}
+              >
+                {tabConfig[key].icon}
+                <span>{tabConfig[key].label}</span>
+              </button>
+            ))}
+          </div>
 
-        {/* ── BILL OF RIGHTS HERO ── */}
-        <div
-          className="rounded-3xl p-5 mb-5"
-          style={{
-            background: '#FAF7F4',
+          {/* Bill of rights hero */}
+          <div style={{
+            background: '#FAF7F4', borderRadius: 20, padding: '16px 18px',
             border: `1.5px solid ${tab.accentColor}33`,
-            boxShadow: '0 2px 12px rgba(90,78,110,0.07)',
-          }}
-        >
-          <div className="flex items-center gap-2 mb-2">
-            <BookOpen className="w-5 h-5" style={{ color: tab.accentColor }} />
-            <h2
-              className="text-lg font-bold"
-              style={{ fontFamily: "'Fraunces', Georgia, serif", color: '#2A2030' }}
-            >
-              {tab.billTitle}
-            </h2>
-          </div>
-          <p className="text-sm leading-relaxed" style={{ color: '#5A5065' }}>{tab.billDesc}</p>
-          <p className="text-xs mt-3 font-semibold" style={{ color: tab.accentColor }}>
-            {rightsItems.length} right{rightsItems.length !== 1 ? 's' : ''}
-            {dutiesItems.length > 0 && ` · ${dutiesItems.length} responsibilit${dutiesItems.length !== 1 ? 'ies' : 'y'}`}
-          </p>
-        </div>
-
-        {/* ── TOGGLES ── */}
-        <div className="space-y-2 mb-5">
-          <div
-            className="flex items-center justify-between rounded-2xl px-4 py-3"
-            style={{ background: '#FAF7F4', border: '1px solid rgba(122,102,144,0.12)' }}
-          >
-            <div className="flex items-center gap-2">
-              {showLegalBasis
-                ? <Eye className="w-4 h-4" style={{ color: '#7A6690' }} />
-                : <EyeOff className="w-4 h-4" style={{ color: '#9A90A8' }} />
-              }
-              <span className="text-sm font-medium" style={{ color: '#2A2030' }}>Show Legal Basis</span>
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+              <BookOpen size={16} color={tab.accentColor} />
+              <h2 style={{ fontFamily: 'Fraunces, serif', fontSize: 18, fontWeight: 700, color: '#2A2030', margin: 0 }}>
+                {tab.billTitle}
+              </h2>
             </div>
-            <button
-              onClick={() => setShowLegalBasis(!showLegalBasis)}
-              className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
-              style={{ background: showLegalBasis ? '#7A6690' : '#D4CDD8' }}
-            >
-              <span
-                className="inline-block h-4 w-4 rounded-full bg-white transition-transform"
-                style={{ transform: showLegalBasis ? 'translateX(24px)' : 'translateX(4px)' }}
-              />
-            </button>
+            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: '#5A5065', margin: '0 0 10px', lineHeight: 1.6 }}>
+              {tab.billDesc}
+            </p>
+            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, fontWeight: 700, color: tab.accentColor, margin: 0 }}>
+              {rightsItems.length} right{rightsItems.length !== 1 ? 's' : ''}
+              {dutiesItems.length > 0 && ` · ${dutiesItems.length} responsibilit${dutiesItems.length !== 1 ? 'ies' : 'y'}`}
+            </p>
           </div>
 
-          {dutiesItems.length > 0 && rightsItems.length > 0 && (
-            <div
-              className="flex items-center justify-between rounded-2xl px-4 py-3"
-              style={{ background: '#FAF7F4', border: '1px solid rgba(122,102,144,0.12)' }}
-            >
-              <div className="flex items-center gap-2">
-                <ListChecks className="w-4 h-4" style={{ color: '#C8883A' }} />
-                <span className="text-sm font-medium" style={{ color: '#2A2030' }}>Show Responsibilities Only</span>
+          {/* Toggles */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {/* Show legal basis */}
+            <div style={{
+              background: '#FAF7F4', borderRadius: 16, padding: '12px 16px',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              border: '1px solid rgba(122,102,144,0.12)',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                {showLegalBasis
+                  ? <Eye size={15} color="#7A6690" />
+                  : <EyeOff size={15} color="#9A90A8" />
+                }
+                <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600, color: '#2A2030' }}>
+                  Show Legal Basis
+                </span>
               </div>
               <button
-                onClick={() => setShowDutiesOnly(!showDutiesOnly)}
-                className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
-                style={{ background: showDutiesOnly ? '#C8883A' : '#D4CDD8' }}
+                onClick={() => { haptics.light(); setShowLegalBasis(!showLegalBasis) }}
+                style={{
+                  width: 44, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer',
+                  background: showLegalBasis ? '#7A6690' : '#D4CDD8',
+                  position: 'relative', transition: 'background 0.2s', flexShrink: 0,
+                }}
               >
-                <span
-                  className="inline-block h-4 w-4 rounded-full bg-white transition-transform"
-                  style={{ transform: showDutiesOnly ? 'translateX(24px)' : 'translateX(4px)' }}
-                />
+                <span style={{
+                  position: 'absolute', top: 4, width: 16, height: 16,
+                  borderRadius: '50%', background: '#fff',
+                  transition: 'left 0.2s',
+                  left: showLegalBasis ? 24 : 4,
+                }} />
               </button>
             </div>
-          )}
-        </div>
 
-        {/* ── RIGHTS ── */}
-        {!showDutiesOnly && rightsItems.length > 0 && (
-          <div className="mb-6">
-            <h2 className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: tab.accentColor }}>
-              Rights ({rightsItems.length})
-            </h2>
-            <div className="space-y-3">
-              {rightsItems.map(item => renderItem(item, false))}
-            </div>
+            {/* Show responsibilities only */}
+            {dutiesItems.length > 0 && rightsItems.length > 0 && (
+              <div style={{
+                background: '#FAF7F4', borderRadius: 16, padding: '12px 16px',
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                border: '1px solid rgba(122,102,144,0.12)',
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <ListChecks size={15} color="#C8883A" />
+                  <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600, color: '#2A2030' }}>
+                    Show Responsibilities Only
+                  </span>
+                </div>
+                <button
+                  onClick={() => { haptics.light(); setShowDutiesOnly(!showDutiesOnly) }}
+                  style={{
+                    width: 44, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer',
+                    background: showDutiesOnly ? '#C8883A' : '#D4CDD8',
+                    position: 'relative', transition: 'background 0.2s', flexShrink: 0,
+                  }}
+                >
+                  <span style={{
+                    position: 'absolute', top: 4, width: 16, height: 16,
+                    borderRadius: '50%', background: '#fff',
+                    transition: 'left 0.2s',
+                    left: showDutiesOnly ? 24 : 4,
+                  }} />
+                </button>
+              </div>
+            )}
           </div>
-        )}
 
-        {/* ── DUTIES ── */}
-        {dutiesItems.length > 0 && (
-          <div className="mb-6">
-            <h2 className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: '#C8883A' }}>
-              Responsibilities ({dutiesItems.length})
-            </h2>
-            <div className="space-y-3">
-              {dutiesItems.map(item => renderItem(item, true))}
-            </div>
-          </div>
-        )}
-
-        {visibleItems.length === 0 && (
-          <div
-            className="rounded-3xl p-8 text-center"
-            style={{ background: '#FAF7F4', border: '1px solid rgba(122,102,144,0.12)' }}
-          >
-            <p className="text-sm" style={{ color: '#9A90A8' }}>No information available for this section yet.</p>
-          </div>
-        )}
-
-        {/* ── FOOTER NOTE ── */}
-        <div
-          className="rounded-3xl p-4 mt-2"
-          style={{ background: '#F5ECD8', border: '1px solid rgba(200,136,58,0.2)' }}
-        >
-          <div className="flex gap-3">
-            <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#C8883A' }} />
+          {/* Rights list */}
+          {!showDutiesOnly && rightsItems.length > 0 && (
             <div>
-              <h3 className="text-sm font-bold mb-1" style={{ color: '#7A5A2A' }}>Know Your Rights</h3>
-              <p className="text-xs leading-relaxed" style={{ color: '#7A5A2A' }}>
+              <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, fontWeight: 700, color: tab.accentColor, textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 10px' }}>
+                Rights ({rightsItems.length})
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {rightsItems.map(item => renderItem(item, false))}
+              </div>
+            </div>
+          )}
+
+          {/* Duties list */}
+          {dutiesItems.length > 0 && (
+            <div>
+              <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, fontWeight: 700, color: '#C8883A', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 10px' }}>
+                Responsibilities ({dutiesItems.length})
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {dutiesItems.map(item => renderItem(item, true))}
+              </div>
+            </div>
+          )}
+
+          {/* Empty state */}
+          {visibleItems.length === 0 && (
+            <div style={{ background: '#FAF7F4', borderRadius: 20, padding: '40px 24px', textAlign: 'center', border: '1px solid rgba(122,102,144,0.12)' }}>
+              <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#9A90A8', margin: 0 }}>
+                No information available for this section yet.
+              </p>
+            </div>
+          )}
+
+          {/* Footer warning */}
+          <div style={{
+            background: '#F5ECD8', borderRadius: 20, padding: '14px 16px',
+            border: '1px solid rgba(200,136,58,0.2)',
+            display: 'flex', gap: 10,
+          }}>
+            <AlertTriangle size={15} color="#C8883A" style={{ flexShrink: 0, marginTop: 2 }} />
+            <div>
+              <h3 style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 700, color: '#7A5A2A', margin: '0 0 4px' }}>
+                Know Your Rights
+              </h3>
+              <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: '#7A5A2A', margin: 0, lineHeight: 1.6 }}>
                 If you feel your rights are being violated, tell your attorney immediately. They are there to protect your rights and advocate for you.
               </p>
             </div>
           </div>
-        </div>
 
+        </div>
       </div>
       <BottomNav />
     </div>
