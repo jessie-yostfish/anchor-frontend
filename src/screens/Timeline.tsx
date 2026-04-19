@@ -533,6 +533,10 @@ export function Timeline() {
         .eq('id', stageId)
       if (error) throw error
       setStages(prev => prev.map(s => s.id === stageId ? { ...s, court_date: date } : s))
+      // Sync to profile so Dashboard court date stays current
+      if (user) {
+        await supabase.from('profiles').update({ next_court_date: date || null }).eq('id', user.id)
+      }
     } catch (err) {
       console.error('Error updating court date:', err)
     }
@@ -550,6 +554,11 @@ export function Timeline() {
         if (update) await supabase.from('timeline_stages').update({ status: update.status }).eq('id', update.id)
       }
 
+      // Sync current_stage to profile so Dashboard journey map stays current
+      const nextStage = stages.find(s => s.order_index === orderIndex + 1)
+      if (user && nextStage?.stage_key) {
+        await supabase.from('profiles').update({ current_stage: nextStage.stage_key }).eq('id', user.id)
+      }
       trackEvent('timeline_stage_completed', { stage_id: stageId })
       await initializeTimeline()
     } catch (err) {

@@ -111,7 +111,7 @@ const labelStyle: React.CSSProperties = {
 }
 
 export function Contacts() {
-  const { user } = useAuth()
+  const { user, updateProfile } = useAuth()
   const [courtInfo, setCourtInfo] = useState<CourtInfo | null>(null)
   const [contacts, setContacts] = useState<Contact[]>([])
   const [loading, setLoading] = useState(true)
@@ -251,6 +251,10 @@ export function Contacts() {
           next_court_date: courtForm.next_court_date || null,
         })
         if (error) throw error
+      }
+      // Sync court date to profile so Dashboard stays current
+      if (courtForm.next_court_date) {
+        await updateProfile({ next_court_date: courtForm.next_court_date })
       }
       haptics.success()
       await loadCourtInfo()
