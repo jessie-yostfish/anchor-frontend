@@ -555,8 +555,11 @@ export function Preparation() {
 
             {/* Follow-up input */}
             <div style={{ ...card, padding: 14 }}>
-              <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#8A8098', margin: '0 0 8px', display: 'block' }}>
-                Have a follow-up question?
+              <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, fontWeight: 700, color: '#2A2030', margin: '0 0 4px' }}>
+                Ask a follow-up question
+              </p>
+              <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, color: '#8A8098', margin: '0 0 10px', lineHeight: 1.5 }}>
+                Type your question and tap the arrow — the guide will respond.
               </p>
               <div style={{ display: 'flex', gap: 8 }}>
                 <input
@@ -573,14 +576,17 @@ export function Preparation() {
                 <button
                   onClick={handleFollowUp}
                   disabled={!followUp.trim() || loading}
-                  style={{ borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
+                  aria-label="Send follow-up question"
                   style={{
-                    background: '#7A6690',
+                    background: followUp.trim() ? 'linear-gradient(160deg,#8A74A0 0%,#6A5588 100%)' : '#C8C0D0',
                     border: 'none',
+                    borderRadius: 12,
                     width: 44,
                     height: 44,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
                     opacity: (!followUp.trim() || loading) ? 0.5 : 1,
-                    cursor: 'pointer',
+                    cursor: followUp.trim() ? 'pointer' : 'not-allowed',
+                    boxShadow: followUp.trim() ? '0 4px 12px rgba(100,75,140,0.3)' : 'none',
                   }}
                 >
                   <Send size={15} color="#fff" />

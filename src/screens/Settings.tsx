@@ -378,7 +378,7 @@ export function Settings() {
             </div>
             <button
               onClick={() => { haptics.light(); setNewEmail(user?.email || ''); setShowUpdateEmail(true) }}
-              style={{ fontSize: 13, fontWeight: 700, color: '#7A6690', background: 'none', border: 'none', cursor: 'pointer' }}
+              style={{ fontSize: 12, fontWeight: 700, color: '#7A6690', background: 'rgba(122,102,144,0.1)', border: 'none', borderRadius: 20, padding: '6px 14px', cursor: 'pointer' }}
             >
               Update
             </button>
@@ -434,7 +434,7 @@ export function Settings() {
             </div>
             <button
               onClick={() => { haptics.light(); setNewPhone(profile?.phone_number || ''); setShowUpdatePhone(true) }}
-              style={{ fontSize: 13, fontWeight: 700, color: '#7A6690', background: 'none', border: 'none', cursor: 'pointer' }}
+              style={{ fontSize: 12, fontWeight: 700, color: '#7A6690', background: 'rgba(122,102,144,0.1)', border: 'none', borderRadius: 20, padding: '6px 14px', cursor: 'pointer' }}
             >
               Update
             </button>

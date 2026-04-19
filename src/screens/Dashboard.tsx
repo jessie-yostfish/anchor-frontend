@@ -159,6 +159,7 @@ export function Dashboard() {
   const { profile } = useAuth()
   const navigate = useNavigate()
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([])
+  const [notesCount, setNotesCount] = useState(0)
 
   const role: Role = (profile?.role as Role) || 'parent'
   const currentStage = profile?.current_stage || 'case-opening'
@@ -173,6 +174,7 @@ export function Dashboard() {
   useEffect(() => {
     if (profile?.id) {
       loadTeam()
+      loadNotesCount()
       // Retry once after short delay to catch race condition on first load
       setTimeout(() => loadTeam(), 800)
     }
@@ -185,6 +187,15 @@ export function Dashboard() {
         .from('contacts').select('name, role, phone')
         .eq('user_id', profile?.id).order('created_at', { ascending: true }).limit(3)
       if (data) setTeamMembers(data)
+    } catch (e) { console.error(e) }
+  }
+
+  const loadNotesCount = async () => {
+    try {
+      const { count } = await supabase
+        .from('notes').select('*', { count: 'exact', head: true })
+        .eq('user_id', profile?.id)
+      setNotesCount(count || 0)
     } catch (e) { console.error(e) }
   }
 
@@ -480,7 +491,7 @@ export function Dashboard() {
             {[
               { label: 'Prepare', sub: 'Court guide', bg: 'linear-gradient(145deg,#F4EFF8,#EDE5F4)', text: '#7A5A98', sub2: '#4A3068', shadow: 'rgba(120,90,160,0.12)', path: '/preparation' },
               { label: 'Rights',  sub: 'Know yours',  bg: 'linear-gradient(145deg,#EAF4F0,#DCECe6)', text: '#387868', sub2: '#1A4838', shadow: 'rgba(60,130,110,0.1)',  path: '/rights' },
-              { label: 'Notes',   sub: 'Add one',     bg: 'linear-gradient(145deg,#FDF0E0,#F5E4CC)', text: '#A87830', sub2: '#6A4010', shadow: 'rgba(180,120,40,0.1)',  path: '/notes' },
+              { label: 'Notes',   sub: notesCount > 0 ? `${notesCount} saved` : 'Add one', bg: 'linear-gradient(145deg,#FDF0E0,#F5E4CC)', text: '#A87830', sub2: '#6A4010', shadow: 'rgba(180,120,40,0.1)',  path: '/notes' },
             ].map((chip) => (
               <div
                 key={chip.label}

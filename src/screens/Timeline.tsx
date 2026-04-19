@@ -962,6 +962,26 @@ export function Timeline() {
         </div>
 
         {/* Stage list */}
+        {/* How-to explainer — shown only until first stage is completed */}
+        {stages.filter(s => s.status === 'completed').length === 0 && (
+          <div style={{
+            background: 'linear-gradient(145deg,#F4EFF8,#EDE5F4)',
+            borderRadius: 18, padding: '12px 16px', marginBottom: 12,
+            border: '1px solid rgba(255,255,255,0.88)',
+            boxShadow: '0 3px 10px rgba(122,102,144,0.1)',
+            display: 'flex', gap: 10, alignItems: 'flex-start',
+          }}>
+            <span style={{ fontSize: 16, flexShrink: 0, marginTop: 1 }}>💡</span>
+            <div>
+              <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 700, color: '#2A2030', margin: '0 0 3px' }}>
+                How to use your timeline
+              </p>
+              <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: '#4A4058', margin: 0, lineHeight: 1.6 }}>
+                Expand each stage to see tasks and your rights. Check off tasks as you complete them. When you finish a stage, tap "Mark as Complete" to move forward.
+              </p>
+            </div>
+          </div>
+        )}
         {viewMode === 'cards'
           ? stages.map(stage => <StageCard key={stage.id} stage={stage} />)
           : stages.map(stage => <ListRow key={stage.id} stage={stage} />)

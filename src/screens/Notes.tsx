@@ -258,20 +258,35 @@ export function Notes() {
 
         {/* Empty state */}
         {filteredNotes.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '64px 0' }}>
+          <div style={{ textAlign: 'center', padding: '48px 16px' }}>
             <div style={{
               width: 72, height: 72, borderRadius: '50%',
-              background: '#E8DDE8', display: 'flex', alignItems: 'center',
+              background: 'linear-gradient(145deg,#F4EFF8,#EDE5F4)',
+              display: 'flex', alignItems: 'center',
               justifyContent: 'center', margin: '0 auto 20px',
+              boxShadow: '0 4px 16px rgba(122,102,144,0.15)',
             }}>
               <FileText size={32} color="#7A6690" />
             </div>
             <h3 style={{ fontFamily: 'Fraunces, serif', fontSize: 20, fontWeight: 700, color: '#2A2030', marginBottom: 8 }}>
-              {searchQuery ? 'No notes found' : 'No notes yet'}
+              {searchQuery ? 'No notes found' : 'Your notes live here'}
             </h3>
-            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#8A8098' }}>
-              {searchQuery ? 'Try a different search term' : 'Tap "New" to write your first note'}
+            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#8A8098', lineHeight: 1.6, marginBottom: 20 }}>
+              {searchQuery
+                ? 'Try a different search term'
+                : 'Use notes to track what happens at hearings, visits, and meetings. Tap + New to get started.'}
             </p>
+            {!searchQuery && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, textAlign: 'left', background: '#FAF7F2', borderRadius: 16, padding: '12px 16px', border: '1px solid rgba(255,255,255,0.88)' }}>
+                <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, fontWeight: 700, color: '#8A8098', textTransform: 'uppercase', letterSpacing: '0.07em', margin: 0 }}>Ideas to get started</p>
+                {['What happened at today\'s hearing', 'Questions to ask my attorney', 'What the judge said about my case plan', 'How my visit with my child went'].map((idea, i) => (
+                  <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                    <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#C8B8D0', flexShrink: 0 }} />
+                    <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: '#4A4058', margin: 0 }}>{idea}</p>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
