@@ -231,6 +231,25 @@ export function Legal() {
             </div>
           </div>
 
+          {/* Glossary quick-link */}
+          <div
+            onClick={() => { navigate('/glossary') }}
+            style={{
+              background: 'linear-gradient(145deg,#EAF0F8,#DCE8F4)',
+              borderRadius: 16, padding: '12px 16px',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              border: '1px solid rgba(255,255,255,0.88)',
+              boxShadow: '0 3px 10px rgba(74,112,168,0.1)',
+              cursor: 'pointer',
+            }}
+          >
+            <div>
+              <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 700, color: '#2A3A50', margin: '0 0 2px' }}>Don't know a term?</p>
+              <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, color: '#4A6A88', margin: 0 }}>Look it up in the Glossary</p>
+            </div>
+            <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, fontWeight: 700, color: '#3A5A80' }}>Open →</span>
+          </div>
+
           {/* Search */}
           <div style={{ position: 'relative' }}>
             <Search size={16} color="#9A90A8" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }} />

@@ -616,7 +616,7 @@ export function Timeline() {
                   className="text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wide"
                   style={{ background: S.badgeBg, color: S.badgeColor }}
                 >
-                  {stage.status === 'completed' ? '✓ ' : ''}{S.label}
+                  {stage.status === 'completed' ? '✓ ' : stage.status === 'in_progress' ? '● ' : ''}{S.label}
                 </span>
                 {total > 0 && (
                   <span className="text-xs font-semibold" style={{ color: '#8A8098' }}>
@@ -765,17 +765,24 @@ export function Timeline() {
 
             {/* Mark complete button */}
             {stage.status !== 'completed' && (
-              <button
-                onClick={() => markStageComplete(stage.id, stage.order_index)}
-                className="w-full py-3 rounded-2xl text-sm font-bold transition-all"
-                style={{
-                  background: 'transparent',
-                  border: '1.5px solid rgba(122,102,144,0.35)',
-                  color: '#7A6690',
-                }}
-              >
-                Mark {content.name} as Complete
-              </button>
+              <div style={{ marginTop: 4 }}>
+                <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, color: '#8A8098', margin: '0 0 8px', lineHeight: 1.5, textAlign: 'center' }}>
+                  When you've completed this stage, tap below to move forward on your journey.
+                </p>
+                <button
+                  onClick={() => markStageComplete(stage.id, stage.order_index)}
+                  style={{
+                    width: '100%', padding: '13px',
+                    background: 'transparent',
+                    border: '1.5px solid rgba(122,102,144,0.35)',
+                    borderRadius: 18,
+                    fontFamily: 'DM Sans, sans-serif', fontSize: 14, fontWeight: 700,
+                    color: '#7A6690', cursor: 'pointer',
+                  }}
+                >
+                  ✓ Mark {content.name} as Complete
+                </button>
+              </div>
             )}
           </div>
         )}

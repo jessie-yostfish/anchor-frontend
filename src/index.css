@@ -18,3 +18,42 @@
     animation: slide-up 0.3s ease-out;
   }
 }
+
+/* ── Accessibility: visible focus states ── */
+*:focus-visible {
+  outline: 2px solid #7A6690;
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+/* ── Accessibility: remove default focus ring only when mouse is used ── */
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ── Smooth transitions on interactive elements ── */
+button, a, [role="button"] {
+  transition: opacity 0.15s ease, transform 0.1s ease;
+}
+
+button:active, [role="button"]:active {
+  transform: scale(0.97);
+}
+
+/* ── Prevent text size adjustment on iOS ── */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* ── Better tap targets on mobile ── */
+button, a, input[type="checkbox"], input[type="radio"] {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Exceptions for small inline elements */
+.no-min-tap {
+  min-height: unset;
+  min-width: unset;
+}

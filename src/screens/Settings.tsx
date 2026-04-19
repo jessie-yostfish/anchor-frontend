@@ -162,6 +162,7 @@ export function Settings() {
   const [showChangePassword, setShowChangePassword] = useState(false)
   const [showUpdateEmail, setShowUpdateEmail] = useState(false)
   const [showUpdatePhone, setShowUpdatePhone] = useState(false)
+  const [showExportConfirm, setShowExportConfirm] = useState(false)
   const [showLanguageModal, setShowLanguageModal] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
@@ -447,7 +448,7 @@ export function Settings() {
         <div style={{ ...sectionCard, marginBottom: 20 }}>
           <button
             style={row}
-            onClick={handleExportData}
+            onClick={() => setShowExportConfirm(true)}
             disabled={loading}
             className="w-full hover:bg-purple-50 transition-colors"
           >
@@ -683,6 +684,36 @@ export function Settings() {
         </Modal>
       )}
 
+      {showExportConfirm && (
+        <div
+          style={{ position: 'fixed', inset: 0, background: 'rgba(42,32,48,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: 24 }}
+          onClick={() => setShowExportConfirm(false)}
+        >
+          <div
+            style={{ background: '#FAF7F2', borderRadius: 24, padding: '28px 24px', width: '100%', maxWidth: 360 }}
+            onClick={e => e.stopPropagation()}
+          >
+            <h3 style={{ fontFamily: 'Fraunces, serif', fontSize: 20, fontWeight: 700, color: '#2A2030', margin: '0 0 10px' }}>Export your data?</h3>
+            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#4A4058', margin: '0 0 24px', lineHeight: 1.6 }}>
+              This will download a file containing your notes, contacts, timeline progress and profile information.
+            </p>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button
+                onClick={() => setShowExportConfirm(false)}
+                style={{ flex: 1, padding: '13px', background: 'linear-gradient(145deg,#F4EFF8,#EDE5F4)', border: '1px solid rgba(255,255,255,0.9)', borderRadius: 16, fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 14, color: '#7A6690', cursor: 'pointer' }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => { setShowExportConfirm(false); handleExportData() }}
+                style={{ flex: 1, padding: '13px', background: 'linear-gradient(160deg,#8A74A0 0%,#6A5588 100%)', border: 'none', borderRadius: 16, fontFamily: 'DM Sans, sans-serif', fontWeight: 700, fontSize: 14, color: '#fff', cursor: 'pointer', boxShadow: '0 6px 24px rgba(100,75,140,0.3)' }}
+              >
+                Download
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <BottomNav />
     </div>
   )
