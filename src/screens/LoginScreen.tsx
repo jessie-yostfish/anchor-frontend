@@ -172,7 +172,7 @@ export function LoginScreen() {
 
   const inputClass = "w-full rounded-2xl px-4 py-3 text-sm outline-none transition-all"
   const inputStyle = {
-    background: '#FAF7F4',
+    background: '#FAF7F2',
     border: '1.5px solid rgba(122,102,144,0.2)',
     color: '#2A2030',
     fontFamily: "'DM Sans', sans-serif",
@@ -182,7 +182,7 @@ export function LoginScreen() {
   const labelStyle = { color: '#9A90A8' }
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: '#F0EAE0' }}>
+    <div className="min-h-screen flex flex-col" style={{ background: '#EDE6DB' }}>
       <div className="max-w-md mx-auto w-full px-5 py-10 flex flex-col">
 
         {/* ── LOGO ── */}
@@ -216,7 +216,7 @@ export function LoginScreen() {
             onClick={() => { setMode('signin'); setError('') }}
             className="flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all"
             style={mode === 'signin'
-              ? { background: '#FAF7F4', color: '#7A6690', boxShadow: '0 2px 8px rgba(122,102,144,0.15)' }
+              ? { background: '#FAF7F2', color: '#7A6690', boxShadow: '0 2px 8px rgba(122,102,144,0.15)' }
               : { background: 'transparent', color: '#9A90A8' }}
           >
             Sign In
@@ -225,7 +225,7 @@ export function LoginScreen() {
             onClick={() => { setMode('signup'); setError('') }}
             className="flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all"
             style={mode === 'signup'
-              ? { background: '#FAF7F4', color: '#7A6690', boxShadow: '0 2px 8px rgba(122,102,144,0.15)' }
+              ? { background: '#FAF7F2', color: '#7A6690', boxShadow: '0 2px 8px rgba(122,102,144,0.15)' }
               : { background: 'transparent', color: '#9A90A8' }}
           >
             Create Account
@@ -235,7 +235,7 @@ export function LoginScreen() {
         {/* ── CARD ── */}
         <div
           className="rounded-3xl p-6 mb-5"
-          style={{ background: '#FAF7F4', border: '1px solid rgba(122,102,144,0.12)', boxShadow: '0 4px 20px rgba(90,78,110,0.08)' }}
+          style={{ background: '#FAF7F2', border: '1px solid rgba(122,102,144,0.12)', boxShadow: '0 4px 20px rgba(90,78,110,0.08)' }}
         >
           {mode === 'signin' ? (
             <>
@@ -348,7 +348,7 @@ export function LoginScreen() {
                           className="w-full flex items-center gap-3 p-3.5 rounded-2xl transition-all"
                           style={isSelected
                             ? { background: '#F4EFF8', border: '1.5px solid #7A6690' }
-                            : { background: '#F0EAE0', border: '1.5px solid transparent' }}
+                            : { background: '#EDE6DB', border: '1.5px solid transparent' }}
                         >
                           <div
                             className="p-2 rounded-xl flex-shrink-0"

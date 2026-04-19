@@ -141,11 +141,11 @@ export function FosterCareIntro() {
   const colors = roleColors[role] || roleColors.parent
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F0EAE0', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100vh', background: '#EDE6DB', display: 'flex', flexDirection: 'column' }}>
 
       {/* Header */}
       <div style={{
-        background: '#FAF7F4',
+        background: '#FAF7F2',
         borderBottom: '1px solid rgba(122,102,144,0.12)',
         padding: '16px 20px',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -206,7 +206,7 @@ export function FosterCareIntro() {
               <div
                 key={i}
                 style={{
-                  background: '#FAF7F4',
+                  background: '#FAF7F2',
                   border: `1px solid ${isOpen ? colors.dot + '40' : 'rgba(122,102,144,0.12)'}`,
                   borderRadius: 18,
                   overflow: 'hidden',
@@ -263,7 +263,7 @@ export function FosterCareIntro() {
 
       {/* Footer CTA */}
       <div style={{
-        background: '#FAF7F4',
+        background: '#FAF7F2',
         borderTop: '1px solid rgba(122,102,144,0.12)',
         padding: '16px 20px env(safe-area-inset-bottom, 24px)',
         maxWidth: 480, margin: '0 auto', width: '100%', boxSizing: 'border-box',

@@ -579,7 +579,7 @@ export function Timeline() {
       <div
         className="rounded-3xl mb-4 overflow-hidden"
         style={{
-          background: '#FAF7F4',
+          background: '#FAF7F2',
           border: `1.5px solid ${isExpanded ? S.border : 'rgba(122,102,144,0.12)'}`,
           boxShadow: isExpanded ? '0 4px 20px rgba(90,78,110,0.12)' : '0 1px 6px rgba(90,78,110,0.06)',
         }}
@@ -656,7 +656,7 @@ export function Timeline() {
                 onChange={e => updateCourtDate(stage.id, e.target.value)}
                 className="w-full rounded-xl px-3 py-2.5 text-sm focus:outline-none"
                 style={{
-                  background: '#F0EAE0',
+                  background: '#EDE6DB',
                   border: '1.5px solid rgba(200,136,58,0.3)',
                   color: '#2A2030',
                 }}
@@ -691,7 +691,7 @@ export function Timeline() {
                       key={i}
                       onClick={() => { haptics.light(); navigate('/rights') }}
                       className="px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
-                      style={{ background: '#E8DDE8', color: '#7A6690' }}
+                      style={{ background: 'linear-gradient(145deg,#F0EBF8,#E8DDF0)', color: '#7A6690' }}
                     >
                       {right}
                     </button>
@@ -716,7 +716,7 @@ export function Timeline() {
                 </div>
 
                 {/* Progress bar */}
-                <div className="h-1.5 rounded-full mb-4" style={{ background: '#E8DDE8' }}>
+                <div className="h-1.5 rounded-full mb-4" style={{ background: 'linear-gradient(145deg,#F0EBF8,#E8DDF0)' }}>
                   <div
                     className="h-1.5 rounded-full transition-all"
                     style={{
@@ -789,7 +789,7 @@ export function Timeline() {
         <div
           className="rounded-2xl overflow-hidden"
           style={{
-            background: '#FAF7F4',
+            background: '#FAF7F2',
             border: `1px solid ${isExpanded ? S.border : 'rgba(122,102,144,0.12)'}`,
           }}
         >
@@ -831,7 +831,7 @@ export function Timeline() {
                       key={i}
                       onClick={() => navigate('/rights')}
                       className="px-3 py-1 rounded-full text-xs font-semibold"
-                      style={{ background: '#E8DDE8', color: '#7A6690' }}
+                      style={{ background: 'linear-gradient(145deg,#F0EBF8,#E8DDF0)', color: '#7A6690' }}
                     >
                       {right}
                     </button>
@@ -875,7 +875,7 @@ export function Timeline() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#F0EAE0' }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#EDE6DB' }}>
         <div className="text-center">
           <div
             className="w-10 h-10 rounded-full border-2 border-t-transparent animate-spin mx-auto mb-3"
@@ -895,7 +895,7 @@ export function Timeline() {
   }
 
   return (
-    <div className="min-h-screen pb-24" style={{ background: '#F0EAE0' }}>
+    <div className="min-h-screen pb-24" style={{ background: '#EDE6DB' }}>
       <AppHeader title="Journey Ahead" />
 
       <div className="max-w-md mx-auto px-4 pt-5">
@@ -926,19 +926,19 @@ export function Timeline() {
           {/* View toggle */}
           <div
             className="flex rounded-xl p-1"
-            style={{ background: '#E8DDE8' }}
+            style={{ background: 'linear-gradient(145deg,#F0EBF8,#E8DDF0)' }}
           >
             <button
               onClick={() => setViewMode('cards')}
               className="p-1.5 rounded-lg transition-all"
-              style={viewMode === 'cards' ? { background: '#FAF7F4', color: '#7A6690' } : { color: '#9A90A8' }}
+              style={viewMode === 'cards' ? { background: '#FAF7F2', color: '#7A6690' } : { color: '#9A90A8' }}
             >
               <LayoutGrid className="w-4 h-4" />
             </button>
             <button
               onClick={() => setViewMode('list')}
               className="p-1.5 rounded-lg transition-all"
-              style={viewMode === 'list' ? { background: '#FAF7F4', color: '#7A6690' } : { color: '#9A90A8' }}
+              style={viewMode === 'list' ? { background: '#FAF7F2', color: '#7A6690' } : { color: '#9A90A8' }}
             >
               <List className="w-4 h-4" />
             </button>

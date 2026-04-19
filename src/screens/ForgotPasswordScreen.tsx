@@ -8,7 +8,7 @@ const inputStyle: React.CSSProperties = {
   borderRadius: 16,
   padding: '12px 16px',
   fontSize: 14,
-  background: '#F0EAE0',
+  background: '#EDE6DB',
   border: '1.5px solid rgba(122,102,144,0.2)',
   color: '#2A2030',
   outline: 'none',
@@ -96,13 +96,13 @@ export function ForgotPasswordScreen() {
 
   if (sent) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-5 py-12" style={{ background: '#F0EAE0' }}>
+      <div className="min-h-screen flex flex-col items-center justify-center px-5 py-12" style={{ background: '#EDE6DB' }}>
         <div className="w-full max-w-md">
           <div className="flex flex-col items-center mb-6">
             <LogoMark />
           </div>
 
-          <div className="rounded-3xl p-8 text-center" style={{ background: '#FAF7F4', border: '1px solid rgba(122,102,144,0.12)', boxShadow: '0 4px 20px rgba(90,78,110,0.08)' }}>
+          <div className="rounded-3xl p-8 text-center" style={{ background: '#FAF7F2', border: '1px solid rgba(122,102,144,0.12)', boxShadow: '0 4px 20px rgba(90,78,110,0.08)' }}>
             <div
               className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5"
               style={{ background: 'rgba(74,124,89,0.12)' }}
@@ -153,13 +153,13 @@ export function ForgotPasswordScreen() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-5 py-12" style={{ background: '#F0EAE0' }}>
+    <div className="min-h-screen flex flex-col items-center justify-center px-5 py-12" style={{ background: '#EDE6DB' }}>
       <div className="w-full max-w-md">
         <div className="flex flex-col items-center mb-6">
           <LogoMark />
         </div>
 
-        <div className="rounded-3xl p-8" style={{ background: '#FAF7F4', border: '1px solid rgba(122,102,144,0.12)', boxShadow: '0 4px 20px rgba(90,78,110,0.08)' }}>
+        <div className="rounded-3xl p-8" style={{ background: '#FAF7F2', border: '1px solid rgba(122,102,144,0.12)', boxShadow: '0 4px 20px rgba(90,78,110,0.08)' }}>
           <h1 className="text-3xl font-bold text-center mb-2" style={{ fontFamily: "'Fraunces', Georgia, serif", color: '#2A2030' }}>
             Reset Your Password
           </h1>

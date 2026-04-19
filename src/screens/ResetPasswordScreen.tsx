@@ -8,7 +8,7 @@ const inputStyle: React.CSSProperties = {
   borderRadius: 16,
   padding: '12px 16px',
   fontSize: 14,
-  background: '#F0EAE0',
+  background: '#EDE6DB',
   border: '1.5px solid rgba(122,102,144,0.2)',
   color: '#2A2030',
   outline: 'none',
@@ -43,12 +43,12 @@ function LogoMark() {
 
 function PageShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-5 py-12" style={{ background: '#F0EAE0' }}>
+    <div className="min-h-screen flex flex-col items-center justify-center px-5 py-12" style={{ background: '#EDE6DB' }}>
       <div className="w-full max-w-md">
         <div className="flex flex-col items-center mb-6">
           <LogoMark />
         </div>
-        <div className="rounded-3xl p-8" style={{ background: '#FAF7F4', border: '1px solid rgba(122,102,144,0.12)', boxShadow: '0 4px 20px rgba(90,78,110,0.08)' }}>
+        <div className="rounded-3xl p-8" style={{ background: '#FAF7F2', border: '1px solid rgba(122,102,144,0.12)', boxShadow: '0 4px 20px rgba(90,78,110,0.08)' }}>
           {children}
         </div>
       </div>
@@ -127,7 +127,7 @@ export function ResetPasswordScreen() {
   // Loading state
   if (validSession === null) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#F0EAE0' }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#EDE6DB' }}>
         <div className="w-10 h-10 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: '#7A6690', borderTopColor: 'transparent' }} />
       </div>
     )

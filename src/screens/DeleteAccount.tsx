@@ -43,7 +43,7 @@ export function DeleteAccount() {
   const inputStyle: React.CSSProperties = {
     width: '100%', boxSizing: 'border-box',
     padding: '13px 16px 13px 44px',
-    background: '#F0EAE0',
+    background: '#EDE6DB',
     border: '1.5px solid rgba(122,102,144,0.2)',
     borderRadius: 16,
     fontFamily: 'DM Sans, sans-serif', fontSize: 15, color: '#2A2030',
@@ -51,7 +51,7 @@ export function DeleteAccount() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F0EAE0' }}>
+    <div style={{ minHeight: '100vh', background: '#EDE6DB' }}>
       <AppHeader title="Delete Account" />
 
       <div style={{ maxWidth: 480, margin: '0 auto', padding: '32px 20px 48px' }}>
@@ -99,7 +99,7 @@ export function DeleteAccount() {
                 onClick={() => { haptics.light(); setStep('confirm') }}
                 style={{
                   width: '100%', padding: '14px',
-                  background: '#FAF7F4',
+                  background: '#FAF7F2',
                   border: '1.5px solid rgba(122,102,144,0.2)',
                   borderRadius: 16,
                   fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 15,
@@ -199,7 +199,7 @@ export function DeleteAccount() {
                 onClick={() => navigate('/settings')}
                 style={{
                   width: '100%', padding: '14px',
-                  background: '#FAF7F4',
+                  background: '#FAF7F2',
                   border: '1.5px solid rgba(122,102,144,0.2)',
                   borderRadius: 16,
                   fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 15,

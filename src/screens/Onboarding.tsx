@@ -35,16 +35,16 @@ interface ReminderSettings {
 
 // ── STYLES ───────────────────────────────────────────────────────────────────
 const S = {
-  page: { background: '#F0EAE0', minHeight: '100vh' } as React.CSSProperties,
+  page: { background: '#EDE6DB', minHeight: '100vh' } as React.CSSProperties,
   card: {
-    background: '#FAF7F4',
-    border: '1px solid rgba(122,102,144,0.12)',
+    background: '#FAF7F2',
+    border: '1px solid rgba(255,255,255,0.88)',
     borderRadius: 24,
     padding: '20px',
     marginBottom: 12,
   } as React.CSSProperties,
   input: {
-    background: '#F0EAE0',
+    background: '#EDE6DB',
     border: '1.5px solid rgba(122,102,144,0.2)',
     borderRadius: 16,
     padding: '14px 16px',
@@ -900,8 +900,8 @@ export function Onboarding() {
                   <div
                     key={cat.key}
                     style={{
-                      background: '#FAF7F4',
-                      border: '1px solid rgba(122,102,144,0.12)',
+                      background: '#FAF7F2',
+                      border: '1px solid rgba(255,255,255,0.88)',
                       borderRadius: 20,
                       padding: 16,
                     }}

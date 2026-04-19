@@ -76,7 +76,7 @@ export function Glossary() {
   }
 
   if (loading) return (
-    <div style={{ minHeight: '100vh', background: '#F0EAE0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div style={{ minHeight: '100vh', background: '#EDE6DB', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div style={{ textAlign: 'center' }}>
         <div style={{ width: 48, height: 48, borderRadius: '50%', border: '3px solid #E8DDE8', borderTopColor: '#7A6690', animation: 'spin 0.8s linear infinite', margin: '0 auto' }} />
         <p style={{ marginTop: 16, color: '#5A5065', fontFamily: 'DM Sans, sans-serif' }}>Loading glossary…</p>
@@ -86,7 +86,7 @@ export function Glossary() {
   )
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F0EAE0' }}>
+    <div style={{ minHeight: '100vh', background: '#EDE6DB' }}>
       <AppHeader title="Glossary" />
 
       <div style={{ maxWidth: 480, margin: '0 auto', padding: '24px 20px 100px' }}>
@@ -112,7 +112,7 @@ export function Glossary() {
             style={{
               width: '100%', boxSizing: 'border-box',
               padding: '12px 16px 12px 40px',
-              background: '#FAF7F4',
+              background: '#FAF7F2',
               border: '1.5px solid rgba(122,102,144,0.2)',
               borderRadius: 16,
               fontFamily: 'DM Sans, sans-serif', fontSize: 15, color: '#2A2030',
@@ -176,7 +176,7 @@ export function Glossary() {
                   key={term.id}
                   onClick={() => setExpandedTermId(isExpanded ? null : term.id)}
                   style={{
-                    background: '#FAF7F4',
+                    background: '#FAF7F2',
                     border: `1px solid ${isExpanded ? 'rgba(122,102,144,0.25)' : 'rgba(122,102,144,0.12)'}`,
                     borderRadius: 20,
                     padding: '16px',

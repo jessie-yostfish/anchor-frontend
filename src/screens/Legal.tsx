@@ -119,9 +119,9 @@ export function Legal() {
 
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', background: '#F0EAE0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ minHeight: '100vh', background: '#EDE6DB', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ width: 44, height: 44, border: '3px solid #7A6690', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 16px' }} />
+          <div style={{ width: 44, height: 44, border: '3px solid #7A6690', borderTopColor: 'transparent', boxShadow: '0 0 12px rgba(122,102,144,0.2)', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 16px' }} />
           <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
           <p style={{ fontFamily: 'DM Sans, sans-serif', color: '#9A90A8', fontSize: 14 }}>Loading legal library…</p>
         </div>
@@ -130,7 +130,7 @@ export function Legal() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F0EAE0', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100vh', background: '#EDE6DB', display: 'flex', flexDirection: 'column' }}>
       <AppHeader />
 
       <div style={{ flex: 1, overflowY: 'auto', paddingBottom: 90 }}>
@@ -152,9 +152,9 @@ export function Legal() {
             <div
               onClick={() => { haptics.light(); navigate('/glossary') }}
               style={{
-                background: '#FAF7F4', borderRadius: 20, padding: '14px 16px',
+                background: '#FAF7F2', borderRadius: 20, padding: '14px 16px',
                 display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer',
-                border: '1px solid rgba(122,102,144,0.12)',
+                border: '1px solid rgba(255,255,255,0.88)',
               }}
             >
               <div style={{ width: 40, height: 40, borderRadius: 12, background: '#EAF0F8', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -180,9 +180,9 @@ export function Legal() {
                 }, 100)
               }}
               style={{
-                background: '#FAF7F4', borderRadius: 20, padding: '14px 16px',
+                background: '#FAF7F2', borderRadius: 20, padding: '14px 16px',
                 display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer',
-                border: '1px solid rgba(122,102,144,0.12)',
+                border: '1px solid rgba(255,255,255,0.88)',
               }}
             >
               <div style={{ width: 40, height: 40, borderRadius: 12, background: '#F5ECD8', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -199,9 +199,9 @@ export function Legal() {
             <div
               onClick={() => { haptics.light(); navigate('/rights') }}
               style={{
-                background: '#FAF7F4', borderRadius: 20, padding: '14px 16px',
+                background: '#FAF7F2', borderRadius: 20, padding: '14px 16px',
                 display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer',
-                border: '1px solid rgba(122,102,144,0.12)',
+                border: '1px solid rgba(255,255,255,0.88)',
               }}
             >
               <div style={{ width: 40, height: 40, borderRadius: 12, background: '#E8DDE8', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -242,7 +242,7 @@ export function Legal() {
               style={{
                 width: '100%', boxSizing: 'border-box',
                 padding: '12px 16px 12px 40px',
-                background: '#FAF7F4',
+                background: '#FAF7F2',
                 border: '1.5px solid rgba(122,102,144,0.2)',
                 borderRadius: 16,
                 fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#2A2030',
@@ -298,7 +298,7 @@ export function Legal() {
                     key={content.id}
                     onClick={() => toggleExpanded(content.id)}
                     style={{
-                      background: '#FAF7F4', borderRadius: 20,
+                      background: '#FAF7F2', borderRadius: 20,
                       border: `1px solid ${isExpanded ? 'rgba(122,102,144,0.25)' : 'rgba(122,102,144,0.12)'}`,
                       overflow: 'hidden', cursor: 'pointer',
                     }}
@@ -345,7 +345,7 @@ export function Legal() {
                             </p>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                               {content.subsections.map((sub, i) => (
-                                <div key={i} style={{ background: '#F0EAE0', borderRadius: 12, padding: '10px 12px' }}>
+                                <div key={i} style={{ background: '#EDE6DB', borderRadius: 12, padding: '10px 12px' }}>
                                   <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, fontWeight: 700, color: '#7A6690', margin: '0 0 2px' }}>{sub.section}</p>
                                   <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600, color: '#2A2030', margin: '0 0 4px' }}>{sub.title}</p>
                                   <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: '#5A5065', margin: 0, lineHeight: 1.5 }}>{sub.summary}</p>
@@ -442,7 +442,7 @@ export function Legal() {
           )}
 
           {/* Need more help */}
-          <div style={{ background: '#FAF7F4', borderRadius: 20, padding: '16px 18px', border: '1px solid rgba(122,102,144,0.12)' }}>
+          <div style={{ background: '#FAF7F2', borderRadius: 20, padding: '16px 18px', border: '1px solid rgba(255,255,255,0.88)' }}>
             <h3 style={{ fontFamily: 'Fraunces, serif', fontSize: 18, fontWeight: 700, color: '#2A2030', margin: '0 0 14px' }}>
               Need more help?
             </h3>
@@ -453,9 +453,9 @@ export function Legal() {
                 rel="noopener noreferrer"
                 style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                  padding: '12px 14px', background: '#F0EAE0', borderRadius: 14,
+                  padding: '12px 14px', background: '#EDE6DB', borderRadius: 14,
                   textDecoration: 'none',
-                  border: '1px solid rgba(122,102,144,0.12)',
+                  border: '1px solid rgba(255,255,255,0.88)',
                 }}
               >
                 <div>
@@ -470,9 +470,9 @@ export function Legal() {
                 rel="noopener noreferrer"
                 style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                  padding: '12px 14px', background: '#F0EAE0', borderRadius: 14,
+                  padding: '12px 14px', background: '#EDE6DB', borderRadius: 14,
                   textDecoration: 'none',
-                  border: '1px solid rgba(122,102,144,0.12)',
+                  border: '1px solid rgba(255,255,255,0.88)',
                 }}
               >
                 <div>

@@ -98,7 +98,7 @@ const getRoleIcon = (role: RoleType) => {
 const inputStyle: React.CSSProperties = {
   width: '100%', boxSizing: 'border-box',
   padding: '12px 16px',
-  background: '#F0EAE0',
+  background: '#EDE6DB',
   border: '1.5px solid rgba(122,102,144,0.2)',
   borderRadius: 16,
   fontFamily: 'DM Sans, sans-serif', fontSize: 15, color: '#2A2030',
@@ -281,7 +281,7 @@ export function Contacts() {
   }
 
   const modalSheet: React.CSSProperties = {
-    background: '#FAF7F4', borderRadius: '24px 24px 0 0',
+    background: '#FAF7F2', borderRadius: '24px 24px 0 0',
     width: '100%', maxWidth: 480,
     maxHeight: '95vh',
     display: 'flex', flexDirection: 'column',
@@ -309,7 +309,7 @@ export function Contacts() {
 
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', background: '#F0EAE0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ minHeight: '100vh', background: '#EDE6DB', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ textAlign: 'center' }}>
           <div style={{ width: 48, height: 48, borderRadius: '50%', border: '3px solid #E8DDE8', borderTopColor: '#7A6690', animation: 'spin 0.8s linear infinite', margin: '0 auto' }} />
           <p style={{ marginTop: 16, color: '#5A5065', fontFamily: 'DM Sans, sans-serif' }}>Loading contacts…</p>
@@ -320,7 +320,7 @@ export function Contacts() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F0EAE0' }}>
+    <div style={{ minHeight: '100vh', background: '#EDE6DB' }}>
       <AppHeader title="My Team" />
 
       <div style={{ maxWidth: 480, margin: '0 auto', padding: '24px 20px 100px' }}>
@@ -350,7 +350,7 @@ export function Contacts() {
 
         {/* Court info card */}
         <div style={{
-          background: '#FAF7F4', border: '1px solid rgba(122,102,144,0.12)',
+          background: '#FAF7F2', border: '1px solid rgba(255,255,255,0.88)',
           borderRadius: 20, padding: '18px 18px 16px', marginBottom: 24,
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
@@ -401,7 +401,7 @@ export function Contacts() {
               return (
                 <div
                   key={contact.id}
-                  style={{ background: '#FAF7F4', border: '1px solid rgba(122,102,144,0.12)', borderRadius: 20, overflow: 'hidden' }}
+                  style={{ background: '#FAF7F2', border: '1px solid rgba(255,255,255,0.88)', borderRadius: 20, overflow: 'hidden' }}
                 >
                   {/* Contact row */}
                   <button
@@ -445,7 +445,7 @@ export function Contacts() {
                           </a>
                         )}
                         {contact.notes && (
-                          <div style={{ background: '#F0EAE0', borderRadius: 12, padding: '10px 12px' }}>
+                          <div style={{ background: '#EDE6DB', borderRadius: 12, padding: '10px 12px' }}>
                             <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: '#5A5065', margin: 0, lineHeight: 1.5 }}>{contact.notes}</p>
                           </div>
                         )}
@@ -542,7 +542,7 @@ export function Contacts() {
               </div>
               {/* Buttons inside scroll — always reachable */}
               <div style={{ display: 'flex', gap: 12, paddingTop: 4, paddingBottom: 'env(safe-area-inset-bottom, 16px)' }}>
-                <button onClick={closeContactModal} style={{ flex: 1, padding: '14px', background: '#F0EAE0', border: '1.5px solid rgba(122,102,144,0.2)', borderRadius: 16, fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 15, color: '#7A6690', cursor: 'pointer' }}>
+                <button onClick={closeContactModal} style={{ flex: 1, padding: '14px', background: '#EDE6DB', border: '1.5px solid rgba(122,102,144,0.2)', borderRadius: 16, fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 15, color: '#7A6690', cursor: 'pointer' }}>
                   Cancel
                 </button>
                 <button onClick={handleSaveContact} disabled={!contactForm.name.trim()}
@@ -584,11 +584,11 @@ export function Contacts() {
               </div>
               {/* Buttons inside scroll — always reachable */}
               <div style={{ display: 'flex', gap: 12, paddingTop: 4, paddingBottom: 'env(safe-area-inset-bottom, 16px)' }}>
-                <button onClick={() => setShowCourtModal(false)} style={{ flex: 1, padding: '14px', background: '#F0EAE0', border: '1.5px solid rgba(122,102,144,0.2)', borderRadius: 16, fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 15, color: '#7A6690', cursor: 'pointer' }}>
+                <button onClick={() => setShowCourtModal(false)} style={{ flex: 1, padding: '14px', background: '#EDE6DB', border: '1.5px solid rgba(122,102,144,0.2)', borderRadius: 16, fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 15, color: '#7A6690', cursor: 'pointer' }}>
                   Cancel
                 </button>
                 <button onClick={handleSaveCourtInfo}
-                  style={{ flex: 1, padding: '14px', background: '#7A6690', border: 'none', borderRadius: 16, fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 15, color: '#fff', cursor: 'pointer', boxShadow: '0 4px 16px rgba(122,102,144,0.3)' }}>
+                  style={{ flex: 1, padding: '14px', background: 'linear-gradient(160deg,#8A74A0 0%,#6A5588 100%)', border: 'none', borderRadius: 16, boxShadow: '0 6px 24px rgba(100,75,140,0.3), inset 0 1px 0 rgba(255,255,255,0.2)', fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 15, color: '#fff', cursor: 'pointer', boxShadow: '0 4px 16px rgba(122,102,144,0.3)' }}>
                   Save Court Info
                 </button>
               </div>
@@ -600,11 +600,11 @@ export function Contacts() {
       {/* Delete confirm */}
       {deleteConfirm && (
         <div style={{ ...overlay, alignItems: 'center', padding: '0 20px' }}>
-          <div style={{ background: '#FAF7F4', borderRadius: 24, padding: '28px 24px', width: '100%', maxWidth: 360 }}>
+          <div style={{ background: '#FAF7F2', borderRadius: 24, padding: '28px 24px', width: '100%', maxWidth: 360 }}>
             <h2 style={{ fontFamily: 'Fraunces, serif', fontSize: 22, fontWeight: 700, color: '#2A2030', marginBottom: 8 }}>Remove this contact?</h2>
             <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#5A5065', marginBottom: 24 }}>This can't be undone.</p>
             <div style={{ display: 'flex', gap: 12 }}>
-              <button onClick={() => setDeleteConfirm(null)} style={{ flex: 1, padding: '13px', background: '#F0EAE0', border: '1.5px solid rgba(122,102,144,0.2)', borderRadius: 16, fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 15, color: '#7A6690', cursor: 'pointer' }}>
+              <button onClick={() => setDeleteConfirm(null)} style={{ flex: 1, padding: '13px', background: '#EDE6DB', border: '1.5px solid rgba(122,102,144,0.2)', borderRadius: 16, fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 15, color: '#7A6690', cursor: 'pointer' }}>
                 Cancel
               </button>
               <button onClick={() => handleDeleteContact(deleteConfirm)} style={{ flex: 1, padding: '13px', background: '#C0392B', border: 'none', borderRadius: 16, fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 15, color: '#fff', cursor: 'pointer' }}>

@@ -15,7 +15,7 @@ export function HomeRoute() {
   if (showSplash || loading || (user && !profile)) {
     return (
       <div style={{
-        minHeight: '100vh', background: '#F0EAE0',
+        minHeight: '100vh', background: '#EDE6DB',
         display: 'flex', flexDirection: 'column',
         alignItems: 'center', justifyContent: 'center', gap: 20,
       }}>

@@ -107,7 +107,7 @@ export function RightsScreen() {
         key={item.id}
         onClick={() => { haptics.light(); setExpandedId(isExpanded ? null : item.id) }}
         style={{
-          background: '#FAF7F4',
+          background: '#FAF7F2',
           border: isExpanded
             ? `1.5px solid ${isDuty ? '#C8883A' : tab.accentColor}`
             : '1px solid rgba(122,102,144,0.12)',
@@ -173,7 +173,7 @@ export function RightsScreen() {
 
               {showLegalBasis && item.legal_reference && (
                 <div style={{
-                  background: '#F0EAE0',
+                  background: '#EDE6DB',
                   border: '1px solid rgba(122,102,144,0.15)',
                   borderRadius: 14, padding: '12px 14px',
                 }}>
@@ -194,9 +194,9 @@ export function RightsScreen() {
 
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', background: '#F0EAE0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ minHeight: '100vh', background: '#EDE6DB', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ width: 44, height: 44, border: '3px solid #7A6690', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 16px' }} />
+          <div style={{ width: 44, height: 44, border: '3px solid #7A6690', borderTopColor: 'transparent', boxShadow: '0 0 12px rgba(122,102,144,0.2)', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 16px' }} />
           <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
           <p style={{ fontFamily: 'DM Sans, sans-serif', color: '#9A90A8', fontSize: 14 }}>Loading rights and responsibilities…</p>
         </div>
@@ -205,7 +205,7 @@ export function RightsScreen() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F0EAE0', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100vh', background: '#EDE6DB', display: 'flex', flexDirection: 'column' }}>
       <AppHeader />
 
       <div style={{ flex: 1, overflowY: 'auto', paddingBottom: 90 }}>
@@ -223,9 +223,9 @@ export function RightsScreen() {
 
           {/* California badge */}
           <div style={{
-            background: '#FAF7F4', borderRadius: 16, padding: '10px 14px',
+            background: '#FAF7F2', borderRadius: 16, padding: '10px 14px',
             display: 'flex', alignItems: 'center', gap: 8,
-            border: '1px solid rgba(122,102,144,0.12)',
+            border: '1px solid rgba(255,255,255,0.88)',
           }}>
             <MapPin size={14} color="#7A6690" style={{ flexShrink: 0 }} />
             <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, fontWeight: 700, color: '#2A2030' }}>State: California</span>
@@ -244,7 +244,7 @@ export function RightsScreen() {
                   fontFamily: 'DM Sans, sans-serif', fontSize: 12, fontWeight: 700,
                   transition: 'all 0.15s',
                   ...(activeTab === key
-                    ? { background: '#FAF7F4', color: tabConfig[key].accentColor, boxShadow: '0 2px 8px rgba(122,102,144,0.15)' }
+                    ? { background: '#FAF7F2', color: tabConfig[key].accentColor, boxShadow: '0 2px 8px rgba(122,102,144,0.15)' }
                     : { background: 'transparent', color: '#9A90A8' }
                   ),
                 }}
@@ -257,7 +257,7 @@ export function RightsScreen() {
 
           {/* Bill of rights hero */}
           <div style={{
-            background: '#FAF7F4', borderRadius: 20, padding: '16px 18px',
+            background: '#FAF7F2', borderRadius: 20, padding: '16px 18px',
             border: `1.5px solid ${tab.accentColor}33`,
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
@@ -279,9 +279,9 @@ export function RightsScreen() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {/* Show legal basis */}
             <div style={{
-              background: '#FAF7F4', borderRadius: 16, padding: '12px 16px',
+              background: '#FAF7F2', borderRadius: 16, padding: '12px 16px',
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              border: '1px solid rgba(122,102,144,0.12)',
+              border: '1px solid rgba(255,255,255,0.88)',
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 {showLegalBasis
@@ -312,9 +312,9 @@ export function RightsScreen() {
             {/* Show responsibilities only */}
             {dutiesItems.length > 0 && rightsItems.length > 0 && (
               <div style={{
-                background: '#FAF7F4', borderRadius: 16, padding: '12px 16px',
+                background: '#FAF7F2', borderRadius: 16, padding: '12px 16px',
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                border: '1px solid rgba(122,102,144,0.12)',
+                border: '1px solid rgba(255,255,255,0.88)',
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <ListChecks size={15} color="#C8883A" />
@@ -367,7 +367,7 @@ export function RightsScreen() {
 
           {/* Empty state */}
           {visibleItems.length === 0 && (
-            <div style={{ background: '#FAF7F4', borderRadius: 20, padding: '40px 24px', textAlign: 'center', border: '1px solid rgba(122,102,144,0.12)' }}>
+            <div style={{ background: '#FAF7F2', borderRadius: 20, padding: '40px 24px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.88)' }}>
               <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#9A90A8', margin: 0 }}>
                 No information available for this section yet.
               </p>

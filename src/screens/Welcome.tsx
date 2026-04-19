@@ -29,7 +29,7 @@ export function Welcome() {
   ]
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: '#F0EAE0' }}>
+    <div className="min-h-screen flex flex-col" style={{ background: '#EDE6DB' }}>
 
       {/* ── LOGO HERO ── */}
       <div className="flex flex-col items-center pt-16 pb-8 px-6 text-center">
@@ -64,7 +64,7 @@ export function Welcome() {
           <div
             key={index}
             className="flex items-start gap-4 rounded-2xl px-5 py-4"
-            style={{ background: '#FAF7F4', border: '1px solid rgba(122,102,144,0.12)', boxShadow: '0 2px 8px rgba(90,78,110,0.06)' }}
+            style={{ background: '#FAF7F2', border: '1px solid rgba(122,102,144,0.12)', boxShadow: '0 2px 8px rgba(90,78,110,0.06)' }}
           >
             <div className={`p-3 rounded-xl flex-shrink-0 ${feature.iconBg}`}>
               <feature.icon className={`w-6 h-6 ${feature.iconColor}`} />

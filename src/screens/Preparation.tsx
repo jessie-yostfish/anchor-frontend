@@ -263,13 +263,13 @@ export function Preparation() {
 
   // ── STYLES ───────────────────────────────────────────────────────────────
   const card: React.CSSProperties = {
-    background: '#FAF7F4',
-    border: '1px solid rgba(122,102,144,0.12)',
+    background: '#FAF7F2',
+    border: '1px solid rgba(255,255,255,0.88)',
     borderRadius: 24,
     boxShadow: '0 2px 12px rgba(90,78,110,0.07)',
   }
   const inputStyle: React.CSSProperties = {
-    background: '#F0EAE0',
+    background: '#EDE6DB',
     border: '1.5px solid rgba(122,102,144,0.2)',
     borderRadius: 16,
     padding: '12px 16px',
@@ -311,7 +311,7 @@ export function Preparation() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F0EAE0', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100vh', background: '#EDE6DB', display: 'flex', flexDirection: 'column' }}>
       <AppHeader />
 
       <div style={{ flex: 1, overflowY: 'auto', paddingBottom: 90 }}><div style={{ maxWidth: 480, margin: '0 auto', padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -331,7 +331,7 @@ export function Preparation() {
         {/* ── PRIVACY NOTE ── */}
         {!hasResponse && (
           <div
-            style={{ background: '#FAF7F4', borderRadius: 16, padding: '12px 14px', display: 'flex', alignItems: 'flex-start', gap: 10, border: '1px solid rgba(122,102,144,0.12)' }}
+            style={{ background: '#FAF7F2', borderRadius: 16, padding: '12px 14px', display: 'flex', alignItems: 'flex-start', gap: 10, border: '1px solid rgba(255,255,255,0.88)' }}
           >
             <Lock size={15} style={{ color: '#7A6690', flexShrink: 0, marginTop: 2 }} />
             <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: '#5A5065', margin: 0, lineHeight: 1.6 }}>
@@ -387,7 +387,7 @@ export function Preparation() {
                   key={mt.value}
                   onClick={() => setMeetingType(mt.value as MeetingType)}
                   style={{ cursor: 'pointer',
-                    background: '#F0EAE0',
+                    background: '#EDE6DB',
                     border: '1.5px solid rgba(122,102,144,0.15)',
                     color: '#2A2030',
                     fontWeight: 600,
@@ -613,7 +613,7 @@ export function Preparation() {
           style={{ position: 'fixed', inset: 0, background: 'rgba(42,32,48,0.5)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', zIndex: 50, padding: 16 }}
         >
           <div
-            style={{ width: '100%', maxWidth: 480, borderRadius: '24px 24px 0 0', padding: 24, background: '#FAF7F4' }}
+            style={{ width: '100%', maxWidth: 480, borderRadius: '24px 24px 0 0', padding: 24, background: '#FAF7F2' }}
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
               <h3 style={{ fontFamily: 'Fraunces, serif', fontSize: 20, fontWeight: 700, color: '#2A2030', margin: 0 }}>

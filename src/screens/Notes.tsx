@@ -189,7 +189,7 @@ export function Notes() {
 
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', background: '#F0EAE0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ minHeight: '100vh', background: '#EDE6DB', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ textAlign: 'center' }}>
           <div style={{
             width: 48, height: 48, borderRadius: '50%',
@@ -204,7 +204,7 @@ export function Notes() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F0EAE0' }}>
+    <div style={{ minHeight: '100vh', background: '#EDE6DB' }}>
       <AppHeader title="My Notes" />
 
       <div style={{ maxWidth: 480, margin: '0 auto', padding: '24px 20px 100px' }}>
@@ -247,7 +247,7 @@ export function Notes() {
             style={{
               width: '100%', boxSizing: 'border-box',
               padding: '12px 16px 12px 40px',
-              background: '#FAF7F4',
+              background: '#FAF7F2',
               border: '1.5px solid rgba(122,102,144,0.2)',
               borderRadius: 16,
               fontFamily: 'DM Sans, sans-serif', fontSize: 15, color: '#2A2030',
@@ -281,8 +281,8 @@ export function Notes() {
                 <div
                   key={note.id}
                   style={{
-                    background: '#FAF7F4',
-                    border: '1px solid rgba(122,102,144,0.12)',
+                    background: '#FAF7F2',
+                    border: '1px solid rgba(255,255,255,0.88)',
                     borderRadius: 20,
                     padding: '16px 16px 14px',
                     position: 'relative',
@@ -364,7 +364,7 @@ export function Notes() {
           zIndex: 50, paddingBottom: keyboardHeight,
         }}>
           <div style={{
-            background: '#FAF7F4', borderRadius: '24px 24px 0 0',
+            background: '#FAF7F2', borderRadius: '24px 24px 0 0',
             width: '100%', maxWidth: 480,
             maxHeight: '95vh', display: 'flex', flexDirection: 'column',
             animation: 'slideUp 0.25s ease',
@@ -374,7 +374,7 @@ export function Notes() {
               padding: '20px 20px 16px',
               borderBottom: '1px solid rgba(122,102,144,0.12)',
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              position: 'sticky', top: 0, background: '#FAF7F4',
+              position: 'sticky', top: 0, background: '#FAF7F2',
             }}>
               <h2 style={{ fontFamily: 'Fraunces, serif', fontSize: 22, fontWeight: 700, color: '#2A2030', margin: 0 }}>
                 {editingNote ? 'Edit Note' : 'New Note'}
@@ -407,7 +407,7 @@ export function Notes() {
                   style={{
                     width: '100%', boxSizing: 'border-box',
                     padding: '12px 16px',
-                    background: '#F0EAE0',
+                    background: '#EDE6DB',
                     border: '1.5px solid rgba(122,102,144,0.2)',
                     borderRadius: 16,
                     fontFamily: 'DM Sans, sans-serif', fontSize: 15, color: '#2A2030',
@@ -459,7 +459,7 @@ export function Notes() {
                   style={{
                     width: '100%', boxSizing: 'border-box',
                     padding: '12px 16px',
-                    background: '#F0EAE0',
+                    background: '#EDE6DB',
                     border: '1.5px solid rgba(122,102,144,0.2)',
                     borderRadius: 16,
                     fontFamily: 'DM Sans, sans-serif', fontSize: 15, color: '#2A2030',
@@ -474,7 +474,7 @@ export function Notes() {
                   onClick={closeModal}
                   style={{
                     flex: 1, padding: '14px',
-                    background: '#F0EAE0',
+                    background: '#EDE6DB',
                     border: '1.5px solid rgba(122,102,144,0.2)',
                     borderRadius: 16,
                     fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 15,
@@ -511,7 +511,7 @@ export function Notes() {
           zIndex: 50, padding: '0 20px',
         }}>
           <div style={{
-            background: '#FAF7F4', borderRadius: 24,
+            background: '#FAF7F2', borderRadius: 24,
             padding: '28px 24px', width: '100%', maxWidth: 360,
           }}>
             <h2 style={{ fontFamily: 'Fraunces, serif', fontSize: 22, fontWeight: 700, color: '#2A2030', marginBottom: 8 }}>
@@ -525,7 +525,7 @@ export function Notes() {
                 onClick={() => setDeleteConfirm(null)}
                 style={{
                   flex: 1, padding: '13px',
-                  background: '#F0EAE0',
+                  background: '#EDE6DB',
                   border: '1.5px solid rgba(122,102,144,0.2)',
                   borderRadius: 16,
                   fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 15,

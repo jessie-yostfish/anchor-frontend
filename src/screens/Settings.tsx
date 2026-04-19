@@ -25,7 +25,7 @@ import { haptics } from '../lib/haptics'
 
 // ── STYLES ────────────────────────────────────────────────────────────────────
 const input: React.CSSProperties = {
-  background: '#F0EAE0',
+  background: '#EDE6DB',
   border: '1.5px solid rgba(122,102,144,0.2)',
   borderRadius: 14,
   padding: '12px 16px',
@@ -91,8 +91,8 @@ const dangerBtn: React.CSSProperties = {
   gap: 8,
 }
 const sectionCard: React.CSSProperties = {
-  background: '#FAF7F4',
-  border: '1px solid rgba(122,102,144,0.12)',
+  background: '#FAF7F2',
+  border: '1px solid rgba(255,255,255,0.88)',
   borderRadius: 20,
   overflow: 'hidden',
   marginBottom: 6,
@@ -126,7 +126,7 @@ function Modal({ title, onClose, children }: { title: string; onClose: () => voi
       className="fixed inset-0 flex items-end justify-center z-50 p-4"
       style={{ background: 'rgba(42,32,48,0.5)' }}
     >
-      <div className="w-full max-w-md rounded-3xl p-6" style={{ background: '#FAF7F4' }}>
+      <div className="w-full max-w-md rounded-3xl p-6" style={{ background: '#FAF7F2' }}>
         <div className="flex items-center justify-between mb-5">
           <h2 style={{ fontFamily: "'Fraunces', Georgia, serif", fontWeight: 700, fontSize: 20, color: '#2A2030' }}>
             {title}
@@ -298,7 +298,7 @@ export function Settings() {
 
   // ── MAIN RENDER ──────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen pb-24" style={{ background: '#F0EAE0' }}>
+    <div className="min-h-screen pb-24" style={{ background: '#EDE6DB' }}>
       <AppHeader title="Settings" />
 
       <div className="max-w-md mx-auto px-4 pt-5">
@@ -317,7 +317,7 @@ export function Settings() {
         {/* ── PROFILE CARD ── */}
         <div
           className="rounded-3xl p-5 mb-6"
-          style={{ background: '#FAF7F4', border: '1px solid rgba(122,102,144,0.12)' }}
+          style={{ background: '#FAF7F2', border: '1px solid rgba(255,255,255,0.88)' }}
         >
           <div className="flex items-center gap-4 mb-4">
             <div
