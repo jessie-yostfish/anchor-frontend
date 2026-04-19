@@ -307,7 +307,9 @@ export function Dashboard() {
           </div>
 
           {/* Journey — jewel dots */}
-          <div style={{
+          <div
+            onClick={() => { haptics.light(); navigate('/timeline') }}
+            style={{
             background: '#FAF7F2',
             borderRadius: 22,
             borderLeft: '3px solid #4A8878',
@@ -316,6 +318,7 @@ export function Dashboard() {
             boxShadow: '0 4px 20px rgba(74,136,120,0.1), 0 1px 4px rgba(90,70,110,0.07), inset 0 1px 0 rgba(255,255,255,1)',
             padding: '14px 16px',
             position: 'relative', overflow: 'hidden',
+            cursor: 'pointer',
           }}>
             <div style={{ position: 'absolute', top: 0, left: '8%', right: '8%', height: 1, background: 'linear-gradient(90deg,transparent,rgba(255,255,255,0.9),transparent)' }} />
             <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 9, color: '#4A8878', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 12 }}>
@@ -372,16 +375,22 @@ export function Dashboard() {
                 )
               })}
             </div>
+            <div style={{ marginTop: 10, paddingTop: 8, borderTop: '1px solid rgba(74,136,120,0.1)', display: 'flex', justifyContent: 'flex-end' }}>
+              <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, fontWeight: 700, color: '#4A8878' }}>See full timeline →</span>
+            </div>
           </div>
 
           {/* What matters right now */}
-          <div style={{
+          <div
+            onClick={() => { haptics.light(); navigate('/preparation') }}
+            style={{
             background: '#FAF7F2',
             borderRadius: 22,
             border: '1px solid rgba(255,255,255,0.92)',
             boxShadow: '0 4px 20px rgba(90,70,110,0.11), inset 0 1px 0 rgba(255,255,255,1)',
             padding: '14px 16px',
             position: 'relative', overflow: 'hidden',
+            cursor: 'pointer',
           }}>
             <div style={{ position: 'absolute', top: 0, left: '8%', right: '8%', height: 1, background: 'linear-gradient(90deg,transparent,rgba(255,255,255,0.9),transparent)' }} />
             <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 11 }}>
@@ -401,6 +410,9 @@ export function Dashboard() {
                   </div>
                 )
               })}
+            </div>
+            <div style={{ marginTop: 10, paddingTop: 8, borderTop: `1px solid ${activeJewel.bg}`, display: 'flex', justifyContent: 'flex-end' }}>
+              <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, fontWeight: 700, color: activeJewel.color }}>Prepare for court →</span>
             </div>
           </div>
 

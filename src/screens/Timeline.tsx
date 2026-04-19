@@ -619,7 +619,7 @@ export function Timeline() {
                   {stage.status === 'completed' ? '✓ ' : ''}{S.label}
                 </span>
                 {total > 0 && (
-                  <span className="text-xs font-semibold" style={{ color: '#9A90A8' }}>
+                  <span className="text-xs font-semibold" style={{ color: '#8A8098' }}>
                     {completed}/{total} tasks
                   </span>
                 )}
@@ -637,8 +637,8 @@ export function Timeline() {
 
             <div className="flex-shrink-0 mt-1">
               {isExpanded
-                ? <ChevronUp className="w-4 h-4" style={{ color: '#9A90A8' }} />
-                : <ChevronDown className="w-4 h-4" style={{ color: '#9A90A8' }} />
+                ? <ChevronUp className="w-4 h-4" style={{ color: '#8A8098' }} />
+                : <ChevronDown className="w-4 h-4" style={{ color: '#8A8098' }} />
               }
             </div>
           </div>
@@ -719,7 +719,7 @@ export function Timeline() {
                       Do Now
                     </h4>
                   </div>
-                  <span className="text-xs font-semibold" style={{ color: '#9A90A8' }}>
+                  <span className="text-xs font-semibold" style={{ color: '#8A8098' }}>
                     {completed}/{total}
                   </span>
                 </div>
@@ -822,8 +822,8 @@ export function Timeline() {
               {stage.status === 'completed' ? 'DONE' : stage.status === 'in_progress' ? 'ACTIVE' : 'PENDING'}
             </span>
             {isExpanded
-              ? <ChevronUp className="w-4 h-4 flex-shrink-0" style={{ color: '#9A90A8' }} />
-              : <ChevronDown className="w-4 h-4 flex-shrink-0" style={{ color: '#9A90A8' }} />
+              ? <ChevronUp className="w-4 h-4 flex-shrink-0" style={{ color: '#8A8098' }} />
+              : <ChevronDown className="w-4 h-4 flex-shrink-0" style={{ color: '#8A8098' }} />
             }
           </button>
 
@@ -890,7 +890,7 @@ export function Timeline() {
             className="w-10 h-10 rounded-full border-2 border-t-transparent animate-spin mx-auto mb-3"
             style={{ borderColor: '#7A6690', borderTopColor: 'transparent' }}
           />
-          <p className="text-sm" style={{ color: '#5A5065' }}>Loading your timeline...</p>
+          <p className="text-sm" style={{ color: '#4A4058' }}>Loading your timeline...</p>
         </div>
       </div>
     )
@@ -927,7 +927,7 @@ export function Timeline() {
             >
               {roleLabel[role]}
             </h1>
-            <p className="text-xs mt-0.5" style={{ color: '#9A90A8' }}>
+            <p className="text-xs mt-0.5" style={{ color: '#8A8098' }}>
               {stages.filter(s => s.status === 'completed').length} of {stages.length} stages complete
             </p>
           </div>
@@ -940,14 +940,14 @@ export function Timeline() {
             <button
               onClick={() => setViewMode('cards')}
               className="p-1.5 rounded-lg transition-all"
-              style={viewMode === 'cards' ? { background: '#FAF7F2', color: '#7A6690' } : { color: '#9A90A8' }}
+              style={viewMode === 'cards' ? { background: '#FAF7F2', color: '#7A6690' } : { color: '#8A8098' }}
             >
               <LayoutGrid className="w-4 h-4" />
             </button>
             <button
               onClick={() => setViewMode('list')}
               className="p-1.5 rounded-lg transition-all"
-              style={viewMode === 'list' ? { background: '#FAF7F2', color: '#7A6690' } : { color: '#9A90A8' }}
+              style={viewMode === 'list' ? { background: '#FAF7F2', color: '#7A6690' } : { color: '#8A8098' }}
             >
               <List className="w-4 h-4" />
             </button>

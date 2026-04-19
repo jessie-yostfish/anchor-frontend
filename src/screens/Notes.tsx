@@ -196,7 +196,7 @@ export function Notes() {
             border: '3px solid #E8DDE8', borderTopColor: '#7A6690',
             animation: 'spin 0.8s linear infinite', margin: '0 auto'
           }} />
-          <p style={{ marginTop: 16, color: '#5A5065', fontFamily: 'DM Sans, sans-serif' }}>Loading notes…</p>
+          <p style={{ marginTop: 16, color: '#4A4058', fontFamily: 'DM Sans, sans-serif' }}>Loading notes…</p>
         </div>
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
@@ -215,7 +215,7 @@ export function Notes() {
             <h1 style={{ fontFamily: 'Fraunces, serif', fontSize: 28, fontWeight: 700, color: '#2A2030', margin: 0 }}>
               My Notes
             </h1>
-            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#9A90A8', marginTop: 4 }}>
+            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#8A8098', marginTop: 4 }}>
               Saved securely in your Anchor account
             </p>
           </div>
@@ -238,7 +238,7 @@ export function Notes() {
 
         {/* Search */}
         <div style={{ position: 'relative', marginBottom: 24, marginTop: 20 }}>
-          <Search size={16} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#9A90A8' }} />
+          <Search size={16} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#8A8098' }} />
           <input
             type="text"
             value={searchQuery}
@@ -269,7 +269,7 @@ export function Notes() {
             <h3 style={{ fontFamily: 'Fraunces, serif', fontSize: 20, fontWeight: 700, color: '#2A2030', marginBottom: 8 }}>
               {searchQuery ? 'No notes found' : 'No notes yet'}
             </h3>
-            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#9A90A8' }}>
+            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#8A8098' }}>
               {searchQuery ? 'Try a different search term' : 'Tap "New" to write your first note'}
             </p>
           </div>
@@ -313,14 +313,14 @@ export function Notes() {
                   {note.content && (
                     <p style={{
                       fontFamily: 'DM Sans, sans-serif', fontSize: 13,
-                      color: '#5A5065', margin: '0 0 10px', lineHeight: 1.5,
+                      color: '#4A4058', margin: '0 0 10px', lineHeight: 1.5,
                     }}>
                       {truncateContent(note.content)}
                     </p>
                   )}
 
                   {/* Date */}
-                  <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: '#9A90A8', margin: 0 }}>
+                  <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: '#8A8098', margin: 0 }}>
                     {formatDate(note.updated_at)}
                   </p>
 
@@ -332,7 +332,7 @@ export function Notes() {
                         width: 32, height: 32, borderRadius: 10,
                         background: 'transparent', border: 'none',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        cursor: 'pointer', color: '#9A90A8',
+                        cursor: 'pointer', color: '#8A8098',
                       }}
                     >
                       <Pencil size={15} />
@@ -343,7 +343,7 @@ export function Notes() {
                         width: 32, height: 32, borderRadius: 10,
                         background: 'transparent', border: 'none',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        cursor: 'pointer', color: '#9A90A8',
+                        cursor: 'pointer', color: '#8A8098',
                       }}
                     >
                       <Trash2 size={15} />
@@ -396,7 +396,7 @@ export function Notes() {
             <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: 16, overflowY: 'auto', flex: 1 }}>
               {/* Title */}
               <div>
-                <label style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600, color: '#5A5065', display: 'block', marginBottom: 6 }}>
+                <label style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600, color: '#4A4058', display: 'block', marginBottom: 6 }}>
                   Title
                 </label>
                 <input
@@ -418,7 +418,7 @@ export function Notes() {
 
               {/* Category */}
               <div>
-                <label style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600, color: '#5A5065', display: 'block', marginBottom: 8 }}>
+                <label style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600, color: '#4A4058', display: 'block', marginBottom: 8 }}>
                   Category
                 </label>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
@@ -448,7 +448,7 @@ export function Notes() {
 
               {/* Content */}
               <div>
-                <label style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600, color: '#5A5065', display: 'block', marginBottom: 6 }}>
+                <label style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600, color: '#4A4058', display: 'block', marginBottom: 6 }}>
                   Note
                 </label>
                 <textarea
@@ -517,7 +517,7 @@ export function Notes() {
             <h2 style={{ fontFamily: 'Fraunces, serif', fontSize: 22, fontWeight: 700, color: '#2A2030', marginBottom: 8 }}>
               Delete this note?
             </h2>
-            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#5A5065', marginBottom: 24 }}>
+            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#4A4058', marginBottom: 24 }}>
               This can't be undone.
             </p>
             <div style={{ display: 'flex', gap: 12 }}>

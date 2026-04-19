@@ -107,7 +107,7 @@ const inputStyle: React.CSSProperties = {
 
 const labelStyle: React.CSSProperties = {
   fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600,
-  color: '#5A5065', display: 'block', marginBottom: 6,
+  color: '#4A4058', display: 'block', marginBottom: 6,
 }
 
 export function Contacts() {
@@ -316,7 +316,7 @@ export function Contacts() {
       <div style={{ minHeight: '100vh', background: '#EDE6DB', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ textAlign: 'center' }}>
           <div style={{ width: 48, height: 48, borderRadius: '50%', border: '3px solid #E8DDE8', borderTopColor: '#7A6690', animation: 'spin 0.8s linear infinite', margin: '0 auto' }} />
-          <p style={{ marginTop: 16, color: '#5A5065', fontFamily: 'DM Sans, sans-serif' }}>Loading contacts…</p>
+          <p style={{ marginTop: 16, color: '#4A4058', fontFamily: 'DM Sans, sans-serif' }}>Loading contacts…</p>
         </div>
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
@@ -333,7 +333,7 @@ export function Contacts() {
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24 }}>
           <div>
             <h1 style={{ fontFamily: 'Fraunces, serif', fontSize: 28, fontWeight: 700, color: '#2A2030', margin: 0 }}>My Team</h1>
-            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#9A90A8', marginTop: 4 }}>
+            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#8A8098', marginTop: 4 }}>
               Everyone working on your case
             </p>
           </div>
@@ -378,7 +378,7 @@ export function Contacts() {
               { label: 'Next date', value: formatDate(courtInfo?.next_court_date || null) },
             ].map(({ label, value }) => (
               <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: '#9A90A8' }}>{label}</span>
+                <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: '#8A8098' }}>{label}</span>
                 <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600, color: value ? '#2A2030' : '#C8C0D0' }}>
                   {value || 'Not set'}
                 </span>
@@ -394,7 +394,7 @@ export function Contacts() {
               <Users size={32} color="#7A6690" />
             </div>
             <h3 style={{ fontFamily: 'Fraunces, serif', fontSize: 20, fontWeight: 700, color: '#2A2030', marginBottom: 8 }}>No contacts yet</h3>
-            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#9A90A8' }}>Tap "Add" to save your attorney, social worker, and more</p>
+            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#8A8098' }}>Tap "Add" to save your attorney, social worker, and more</p>
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -450,7 +450,7 @@ export function Contacts() {
                         )}
                         {contact.notes && (
                           <div style={{ background: '#EDE6DB', borderRadius: 12, padding: '10px 12px' }}>
-                            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: '#5A5065', margin: 0, lineHeight: 1.5 }}>{contact.notes}</p>
+                            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: '#4A4058', margin: 0, lineHeight: 1.5 }}>{contact.notes}</p>
                           </div>
                         )}
                         {/* Edit / Delete */}
@@ -496,7 +496,7 @@ export function Contacts() {
                   {editingContact ? 'Edit Contact' : 'New Contact'}
                 </h2>
                 {!editingContact && (
-                  <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: '#9A90A8', marginTop: 4 }}>
+                  <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: '#8A8098', marginTop: 4 }}>
                     Saved securely in your Anchor account
                   </p>
                 )}
@@ -606,7 +606,7 @@ export function Contacts() {
         <div style={{ ...overlay, alignItems: 'center', padding: '0 20px' }}>
           <div style={{ background: '#FAF7F2', borderRadius: 24, padding: '28px 24px', width: '100%', maxWidth: 360 }}>
             <h2 style={{ fontFamily: 'Fraunces, serif', fontSize: 22, fontWeight: 700, color: '#2A2030', marginBottom: 8 }}>Remove this contact?</h2>
-            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#5A5065', marginBottom: 24 }}>This can't be undone.</p>
+            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#4A4058', marginBottom: 24 }}>This can't be undone.</p>
             <div style={{ display: 'flex', gap: 12 }}>
               <button onClick={() => setDeleteConfirm(null)} style={{ flex: 1, padding: '13px', background: '#EDE6DB', border: '1.5px solid rgba(122,102,144,0.2)', borderRadius: 16, fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 15, color: '#7A6690', cursor: 'pointer' }}>
                 Cancel

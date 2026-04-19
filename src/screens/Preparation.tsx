@@ -324,7 +324,7 @@ export function Preparation() {
             >
               {copy.heading}
             </h1>
-            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#9A90A8', margin: 0 }}>{copy.subheading}</p>
+            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#8A8098', margin: 0 }}>{copy.subheading}</p>
           </div>
         )}
 
@@ -334,7 +334,7 @@ export function Preparation() {
             style={{ background: '#FAF7F2', borderRadius: 16, padding: '12px 14px', display: 'flex', alignItems: 'flex-start', gap: 10, border: '1px solid rgba(255,255,255,0.88)' }}
           >
             <Lock size={15} style={{ color: '#7A6690', flexShrink: 0, marginTop: 2 }} />
-            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: '#5A5065', margin: 0, lineHeight: 1.6 }}>
+            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: '#4A4058', margin: 0, lineHeight: 1.6 }}>
               <span style={{ fontWeight: 700, color: '#2A2030' }}>Private. </span>
               {copy.privacyNote}
             </p>
@@ -344,7 +344,7 @@ export function Preparation() {
         {/* ── STEP 1: CHOOSE TYPE ── */}
         {!selectedType && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, fontWeight: 700, color: '#9A90A8', textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>
+            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, fontWeight: 700, color: '#8A8098', textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>
               What do you need help with?
             </p>
             {copy.prepOptions.map(opt => {
@@ -361,7 +361,7 @@ export function Preparation() {
                     </div>
                     <div>
                       <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, fontWeight: 700, color: '#2A2030', margin: 0 }}>{opt.title}</p>
-                      <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: '#5A5065', margin: '3px 0 0' }}>{opt.description}</p>
+                      <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: '#4A4058', margin: '3px 0 0' }}>{opt.description}</p>
                     </div>
                   </div>
                 </button>
@@ -374,10 +374,10 @@ export function Preparation() {
         {selectedType === 'meeting' && !meetingType && (
           <div style={{ ...card, padding: 20 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-              <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, fontWeight: 700, color: '#9A90A8', textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>
+              <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, fontWeight: 700, color: '#8A8098', textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>
                 Who is this meeting with?
               </p>
-              <button onClick={reset} style={{ color: '#9A90A8' }}>
+              <button onClick={reset} style={{ color: '#8A8098' }}>
                 <X size={16} color="#9A90A8" />
               </button>
             </div>
@@ -411,7 +411,7 @@ export function Preparation() {
                 {copy.prepOptions.find(o => o.type === selectedType)?.title}
                 {meetingType && ` · ${copy.meetingTypes.find(m => m.value === meetingType)?.label}`}
               </span>
-              <button onClick={reset} style={{ color: '#9A90A8' }}>
+              <button onClick={reset} style={{ color: '#8A8098' }}>
                 <X size={16} color="#9A90A8" />
               </button>
             </div>
@@ -462,12 +462,12 @@ export function Preparation() {
             </button>
 
             {loading && (
-              <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, textAlign: 'center', marginTop: 6, color: '#9A90A8' }}>
+              <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, textAlign: 'center', marginTop: 6, color: '#8A8098' }}>
                 Usually ready in 5–10 seconds
               </p>
             )}
             {!concerns.trim() && !loading && (
-              <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, textAlign: 'center', marginTop: 8, color: '#9A90A8', lineHeight: 1.5 }}>
+              <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, textAlign: 'center', marginTop: 8, color: '#8A8098', lineHeight: 1.5 }}>
                 Type something above to get your personalized guide
               </p>
             )}
@@ -498,7 +498,7 @@ export function Preparation() {
             <div
               style={{ background: '#E8DDE8', borderRadius: 16, padding: '12px 14px' }}
             >
-              <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#9A90A8', margin: '0 0 4px' }}>
+              <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#8A8098', margin: '0 0 4px' }}>
                 You said
               </p>
               <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: '#2A2030', margin: 0 }}>{concerns}</p>
@@ -535,7 +535,7 @@ export function Preparation() {
             {loading && (
               <div style={{ ...card, padding: 14, display: 'flex', alignItems: 'center', gap: 10 }}>
                 <Loader2 size={15} style={{ color: '#7A6690', animation: 'spin 1s linear infinite' }} />
-                <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: '#9A90A8', margin: 0 }}>Getting your answer...</p>
+                <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: '#8A8098', margin: 0 }}>Getting your answer...</p>
               </div>
             )}
 
@@ -549,13 +549,13 @@ export function Preparation() {
             )}
 
             {/* Disclaimer */}
-            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, textAlign: 'center', padding: '0 16px', color: '#9A90A8', margin: 0 }}>
+            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, textAlign: 'center', padding: '0 16px', color: '#8A8098', margin: 0 }}>
               General information only — not legal advice. Talk to your attorney about your specific case.
             </p>
 
             {/* Follow-up input */}
             <div style={{ ...card, padding: 14 }}>
-              <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#9A90A8', margin: '0 0 8px', display: 'block' }}>
+              <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#8A8098', margin: '0 0 8px', display: 'block' }}>
                 Have a follow-up question?
               </p>
               <div style={{ display: 'flex', gap: 8 }}>
@@ -615,20 +615,23 @@ export function Preparation() {
       {/* ── SAVE MODAL ── */}
       {showSaveModal && (
         <div
-          style={{ position: 'fixed', inset: 0, background: 'rgba(42,32,48,0.5)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', zIndex: 50, padding: 16 }}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(42,32,48,0.5)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', zIndex: 50, padding: 16 }} onClick={() => setShowSaveModal(false)}
         >
           <div
-            style={{ width: '100%', maxWidth: 480, borderRadius: '24px 24px 0 0', padding: 24, background: '#FAF7F2' }}
+            style={{ width: '100%', maxWidth: 480, borderRadius: '24px 24px 0 0', padding: 24, background: '#FAF7F2' }} onClick={e => e.stopPropagation()}
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
               <h3 style={{ fontFamily: 'Fraunces, serif', fontSize: 20, fontWeight: 700, color: '#2A2030', margin: 0 }}>
                 Save to Notes
               </h3>
-              <button onClick={() => setShowSaveModal(false)}>
-                <X size={18} color="#9A90A8" />
+              <button
+                onClick={() => setShowSaveModal(false)}
+                style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(122,102,144,0.1)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}
+              >
+                <X size={16} color="#9A90A8" />
               </button>
             </div>
-            <label style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#9A90A8', display: 'block', marginBottom: 8 }}>
+            <label style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#8A8098', display: 'block', marginBottom: 8 }}>
               Title
             </label>
             <input
