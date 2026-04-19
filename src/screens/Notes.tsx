@@ -366,7 +366,7 @@ export function Notes() {
           <div style={{
             background: '#FAF7F2', borderRadius: '24px 24px 0 0',
             width: '100%', maxWidth: 480,
-            maxHeight: '95vh', display: 'flex', flexDirection: 'column',
+            maxHeight: '92vh', display: 'flex', flexDirection: 'column',
             animation: 'slideUp 0.25s ease',
           }}>
             {/* Modal header */}
@@ -455,7 +455,7 @@ export function Notes() {
                   value={formData.content}
                   onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                   placeholder="Write your note here…"
-                  rows={7}
+                  rows={5}
                   style={{
                     width: '100%', boxSizing: 'border-box',
                     padding: '12px 16px',

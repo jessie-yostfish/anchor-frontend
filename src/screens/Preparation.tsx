@@ -466,6 +466,11 @@ export function Preparation() {
                 Usually ready in 5–10 seconds
               </p>
             )}
+            {!concerns.trim() && !loading && (
+              <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, textAlign: 'center', marginTop: 8, color: '#9A90A8', lineHeight: 1.5 }}>
+                Type something above to get your personalized guide
+              </p>
+            )}
           </div>
         )}
 

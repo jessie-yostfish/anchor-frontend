@@ -171,7 +171,11 @@ export function Dashboard() {
   const activeJewel = STAGE_JEWELS[currentStageIndex] || STAGE_JEWELS[0]
 
   useEffect(() => {
-    if (profile?.id) loadTeam()
+    if (profile?.id) {
+      loadTeam()
+      // Retry once after short delay to catch race condition on first load
+      setTimeout(() => loadTeam(), 800)
+    }
     trackEvent('screen_viewed', { screen: 'blueprint_v2', role })
   }, [profile?.id])
 
@@ -179,7 +183,7 @@ export function Dashboard() {
     try {
       const { data } = await supabase
         .from('contacts').select('name, role, phone')
-        .eq('user_id', profile!.id).order('created_at', { ascending: true }).limit(3)
+        .eq('user_id', profile?.id).order('created_at', { ascending: true }).limit(3)
       if (data) setTeamMembers(data)
     } catch (e) { console.error(e) }
   }

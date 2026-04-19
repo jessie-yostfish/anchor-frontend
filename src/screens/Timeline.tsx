@@ -739,7 +739,7 @@ export function Timeline() {
                   {stageTasks.map((task, i) => (
                     <label key={i} className="flex items-start gap-3 cursor-pointer">
                       <div
-                        onClick={() => toggleTaskCompletion(stage.id, i)}
+                        onClick={(e) => { e.stopPropagation(); toggleTaskCompletion(stage.id, i) }}
                         className="w-5 h-5 rounded-lg flex-shrink-0 mt-0.5 flex items-center justify-center cursor-pointer transition-all"
                         style={{
                           background: task.completed ? '#7A6690' : 'transparent',
@@ -856,7 +856,7 @@ export function Timeline() {
                   {stageTasks.map((task, i) => (
                     <label key={i} className="flex items-start gap-2.5 cursor-pointer">
                       <div
-                        onClick={() => toggleTaskCompletion(stage.id, i)}
+                        onClick={(e) => { e.stopPropagation(); toggleTaskCompletion(stage.id, i) }}
                         className="w-4 h-4 rounded flex-shrink-0 mt-0.5 flex items-center justify-center"
                         style={{
                           background: task.completed ? '#7A6690' : 'transparent',

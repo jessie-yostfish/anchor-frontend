@@ -12,7 +12,8 @@ export function HomeRoute() {
     return () => clearTimeout(timer)
   }, [])
 
-  if (showSplash || loading || (user && !profile)) {
+  // Always show splash on first load
+  if (showSplash) {
     return (
       <div style={{
         minHeight: '100vh', background: '#EDE6DB',
@@ -29,8 +30,6 @@ export function HomeRoute() {
             40% { opacity: 1; transform: scale(1); }
           }
         `}</style>
-
-        {/* Glow ring + logo */}
         <div style={{
           width: 120, height: 120, borderRadius: '50%',
           background: 'rgba(122,102,144,0.08)',
@@ -45,16 +44,12 @@ export function HomeRoute() {
             }}
           />
         </div>
-
-        {/* App name */}
         <div style={{
           fontFamily: 'Fraunces, serif', fontSize: 28, fontWeight: 700,
           color: '#2A2030', letterSpacing: '-0.3px',
         }}>
           Anchor
         </div>
-
-        {/* Dot loader */}
         <div style={{ display: 'flex', gap: 7, marginTop: 4 }}>
           {[0, 1, 2].map((i) => (
             <div key={i} style={{
@@ -68,8 +63,33 @@ export function HomeRoute() {
     )
   }
 
+  // Still loading auth state — show neutral screen, never redirect
+  if (loading) {
+    return (
+      <div style={{
+        minHeight: '100vh', background: '#EDE6DB',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>
+        <div style={{ width: 44, height: 44, border: '3px solid #7A6690', borderTopColor: 'transparent', borderRadius: '50%', animation: 'anchorPulse 0.8s linear infinite' }} />
+      </div>
+    )
+  }
+
+  // User logged in but profile not yet fetched — wait, never redirect to onboarding
+  if (user && !profile) {
+    return (
+      <div style={{
+        minHeight: '100vh', background: '#EDE6DB',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>
+        <img src="/anchor-icon-only.png" alt="Anchor" style={{ width: 48, height: 48, objectFit: 'contain', opacity: 0.5 }} />
+      </div>
+    )
+  }
+
+  // Profile fully loaded — now safe to route
   if (user && profile) {
-    if (!profile.intake_completed) return <Navigate to="/onboarding" replace />
+    if (profile.intake_completed === false) return <Navigate to="/onboarding" replace />
     if (!profile.onboarding_foster_care_seen) return <Navigate to="/foster-care-intro" replace />
     return <Navigate to="/dashboard" replace />
   }

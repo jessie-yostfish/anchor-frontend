@@ -221,15 +221,22 @@ export function RightsScreen() {
             </p>
           </div>
 
-          {/* California badge */}
+          {/* California badge — locked, clearly labeled */}
           <div style={{
             background: '#FAF7F2', borderRadius: 16, padding: '10px 14px',
             display: 'flex', alignItems: 'center', gap: 8,
             border: '1px solid rgba(255,255,255,0.88)',
           }}>
             <MapPin size={14} color="#7A6690" style={{ flexShrink: 0 }} />
-            <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, fontWeight: 700, color: '#2A2030' }}>State: California</span>
-            <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: '#9A90A8' }}>· More states coming soon</span>
+            <div style={{ flex: 1 }}>
+              <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, fontWeight: 700, color: '#2A2030' }}>California</span>
+              <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, color: '#9A90A8', marginLeft: 6 }}>Currently available</span>
+            </div>
+            <span style={{
+              fontFamily: 'DM Sans, sans-serif', fontSize: 10, fontWeight: 700,
+              background: '#E8DDE8', color: '#7A6690',
+              borderRadius: 20, padding: '2px 10px',
+            }}>More states soon</span>
           </div>
 
           {/* Role tabs */}

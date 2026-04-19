@@ -287,7 +287,7 @@ export function Contacts() {
   const modalSheet: React.CSSProperties = {
     background: '#FAF7F2', borderRadius: '24px 24px 0 0',
     width: '100%', maxWidth: 480,
-    maxHeight: '95vh',
+    maxHeight: '92vh',
     display: 'flex', flexDirection: 'column',
     animation: 'slideUp 0.25s ease',
   }
@@ -541,7 +541,7 @@ export function Contacts() {
               </div>
               <div>
                 <label style={labelStyle}>Notes</label>
-                <textarea value={contactForm.notes} onChange={(e) => setContactForm({ ...contactForm, notes: e.target.value })} placeholder="Anything important to remember…" rows={3}
+                <textarea value={contactForm.notes} onChange={(e) => setContactForm({ ...contactForm, notes: e.target.value })} placeholder="Anything important to remember…" rows={2}
                   style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.6 }} />
               </div>
               {/* Buttons inside scroll — always reachable */}
