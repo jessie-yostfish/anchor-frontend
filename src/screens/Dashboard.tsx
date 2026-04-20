@@ -160,6 +160,7 @@ export function Dashboard() {
   const navigate = useNavigate()
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([])
   const [notesCount, setNotesCount] = useState(0)
+  const [stageStatuses, setStageStatuses] = useState<Record<string, string>>({})
 
   const role: Role = (profile?.role as Role) || 'parent'
   const currentStage = profile?.current_stage || 'case-opening'
@@ -175,7 +176,7 @@ export function Dashboard() {
     if (profile?.id) {
       loadTeam()
       loadNotesCount()
-      // Retry once after short delay to catch race condition on first load
+      loadStageStatuses()
       setTimeout(() => loadTeam(), 800)
     }
     trackEvent('screen_viewed', { screen: 'blueprint_v2', role })
@@ -196,6 +197,20 @@ export function Dashboard() {
         .from('notes').select('*', { count: 'exact', head: true })
         .eq('user_id', profile?.id)
       setNotesCount(count || 0)
+    } catch (e) { console.error(e) }
+  }
+
+  const loadStageStatuses = async () => {
+    try {
+      const { data } = await supabase
+        .from('timeline_stages')
+        .select('stage_key, status')
+        .eq('user_id', profile?.id)
+      if (data) {
+        const map: Record<string, string> = {}
+        data.forEach(s => { map[s.stage_key] = s.status })
+        setStageStatuses(map)
+      }
     } catch (e) { console.error(e) }
   }
 
@@ -344,7 +359,7 @@ export function Dashboard() {
 
               {STAGE_ORDER.slice(0, Math.min(currentStageIndex + 3, STAGE_ORDER.length)).map((stageKey, i) => {
                 const jewel = STAGE_JEWELS[i]
-                const isDone = i < currentStageIndex
+                const isDone = stageStatuses[stageKey] === 'completed' || (Object.keys(stageStatuses).length === 0 && i < currentStageIndex)
                 const isActive = i === currentStageIndex
                 const label = stageLabels[stageKey] || stageKey
 
