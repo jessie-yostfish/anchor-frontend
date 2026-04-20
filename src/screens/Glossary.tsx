@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 import { Search, ChevronDown, ChevronUp, BookOpen } from 'lucide-react'
 import { BottomNav, AppHeader } from '../components'
 import { supabase } from '../lib/supabase'
@@ -35,7 +36,10 @@ export function Glossary() {
   const [terms, setTerms] = useState<GlossaryTerm[]>([])
   const [filteredTerms, setFilteredTerms] = useState<GlossaryTerm[]>([])
   const [loading, setLoading] = useState(true)
-  const [searchQuery, setSearchQuery] = useState('')
+  const location = useLocation()
+  const params = new URLSearchParams(location.search)
+  const initialSearch = params.get('search') || ''
+  const [searchQuery, setSearchQuery] = useState(initialSearch)
   const [selectedCategory, setSelectedCategory] = useState<CategoryType>('All')
   const [expandedTermId, setExpandedTermId] = useState<string | null>(null)
 

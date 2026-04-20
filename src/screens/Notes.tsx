@@ -19,6 +19,7 @@ interface Note {
   title: string
   content: string
   category: 'Court' | 'Visit' | 'Meeting' | 'Personal' | 'Other'
+  stage_key: string | null
   is_pinned: boolean
   created_at: string
   updated_at: string
@@ -47,10 +48,24 @@ export function Notes() {
   const [editingNote, setEditingNote] = useState<Note | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
   const [keyboardHeight, setKeyboardHeight] = useState(0)
+  const STAGE_OPTIONS = [
+    { key: 'case-opening', label: 'Case Opening' },
+    { key: 'detention', label: 'Detention Hearing' },
+    { key: 'jurisdiction', label: 'Jurisdiction Hearing' },
+    { key: 'disposition', label: 'Disposition Hearing' },
+    { key: 'six-month', label: '6-Month Review' },
+    { key: 'twelve-month', label: '12-Month Review' },
+    { key: 'eighteen-month', label: '18-Month Review' },
+    { key: 'permanency', label: 'Permanency Hearing' },
+    { key: 'review-hearings', label: 'Ongoing Reviews' },
+    { key: 'case-closure', label: 'Case Closure' },
+  ]
+
   const [formData, setFormData] = useState({
     title: '',
     content: '',
     category: 'Personal' as CategoryType,
+    stage_key: null as string | null,
   })
 
   useEffect(() => {
@@ -106,14 +121,14 @@ export function Notes() {
   const openAddModal = () => {
     haptics.light()
     setEditingNote(null)
-    setFormData({ title: '', content: '', category: 'Personal' })
+    setFormData({ title: '', content: '', category: 'Personal', stage_key: null })
     setShowModal(true)
   }
 
   const openEditModal = (note: Note) => {
     haptics.light()
     setEditingNote(note)
-    setFormData({ title: note.title, content: note.content, category: note.category })
+    setFormData({ title: note.title, content: note.content, category: note.category, stage_key: note.stage_key || null })
     setShowModal(true)
   }
 
@@ -134,6 +149,7 @@ export function Notes() {
             title: formData.title.trim(),
             content: formData.content.trim(),
             category: formData.category,
+            stage_key: formData.stage_key || null,
           })
           .eq('id', editingNote.id)
         if (error) throw error
@@ -459,6 +475,39 @@ export function Notes() {
                     )
                   })}
                 </div>
+              </div>
+
+              {/* Link to timeline stage — optional */}
+              <div>
+                <label style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600, color: '#4A4058', display: 'block', marginBottom: 6 }}>
+                  Link to a stage <span style={{ fontWeight: 400, color: '#8A8098' }}>(optional)</span>
+                </label>
+                <select
+                  value={formData.stage_key || ''}
+                  onChange={(e) => setFormData({ ...formData, stage_key: e.target.value || null })}
+                  style={{
+                    width: '100%',
+                    padding: '11px 14px',
+                    background: 'rgba(255,255,255,0.6)',
+                    border: '1px solid rgba(255,255,255,0.9)',
+                    borderRadius: 14,
+                    fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#2A2030',
+                    outline: 'none',
+                    boxShadow: 'inset 0 2px 6px rgba(90,70,110,0.06)',
+                    appearance: 'none',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <option value="">No stage linked</option>
+                  {STAGE_OPTIONS.map((s) => (
+                    <option key={s.key} value={s.key}>{s.label}</option>
+                  ))}
+                </select>
+                {formData.stage_key && (
+                  <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, color: '#7A6690', margin: '5px 0 0', fontWeight: 600 }}>
+                    This note will appear inside that stage on your Timeline
+                  </p>
+                )}
               </div>
 
               {/* Content */}

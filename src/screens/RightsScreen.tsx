@@ -58,6 +58,12 @@ const tabConfig: Record<RoleTab, {
   },
 }
 
+interface GlossaryTerm {
+  id: string
+  term: string
+  definition: string
+}
+
 export function RightsScreen() {
   const { profile } = useAuth()
   const navigate = useNavigate()
@@ -67,6 +73,7 @@ export function RightsScreen() {
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [showLegalBasis, setShowLegalBasis] = useState(false)
   const [showDutiesOnly, setShowDutiesOnly] = useState(false)
+  const [glossaryTerms, setGlossaryTerms] = useState<GlossaryTerm[]>([])
 
   useEffect(() => {
     if (profile?.role && ['parent', 'youth', 'supporter'].includes(profile.role)) {
@@ -74,7 +81,14 @@ export function RightsScreen() {
     }
   }, [profile?.role])
 
-  useEffect(() => { loadRightsAndDuties() }, [])
+  useEffect(() => { loadRightsAndDuties(); loadGlossaryTerms() }, [])
+
+  const loadGlossaryTerms = async () => {
+    try {
+      const { data } = await supabase.from('glossary_terms').select('id, term, definition').order('term', { ascending: true })
+      if (data) setGlossaryTerms(data)
+    } catch (e) { console.error('Glossary load error:', e) }
+  }
 
   const loadRightsAndDuties = async () => {
     try {
@@ -91,6 +105,19 @@ export function RightsScreen() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const getRelatedTerms = (item: RightDuty): GlossaryTerm[] => {
+    const haystack = (item.title + ' ' + item.description + ' ' + (item.practical_tips || '')).toLowerCase()
+    return glossaryTerms.filter(t => {
+      const needle = t.term.toLowerCase()
+      if (needle.length <= 3) return false
+      const idx = haystack.indexOf(needle)
+      if (idx === -1) return false
+      const before = idx === 0 || /W/.test(haystack[idx - 1])
+      const after = idx + needle.length >= haystack.length || /W/.test(haystack[idx + needle.length])
+      return before && after
+    }).slice(0, 4)
   }
 
   const visibleItems = allItems.filter(item =>
@@ -187,12 +214,40 @@ export function RightsScreen() {
                   </p>
                 </div>
               )}
-              <button
-                onClick={() => navigate('/glossary')}
-                style={{ alignSelf: 'flex-start', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', fontSize: 12, fontWeight: 700, color: tab.accentColor, padding: 0, display: 'flex', alignItems: 'center', gap: 4 }}
-              >
-                Look up terms in Glossary →
-              </button>
+              {(() => {
+                const related = getRelatedTerms(item)
+                return related.length > 0 ? (
+                  <div>
+                    <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#8A8098', margin: '0 0 8px' }}>
+                      Related terms
+                    </p>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
+                      {related.map(t => (
+                        <button
+                          key={t.id}
+                          onClick={() => navigate('/glossary?search=' + encodeURIComponent(t.term))}
+                          style={{
+                            padding: '5px 13px', borderRadius: 20,
+                            background: tab.accentBg,
+                            color: tab.accentColor,
+                            border: 'none', cursor: 'pointer',
+                            fontFamily: 'DM Sans, sans-serif', fontSize: 12, fontWeight: 600,
+                          }}
+                        >
+                          {t.term}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => navigate('/glossary')}
+                    style={{ alignSelf: 'flex-start', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', fontSize: 12, fontWeight: 700, color: tab.accentColor, padding: 0 }}
+                  >
+                    Look up terms in Glossary →
+                  </button>
+                )
+              })()}
             </div>
           )}
         </div>

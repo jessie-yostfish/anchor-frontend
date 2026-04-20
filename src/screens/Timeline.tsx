@@ -429,10 +429,37 @@ export function Timeline() {
   // Track which stages have local task overrides (role-specific tasks from STAGE_CONTENT)
   // We use the DB tasks for completion state but show role-specific task labels
   const [taskCompletions, setTaskCompletions] = useState<Record<string, boolean[]>>({})
+  const [stageNotes, setStageNotes] = useState<Record<string, { id: string; title: string; content: string; created_at: string }[]>>({})
 
   useEffect(() => {
-    if (user) initializeTimeline()
+    if (user) { initializeTimeline(); loadStageNotes() }
+    // Reload notes when screen comes back into focus (e.g. after adding a note)
+    const handleFocus = () => { if (user) loadStageNotes() }
+    window.addEventListener('focus', handleFocus)
+    return () => window.removeEventListener('focus', handleFocus)
   }, [user])
+
+  const loadStageNotes = async () => {
+    if (!user) return
+    try {
+      const { data } = await supabase
+        .from('notes')
+        .select('id, title, content, stage_key, created_at')
+        .eq('user_id', user.id)
+        .not('stage_key', 'is', null)
+        .order('created_at', { ascending: false })
+      if (data) {
+        const grouped: Record<string, typeof data> = {}
+        data.forEach(note => {
+          if (note.stage_key) {
+            if (!grouped[note.stage_key]) grouped[note.stage_key] = []
+            grouped[note.stage_key].push(note)
+          }
+        })
+        setStageNotes(grouped)
+      }
+    } catch (e) { console.error('Error loading stage notes:', e) }
+  }
 
   const getContent = (stage: TimelineStage): StageContent => {
     const lookup = STAGE_CONTENT[stage.stage_key]
@@ -762,6 +789,38 @@ export function Timeline() {
                 </div>
               </div>
             )}
+
+            {/* Notes linked to this stage */}
+            {(() => {
+              const linked = stageNotes[stage.stage_key] || []
+              if (linked.length === 0) return null
+              return (
+                <div style={{ marginTop: 4 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                    <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, fontWeight: 700, color: '#7A6690', textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>
+                      Your notes
+                    </p>
+                    <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 10, color: '#8A8098' }}>{linked.length} note{linked.length !== 1 ? 's' : ''}</span>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+                    {linked.map(note => (
+                      <div key={note.id} style={{
+                        background: 'rgba(122,102,144,0.06)',
+                        borderRadius: 12, padding: '9px 12px',
+                        border: '1px solid rgba(122,102,144,0.12)',
+                      }}>
+                        <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 700, color: '#2A2030', margin: '0 0 2px' }}>{note.title}</p>
+                        {note.content ? (
+                          <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: '#4A4058', margin: 0, lineHeight: 1.5, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>
+                            {note.content}
+                          </p>
+                        ) : null}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )
+            })()}
 
             {/* Mark complete button */}
             {stage.status !== 'completed' && (
