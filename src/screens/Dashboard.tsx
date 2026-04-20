@@ -357,14 +357,18 @@ export function Dashboard() {
                 background: 'linear-gradient(to bottom, rgba(122,102,144,0.3), rgba(74,136,120,0.2), transparent)',
               }} />
 
-              {STAGE_ORDER.slice(0, Math.min(currentStageIndex + 3, STAGE_ORDER.length)).map((stageKey, i) => {
-                const jewel = STAGE_JEWELS[i]
+              {(() => {
+                const start = Math.max(0, currentStageIndex - 1)
+                const end = Math.min(STAGE_ORDER.length, currentStageIndex + 2)
+                return STAGE_ORDER.slice(start, end).map((stageKey, idx) => {
+                const i = start + idx
+                const jewel = STAGE_JEWELS[i % STAGE_JEWELS.length]
                 const isDone = stageStatuses[stageKey] === 'completed' || (Object.keys(stageStatuses).length === 0 && i < currentStageIndex)
                 const isActive = i === currentStageIndex
                 const label = stageLabels[stageKey] || stageKey
 
                 return (
-                  <div key={stageKey} style={{ display: 'flex', alignItems: 'center', gap: 9, marginBottom: i < Math.min(currentStageIndex + 2, STAGE_ORDER.length - 1) ? 10 : 0, opacity: isDone ? 0.65 : isActive ? 1 : 0.32 }}>
+                  <div key={stageKey} style={{ display: 'flex', alignItems: 'center', gap: 9, marginBottom: idx < (end - start - 1) ? 10 : 0, opacity: isDone ? 0.65 : isActive ? 1 : 0.32 }}>
                     <div style={{
                       width: isActive ? 12 : 9,
                       height: isActive ? 12 : 9,
@@ -399,7 +403,9 @@ export function Dashboard() {
                     )}
                   </div>
                 )
-              })}
+              })
+              })()
+              }
             </div>
             <div style={{ marginTop: 10, paddingTop: 8, borderTop: '1px solid rgba(74,136,120,0.1)', display: 'flex', justifyContent: 'flex-end' }}>
               <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, fontWeight: 700, color: '#4A8878' }}>See full timeline →</span>
