@@ -136,7 +136,7 @@ export function Notes() {
     haptics.light()
     setShowModal(false)
     setEditingNote(null)
-    setFormData({ title: '', content: '', category: 'Personal' })
+    setFormData({ title: '', content: '', category: 'Personal', stage_key: null })
   }
 
   const handleSave = async () => {
@@ -295,7 +295,7 @@ export function Notes() {
             {!searchQuery && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8, textAlign: 'left', background: '#FAF7F2', borderRadius: 16, padding: '12px 16px', border: '1px solid rgba(255,255,255,0.88)' }}>
                 <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, fontWeight: 700, color: '#8A8098', textTransform: 'uppercase', letterSpacing: '0.07em', margin: 0 }}>Ideas to get started</p>
-                {['What happened at today\'s hearing', 'Questions to ask my attorney', 'What the judge said about my case plan', 'How my visit with my child went'].map((idea, i) => (
+                {["What happened at today's hearing", 'Questions to ask my attorney', 'What the judge said about my case plan', 'How my visit with my child went'].map((idea, i) => (
                   <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                     <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#C8B8D0', flexShrink: 0 }} />
                     <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: '#4A4058', margin: 0 }}>{idea}</p>
@@ -319,7 +319,6 @@ export function Notes() {
                     position: 'relative',
                   }}
                 >
-                  {/* Category pill */}
                   <div style={{ marginBottom: 10 }}>
                     <span style={{
                       display: 'inline-flex', alignItems: 'center', gap: 5,
@@ -331,52 +330,22 @@ export function Notes() {
                       {note.category}
                     </span>
                   </div>
-
-                  {/* Title */}
-                  <h3 style={{
-                    fontFamily: 'Fraunces, serif', fontSize: 17, fontWeight: 700,
-                    color: '#2A2030', margin: '0 0 6px', paddingRight: 64,
-                  }}>
+                  <h3 style={{ fontFamily: 'Fraunces, serif', fontSize: 17, fontWeight: 700, color: '#2A2030', margin: '0 0 6px', paddingRight: 64 }}>
                     {note.title}
                   </h3>
-
-                  {/* Preview */}
                   {note.content && (
-                    <p style={{
-                      fontFamily: 'DM Sans, sans-serif', fontSize: 13,
-                      color: '#4A4058', margin: '0 0 10px', lineHeight: 1.5,
-                    }}>
+                    <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: '#4A4058', margin: '0 0 10px', lineHeight: 1.5 }}>
                       {truncateContent(note.content)}
                     </p>
                   )}
-
-                  {/* Date */}
                   <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: '#8A8098', margin: 0 }}>
                     {formatDate(note.updated_at)}
                   </p>
-
-                  {/* Actions */}
                   <div style={{ position: 'absolute', top: 14, right: 14, display: 'flex', gap: 4 }}>
-                    <button
-                      onClick={() => openEditModal(note)}
-                      style={{
-                        width: 32, height: 32, borderRadius: 10,
-                        background: 'transparent', border: 'none',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        cursor: 'pointer', color: '#8A8098',
-                      }}
-                    >
+                    <button onClick={() => openEditModal(note)} style={{ width: 32, height: 32, borderRadius: 10, background: 'transparent', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#8A8098' }}>
                       <Pencil size={15} />
                     </button>
-                    <button
-                      onClick={() => setDeleteConfirm(note.id)}
-                      style={{
-                        width: 32, height: 32, borderRadius: 10,
-                        background: 'transparent', border: 'none',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        cursor: 'pointer', color: '#8A8098',
-                      }}
-                    >
+                    <button onClick={() => setDeleteConfirm(note.id)} style={{ width: 32, height: 32, borderRadius: 10, background: 'transparent', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#8A8098' }}>
                       <Trash2 size={15} />
                     </button>
                   </div>
@@ -387,97 +356,63 @@ export function Notes() {
         )}
       </div>
 
-      {/* Add / Edit Modal */}
+      {/* ── ADD / EDIT MODAL ── */}
       {showModal && (
         <div style={{
           position: 'fixed', inset: 0, background: 'rgba(42,32,48,0.5)',
           display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
           zIndex: 50, paddingBottom: keyboardHeight,
         }}>
+          {/* Sheet: flex column so header + scrollable body + sticky footer never overlap */}
           <div style={{
             background: '#FAF7F2', borderRadius: '24px 24px 0 0',
             width: '100%', maxWidth: 480,
-            maxHeight: '92vh', display: 'flex', flexDirection: 'column',
+            maxHeight: '92vh',
+            display: 'flex', flexDirection: 'column',
             animation: 'slideUp 0.25s ease',
           }}>
-            {/* Modal header */}
+
+            {/* HEADER — fixed height, never scrolls */}
             <div style={{
               padding: '20px 20px 16px',
               borderBottom: '1px solid rgba(122,102,144,0.12)',
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              position: 'sticky', top: 0, background: '#FAF7F2',
+              flexShrink: 0,
             }}>
               <h2 style={{ fontFamily: 'Fraunces, serif', fontSize: 22, fontWeight: 700, color: '#2A2030', margin: 0 }}>
                 {editingNote ? 'Edit Note' : 'New Note'}
               </h2>
-              <button
-                onClick={closeModal}
-                style={{
-                  width: 36, height: 36, borderRadius: 12,
-                  background: '#E8DDE8', border: 'none',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  cursor: 'pointer',
-                }}
-              >
+              <button onClick={closeModal} style={{ width: 36, height: 36, borderRadius: 12, background: '#E8DDE8', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
                 <X size={16} color="#7A6690" />
               </button>
             </div>
 
-            {/* Modal body */}
+            {/* BODY — scrollable */}
             <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: 16, overflowY: 'auto', flex: 1 }}>
-              {/* Title */}
               <div>
-                <label style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600, color: '#4A4058', display: 'block', marginBottom: 6 }}>
-                  Title
-                </label>
+                <label style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600, color: '#4A4058', display: 'block', marginBottom: 6 }}>Title</label>
                 <input
                   type="text"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   placeholder="Give your note a title…"
-                  style={{
-                    width: '100%', boxSizing: 'border-box',
-                    padding: '12px 16px',
-                    background: '#EDE6DB',
-                    border: '1.5px solid rgba(122,102,144,0.2)',
-                    borderRadius: 16,
-                    fontFamily: 'DM Sans, sans-serif', fontSize: 15, color: '#2A2030',
-                    outline: 'none',
-                  }}
+                  style={{ width: '100%', boxSizing: 'border-box', padding: '12px 16px', background: '#EDE6DB', border: '1.5px solid rgba(122,102,144,0.2)', borderRadius: 16, fontFamily: 'DM Sans, sans-serif', fontSize: 15, color: '#2A2030', outline: 'none' }}
                 />
               </div>
-
-              {/* Category */}
               <div>
-                <label style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600, color: '#4A4058', display: 'block', marginBottom: 8 }}>
-                  Category
-                </label>
+                <label style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600, color: '#4A4058', display: 'block', marginBottom: 8 }}>Category</label>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                   {CATEGORIES.map((cat) => {
                     const s = CATEGORY_STYLES[cat]
                     const selected = formData.category === cat
                     return (
-                      <button
-                        key={cat}
-                        onClick={() => setFormData({ ...formData, category: cat })}
-                        style={{
-                          padding: '6px 14px',
-                          borderRadius: 20,
-                          border: selected ? `1.5px solid ${s.dot}` : '1.5px solid transparent',
-                          background: selected ? s.bg : '#F0EAE0',
-                          color: selected ? s.text : '#9A90A8',
-                          fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600,
-                          cursor: 'pointer',
-                        }}
-                      >
+                      <button key={cat} onClick={() => setFormData({ ...formData, category: cat })} style={{ padding: '6px 14px', borderRadius: 20, border: selected ? `1.5px solid ${s.dot}` : '1.5px solid transparent', background: selected ? s.bg : '#F0EAE0', color: selected ? s.text : '#9A90A8', fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
                         {cat}
                       </button>
                     )
                   })}
                 </div>
               </div>
-
-              {/* Link to timeline stage — optional */}
               <div>
                 <label style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600, color: '#4A4058', display: 'block', marginBottom: 6 }}>
                   Link to a stage <span style={{ fontWeight: 400, color: '#8A8098' }}>(optional)</span>
@@ -485,18 +420,7 @@ export function Notes() {
                 <select
                   value={formData.stage_key || ''}
                   onChange={(e) => setFormData({ ...formData, stage_key: e.target.value || null })}
-                  style={{
-                    width: '100%',
-                    padding: '11px 14px',
-                    background: 'rgba(255,255,255,0.6)',
-                    border: '1px solid rgba(255,255,255,0.9)',
-                    borderRadius: 14,
-                    fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#2A2030',
-                    outline: 'none',
-                    boxShadow: 'inset 0 2px 6px rgba(90,70,110,0.06)',
-                    appearance: 'none',
-                    cursor: 'pointer',
-                  }}
+                  style={{ width: '100%', padding: '11px 14px', background: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.9)', borderRadius: 14, fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#2A2030', outline: 'none', appearance: 'none', cursor: 'pointer' }}
                 >
                   <option value="">No stage linked</option>
                   {STAGE_OPTIONS.map((s) => (
@@ -509,106 +433,54 @@ export function Notes() {
                   </p>
                 )}
               </div>
-
-              {/* Content */}
               <div>
-                <label style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600, color: '#4A4058', display: 'block', marginBottom: 6 }}>
-                  Note
-                </label>
+                <label style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600, color: '#4A4058', display: 'block', marginBottom: 6 }}>Note</label>
                 <textarea
                   value={formData.content}
                   onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                   placeholder="Write your note here…"
                   rows={5}
-                  style={{
-                    width: '100%', boxSizing: 'border-box',
-                    padding: '12px 16px',
-                    background: '#EDE6DB',
-                    border: '1.5px solid rgba(122,102,144,0.2)',
-                    borderRadius: 16,
-                    fontFamily: 'DM Sans, sans-serif', fontSize: 15, color: '#2A2030',
-                    outline: 'none', resize: 'vertical', lineHeight: 1.6,
-                  }}
+                  style={{ width: '100%', boxSizing: 'border-box', padding: '12px 16px', background: '#EDE6DB', border: '1.5px solid rgba(122,102,144,0.2)', borderRadius: 16, fontFamily: 'DM Sans, sans-serif', fontSize: 15, color: '#2A2030', outline: 'none', resize: 'vertical', lineHeight: 1.6 }}
                 />
               </div>
+            </div>
 
-              {/* Action buttons — inside scroll so always reachable */}
-              <div style={{ display: 'flex', gap: 12, paddingTop: 4, paddingBottom: 'env(safe-area-inset-bottom, 16px)' }}>
-                <button
-                  onClick={closeModal}
-                  style={{
-                    flex: 1, padding: '14px',
-                    background: '#EDE6DB',
-                    border: '1.5px solid rgba(122,102,144,0.2)',
-                    borderRadius: 16,
-                    fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 15,
-                    color: '#7A6690', cursor: 'pointer',
-                  }}
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSave}
-                  disabled={!formData.title.trim()}
-                  style={{
-                    flex: 1, padding: '14px',
-                    background: formData.title.trim() ? '#7A6690' : '#C8C0D0',
-                    border: 'none', borderRadius: 16,
-                    fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 15,
-                    color: '#fff', cursor: formData.title.trim() ? 'pointer' : 'not-allowed',
-                    boxShadow: formData.title.trim() ? '0 4px 16px rgba(122,102,144,0.3)' : 'none',
-                  }}
-                >
-                  Save Note
-                </button>
-              </div>
+            {/* FOOTER — sticky, always visible */}
+            <div style={{
+              padding: '16px 20px',
+              paddingBottom: `calc(16px + env(safe-area-inset-bottom, 0px))`,
+              borderTop: '1px solid rgba(122,102,144,0.12)',
+              display: 'flex', gap: 12,
+              flexShrink: 0,
+              background: '#FAF7F2',
+            }}>
+              <button
+                onClick={closeModal}
+                style={{ flex: 1, padding: '14px', background: '#EDE6DB', border: '1.5px solid rgba(122,102,144,0.2)', borderRadius: 16, fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 15, color: '#7A6690', cursor: 'pointer' }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSave}
+                disabled={!formData.title.trim()}
+                style={{ flex: 1, padding: '14px', background: formData.title.trim() ? '#7A6690' : '#C8C0D0', border: 'none', borderRadius: 16, fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 15, color: '#fff', cursor: formData.title.trim() ? 'pointer' : 'not-allowed', boxShadow: formData.title.trim() ? '0 4px 16px rgba(122,102,144,0.3)' : 'none' }}
+              >
+                Save Note
+              </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Delete confirm modal */}
+      {/* ── DELETE CONFIRM ── */}
       {deleteConfirm && (
-        <div style={{
-          position: 'fixed', inset: 0, background: 'rgba(42,32,48,0.5)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          zIndex: 50, padding: '0 20px',
-        }}>
-          <div style={{
-            background: '#FAF7F2', borderRadius: 24,
-            padding: '28px 24px', width: '100%', maxWidth: 360,
-          }}>
-            <h2 style={{ fontFamily: 'Fraunces, serif', fontSize: 22, fontWeight: 700, color: '#2A2030', marginBottom: 8 }}>
-              Delete this note?
-            </h2>
-            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#4A4058', marginBottom: 24 }}>
-              This can't be undone.
-            </p>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(42,32,48,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: '0 20px' }}>
+          <div style={{ background: '#FAF7F2', borderRadius: 24, padding: '28px 24px', width: '100%', maxWidth: 360 }}>
+            <h2 style={{ fontFamily: 'Fraunces, serif', fontSize: 22, fontWeight: 700, color: '#2A2030', marginBottom: 8 }}>Delete this note?</h2>
+            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#4A4058', marginBottom: 24 }}>This can't be undone.</p>
             <div style={{ display: 'flex', gap: 12 }}>
-              <button
-                onClick={() => setDeleteConfirm(null)}
-                style={{
-                  flex: 1, padding: '13px',
-                  background: '#EDE6DB',
-                  border: '1.5px solid rgba(122,102,144,0.2)',
-                  borderRadius: 16,
-                  fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 15,
-                  color: '#7A6690', cursor: 'pointer',
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => handleDelete(deleteConfirm)}
-                style={{
-                  flex: 1, padding: '13px',
-                  background: '#C0392B', border: 'none', borderRadius: 16,
-                  fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 15,
-                  color: '#fff', cursor: 'pointer',
-                }}
-              >
-                Delete
-              </button>
+              <button onClick={() => setDeleteConfirm(null)} style={{ flex: 1, padding: '13px', background: '#EDE6DB', border: '1.5px solid rgba(122,102,144,0.2)', borderRadius: 16, fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 15, color: '#7A6690', cursor: 'pointer' }}>Cancel</button>
+              <button onClick={() => handleDelete(deleteConfirm)} style={{ flex: 1, padding: '13px', background: '#C0392B', border: 'none', borderRadius: 16, fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 15, color: '#fff', cursor: 'pointer' }}>Delete</button>
             </div>
           </div>
         </div>

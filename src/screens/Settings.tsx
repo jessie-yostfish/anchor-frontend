@@ -17,6 +17,7 @@ import {
   Edit2,
   X,
   Check,
+  RefreshCw,
 } from 'lucide-react'
 import { AppHeader, BottomNav } from '../components'
 import { useAuth } from '../contexts/AuthContext'
@@ -151,6 +152,28 @@ function ErrorBox({ msg }: { msg: string }) {
   )
 }
 
+// ── ROLE CONFIG ───────────────────────────────────────────────────────────────
+const ROLES = [
+  {
+    value: 'parent',
+    label: 'Parent',
+    description: 'You have a child in the dependency system and are working toward reunification.',
+    emoji: '👨‍👩‍👧',
+  },
+  {
+    value: 'youth',
+    label: 'Youth',
+    description: 'You are a young person who has been or is currently in the foster care system.',
+    emoji: '🌱',
+  },
+  {
+    value: 'supporter',
+    label: 'Supporter',
+    description: 'You are supporting a parent or youth navigating the system — a caregiver, relative, or advocate.',
+    emoji: '🤝',
+  },
+]
+
 export function Settings() {
   const { user, profile, signOut, updateProfile } = useAuth()
   const navigate = useNavigate()
@@ -165,6 +188,7 @@ export function Settings() {
   const [showExportConfirm, setShowExportConfirm] = useState(false)
   const [showLanguageModal, setShowLanguageModal] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [showChangeRole, setShowChangeRole] = useState(false)
 
   const [editedFirstName, setEditedFirstName] = useState(profile?.first_name || '')
   const [editedUsername, setEditedUsername] = useState(profile?.username || '')
@@ -175,6 +199,7 @@ export function Settings() {
   const [currentEmailPassword, setCurrentEmailPassword] = useState('')
   const [newPhone, setNewPhone] = useState(profile?.phone_number || '')
   const [deletePassword, setDeletePassword] = useState('')
+  const [selectedRole, setSelectedRole] = useState<string>(profile?.role || 'parent')
 
   const [error, setError] = useState('')
   const [deleteError, setDeleteError] = useState('')
@@ -214,12 +239,39 @@ export function Settings() {
     setLoading(false)
   }
 
+  const handleChangeRole = async () => {
+    if (selectedRole === profile?.role) { setShowChangeRole(false); return }
+    setLoading(true); setError('')
+    try {
+      // Update role in profiles
+      const { error: profileError } = await updateProfile({ role: selectedRole })
+      if (profileError) throw profileError
+
+      // Re-seed timeline for the new role
+      const { error: timelineError } = await supabase.rpc('initialize_user_timeline', {
+        p_user_id: user!.id,
+        p_role: selectedRole,
+      })
+      if (timelineError) {
+        // Non-fatal — timeline may already exist; log but don't block
+        console.warn('Timeline re-seed warning:', timelineError.message)
+      }
+
+      haptics.success()
+      setShowChangeRole(false)
+      flash(`Role updated to ${roleLabel[selectedRole]}`)
+    } catch (err: any) {
+      setError(err.message || 'Failed to update role')
+      haptics.error()
+    }
+    setLoading(false)
+  }
+
   const handleChangePassword = async () => {
     if (!currentPassword.trim()) { setError('Please enter your current password'); return }
     if (newPassword !== confirmPassword) { setError('New passwords do not match'); return }
     if (newPassword.length < 6) { setError('New password must be at least 6 characters'); return }
     setLoading(true); setError('')
-    // Verify current password first
     const { error: signInError } = await supabase.auth.signInWithPassword({ email: user?.email || '', password: currentPassword })
     if (signInError) { setError('Current password is incorrect'); setLoading(false); return }
     const { error } = await supabase.auth.updateUser({ password: newPassword })
@@ -383,6 +435,17 @@ export function Settings() {
               Update
             </button>
           </div>
+          {/* ── CHANGE ROLE ROW ── */}
+          <button style={row} onClick={() => { haptics.light(); setSelectedRole(profile?.role || 'parent'); setError(''); setShowChangeRole(true) }} className="w-full hover:bg-purple-50 transition-colors">
+            <div className="flex items-center gap-3">
+              <div style={iconWrap}><RefreshCw className="w-4 h-4" style={{ color: '#7A6690' }} /></div>
+              <div>
+                <p style={{ fontSize: 15, fontWeight: 500, color: '#2A2030' }}>Change Role</p>
+                <p style={{ fontSize: 12, color: '#8A8098' }}>Currently: {roleLabel[profile?.role || ''] || '—'}</p>
+              </div>
+            </div>
+            <ChevronRight className="w-4 h-4" style={{ color: '#8A8098' }} />
+          </button>
           <button style={rowLast} onClick={() => { haptics.light(); setShowLanguageModal(true) }} className="w-full hover:bg-purple-50 transition-colors">
             <div className="flex items-center gap-3">
               <div style={iconWrap}><Globe className="w-4 h-4" style={{ color: '#7A6690' }} /></div>
@@ -544,6 +607,66 @@ export function Settings() {
         </Modal>
       )}
 
+      {/* ── CHANGE ROLE MODAL ── */}
+      {showChangeRole && (
+        <Modal title="Change Your Role" onClose={() => { setShowChangeRole(false); setError('') }}>
+          <p style={{ fontSize: 14, color: '#4A4058', marginBottom: 16, lineHeight: 1.5 }}>
+            Your role determines what content, rights, and resources you see. Changing it will update your timeline.
+          </p>
+          {error && <ErrorBox msg={error} />}
+          <div className="space-y-3 mb-5">
+            {ROLES.map((r) => {
+              const isSelected = selectedRole === r.value
+              const isCurrent = profile?.role === r.value
+              return (
+                <button
+                  key={r.value}
+                  onClick={() => { haptics.light(); setSelectedRole(r.value) }}
+                  className="w-full text-left"
+                  style={{
+                    background: isSelected ? '#F4EFF8' : '#F0EAE0',
+                    border: isSelected ? '2px solid #7A6690' : '1.5px solid rgba(122,102,144,0.15)',
+                    borderRadius: 16, padding: '14px 16px', cursor: 'pointer',
+                    display: 'flex', alignItems: 'flex-start', gap: 12,
+                  }}
+                >
+                  <span style={{ fontSize: 22, flexShrink: 0, lineHeight: 1 }}>{r.emoji}</span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ fontSize: 15, fontWeight: 700, color: '#2A2030' }}>{r.label}</span>
+                      {isCurrent && (
+                        <span style={{ fontSize: 11, fontWeight: 700, color: '#7A6690', background: '#E8DDE8', borderRadius: 20, padding: '2px 8px', letterSpacing: '0.04em' }}>
+                          Current
+                        </span>
+                      )}
+                    </div>
+                    <p style={{ fontSize: 13, color: '#4A4058', margin: '3px 0 0', lineHeight: 1.4 }}>{r.description}</p>
+                  </div>
+                  <div style={{
+                    width: 20, height: 20, borderRadius: '50%', flexShrink: 0, marginTop: 2,
+                    background: isSelected ? '#7A6690' : 'transparent',
+                    border: isSelected ? '2px solid #7A6690' : '2px solid rgba(122,102,144,0.3)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    {isSelected && <Check className="w-3 h-3 text-white" />}
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+          <div className="space-y-2">
+            <button
+              onClick={handleChangeRole}
+              disabled={loading || selectedRole === profile?.role}
+              style={{ ...primaryBtn, opacity: (loading || selectedRole === profile?.role) ? 0.5 : 1 }}
+            >
+              {loading ? 'Saving...' : 'Save Role'}
+            </button>
+            <button onClick={() => { setShowChangeRole(false); setError('') }} style={ghostBtn}>Cancel</button>
+          </div>
+        </Modal>
+      )}
+
       {/* ── CHANGE PASSWORD MODAL ── */}
       {showChangePassword && (
         <Modal title="Change Password" onClose={() => { setShowChangePassword(false); setError(''); setCurrentPassword(''); setNewPassword(''); setConfirmPassword('') }}>
@@ -627,14 +750,12 @@ export function Settings() {
                   display: 'flex', alignItems: 'center', gap: 12,
                 }}
               >
-                <div
-                  style={{
-                    width: 20, height: 20, borderRadius: '50%', flexShrink: 0,
-                    background: language === lang.value ? '#7A6690' : 'transparent',
-                    border: language === lang.value ? '2px solid #7A6690' : '2px solid rgba(122,102,144,0.3)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}
-                >
+                <div style={{
+                  width: 20, height: 20, borderRadius: '50%', flexShrink: 0,
+                  background: language === lang.value ? '#7A6690' : 'transparent',
+                  border: language === lang.value ? '2px solid #7A6690' : '2px solid rgba(122,102,144,0.3)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
                   {language === lang.value && <Check className="w-3 h-3 text-white" />}
                 </div>
                 <span style={{ fontSize: 15, fontWeight: language === lang.value ? 600 : 400, color: '#2A2030' }}>{lang.label}</span>
