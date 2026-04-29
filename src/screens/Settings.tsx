@@ -547,21 +547,21 @@ export function Settings() {
           About
         </p>
         <div style={{ ...sectionCard, marginBottom: 20 }}>
-          <button style={row} className="w-full hover:bg-purple-50 transition-colors">
+          <button style={row} onClick={() => { haptics.light(); navigate('/terms') }} className="w-full hover:bg-purple-50 transition-colors">
             <div className="flex items-center gap-3">
               <div style={iconWrap}><FileText className="w-4 h-4" style={{ color: '#7A6690' }} /></div>
               <span style={{ fontSize: 15, fontWeight: 500, color: '#2A2030' }}>Terms of Service</span>
             </div>
             <ChevronRight className="w-4 h-4" style={{ color: '#8A8098' }} />
           </button>
-          <button style={row} className="w-full hover:bg-purple-50 transition-colors">
+          <button style={row} onClick={() => { haptics.light(); navigate('/privacy') }} className="w-full hover:bg-purple-50 transition-colors">
             <div className="flex items-center gap-3">
               <div style={iconWrap}><Shield className="w-4 h-4" style={{ color: '#7A6690' }} /></div>
               <span style={{ fontSize: 15, fontWeight: 500, color: '#2A2030' }}>Privacy Policy</span>
             </div>
             <ChevronRight className="w-4 h-4" style={{ color: '#8A8098' }} />
           </button>
-          <button style={rowLast} className="w-full hover:bg-purple-50 transition-colors">
+          <button style={rowLast} onClick={() => { haptics.light(); navigate('/contact-support') }} className="w-full hover:bg-purple-50 transition-colors">
             <div className="flex items-center gap-3">
               <div style={iconWrap}><HelpCircle className="w-4 h-4" style={{ color: '#7A6690' }} /></div>
               <span style={{ fontSize: 15, fontWeight: 500, color: '#2A2030' }}>Contact Support</span>

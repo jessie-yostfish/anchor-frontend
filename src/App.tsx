@@ -19,7 +19,10 @@ import {
   Glossary,
   Contacts,
   Preparation,
-  DeleteAccount
+  DeleteAccount,
+  TermsOfService,
+  PrivacyPolicy,
+  ContactSupport
 } from './screens'
 
 function App() {
@@ -131,6 +134,30 @@ function App() {
             element={
               <ProtectedRoute>
                 <Preparation />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/terms"
+            element={
+              <ProtectedRoute>
+                <TermsOfService />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/privacy"
+            element={
+              <ProtectedRoute>
+                <PrivacyPolicy />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/contact-support"
+            element={
+              <ProtectedRoute>
+                <ContactSupport />
               </ProtectedRoute>
             }
           />
