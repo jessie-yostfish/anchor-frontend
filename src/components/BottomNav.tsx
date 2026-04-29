@@ -38,7 +38,7 @@ export function BottomNav() {
                 display: 'flex', flexDirection: 'column', alignItems: 'center',
                 padding: '10px 4px 9px',
                 background: 'none', border: 'none', cursor: 'pointer',
-                opacity: active ? 1 : 0.28,
+                opacity: active ? 1 : 0.6,
                 transition: 'opacity 0.15s',
               }}
             >
