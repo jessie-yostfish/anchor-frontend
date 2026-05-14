@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { SpeedInsights } from '@vercel/speed-insights/react'
 import { AuthProvider } from './contexts/AuthContext'
 import { ProtectedRoute } from './lib/ProtectedRoute'
 import { HomeRoute } from './lib/HomeRoute'
@@ -163,6 +164,7 @@ function App() {
           />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        <SpeedInsights />
       </AuthProvider>
     </BrowserRouter>
   )
